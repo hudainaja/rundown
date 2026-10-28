@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date Itinerary & Auto-Rundown Planner</title>
+  <meta name="description" content="Rencanakan agenda kencan impian dengan kalkulasi jam otomatis, visualisasi timeline yang hangat dan estetik, serta fitur salin ke WhatsApp.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              300: '#fda4af',
+              400: '#fb7185',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+            },
+            warm: {
+              bg: '#faf8f5',
+              card: '#ffffff',
+              border: '#f2ece4',
+              hover: '#fbf9f6',
+              text: '#27272a',
+              muted: '#71717a',
+              amber: '#d97706',
+              amberLight: '#fef3c7',
+            }
+          },
+          boxShadow: {
+            'warm-sm': '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)',
+            'warm-md': '0 4px 14px -2px rgba(225, 29, 72, 0.06), 0 2px 6px -1px rgba(0,0,0,0.03)',
+            'warm-lg': '0 10px 25px -3px rgba(225, 29, 72, 0.08), 0 4px 10px -2px rgba(0,0,0,0.03)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom refined touches following antislop principles */
+    body {
+      background-color: #faf8f5;
+      color: #27272a;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Accessible focus rings */
+    input:focus-visible, button:focus-visible, textarea:focus-visible {
+      outline: 2px solid #e11d48;
+      outline-offset: 2px;
+    }
+
+    /* Subtle custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #faf8f5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #e4ded7;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #d3cac0;
+    }
+
+    /* Animations */
+    @keyframes fadeInSlide {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-card {
+      animation: fadeInSlide 0.22s ease-out forwards;
+    }
+
+    /* Timeline connectors */
+    .timeline-item:last-child .timeline-line {
+      display: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-rose-100 selection:text-rose-900 text-stone-800">
+
+  <!-- Top App Navigation / Header -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-warm-border sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-sm shadow-rose-200">
+          <!-- Calendar Heart Icon -->
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14c-.6-1-1.8-1.3-2.5-.7-.7.7-.6 1.8.3 2.7l2.2 2 2.2-2c.9-.9 1-2 .3-2.7-.7-.6-1.9-.3-2.5.7z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-stone-900 flex items-center gap-2">
+            Date Planner
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/60 hidden sm:inline-block">Auto-Rundown</span>
+          </h1>
+          <p class="text-xs text-stone-500 hidden sm:block">Susun agenda kencan dengan kalkulasi jam otomatis & instan</p>
+        </div>
+      </div>
+
+      <!-- Quick Header Actions -->
+      <div class="flex items-center gap-2">
+        <button id="btnLoadSample" type="button" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 active:scale-95 rounded-lg transition min-h-[40px] focus:outline-none">
+          <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span class="hidden xs:inline">Contoh Acara</span>
+          <span class="xs:hidden">Contoh</span>
+        </button>
+
+        <button id="btnCopyWaHeader" type="button" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 rounded-lg shadow-sm shadow-rose-200 transition min-h-[40px] focus:outline-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+          </svg>
+          <span>Salin ke WA</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
+    
+    <!-- Top Summary Banner (Always visible & responsive) -->
+    <section aria-label="Ringkasan Rundown" class="mb-6 bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-700 shrink-0">
+            <!-- Clock Icon -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Estimasi Waktu Kencan</div>
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-0.5">
+              <span id="summaryTotalDuration" class="text-lg sm:text-xl font-bold text-stone-900">0 Jam 0 Menit</span>
+              <span class="text-stone-300 hidden sm:inline">•</span>
+              <span class="text-sm font-medium text-stone-600">
+                Selesai Pukul: <strong id="summaryEndTime" class="font-bold text-rose-600">--:--</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 self-start sm:self-center border-t sm:border-t-0 pt-3 sm:pt-0 border-stone-100 w-full sm:w-auto justify-between sm:justify-end">
+          <div class="text-xs text-stone-500">
+            Total Kegiatan: <span id="summaryCount" class="font-bold text-stone-800">0</span>
+          </div>
+          <button id="btnClearAll" type="button" class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition min-h-[36px] flex items-center gap-1 focus:outline-none">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Hapus Semua
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Grid: 2 Columns on Desktop, 1 Column on Mobile -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+      
+      <!-- KOLOM KIRI: Sticky Control Panel & Input Form (41% Desktop / 5 cols) -->
+      <section aria-label="Panel Kontrol dan Input" class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+        
+        <!-- Box 1: Anchor Start Time -->
+        <div class="bg-white border border-warm-border rounded-2xl p-5 shadow-warm-sm">
+          <label for="startTimeInput" class="block text-sm font-bold text-stone-900 mb-1">
+            Waktu Mulai Kencan (Anchor Time)
+          </label>
+          <p class="text-xs text-stone-500 mb-3">
+            Tentukan jam awal mulai. Seluruh rundown di sebelah kanan akan terkalkulasi berurutan dari jam ini.
+          </p>
+
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1">
+              <input 
+                type="time" 
+                id="startTimeInput" 
+                value="10:00"
+                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-base font-bold text-stone-800 focus:bg-white transition cursor-pointer"
+              >
+            </div>
+            <div class="text-xs text-stone-400 font-medium whitespace-nowrap">
+              WIB / Lokal
+            </div>
+          </div>
+
+          <!-- Quick presets for Start Time -->
+          <div class="mt-3 flex flex-wrap items-center gap-1.5">
+            <span class="text-[11px] text-stone-400 font-medium mr-1">Preset:</span>
+            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="09:00">09:00</button>
+            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="10:00">10:00</button>
+            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="13:00">13:00</button>
+            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="16:00">16:00</button>
+            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="18:30">18:30</button>
+          </div>
+        </div>
+
+        <!-- Box 2: Form Tambah Kegiatan -->
+        <div class="bg-white border border-warm-border rounded-2xl p-5 shadow-warm-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-bold text-stone-900 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+              Tambah Aktivitas
+            </h2>
+            <span class="text-[11px] text-stone-400">Otomatis urut ke bawah</span>
+          </div>
+
+          <form id="formAddActivity" class="space-y-4">
+            <!-- Nama Kegiatan -->
+            <div>
+              <label for="inputTitle" class="block text-xs font-semibold text-stone-700 mb-1">
+                Nama Kegiatan <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <input 
+                  type="text" 
+                  id="inputTitle" 
+                  placeholder="Misal: Brunch & Ngopi, Nonton Bioskop, dsb." 
+                  required
+                  class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
+                >
+              </div>
+            </div>
+
+            <!-- Durasi (Menit) + Preset Chips -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="inputDuration" class="text-xs font-semibold text-stone-700">
+                  Durasi Kegiatan (Menit) <span class="text-rose-500">*</span>
+                </label>
+                <span id="durationPreviewText" class="text-xs font-medium text-rose-600">45 menit</span>
+              </div>
+              
+              <div class="relative mb-2.5">
+                <input 
+                  type="number" 
+                  id="inputDuration" 
+                  min="5" 
+                  max="1440" 
+                  step="5" 
+                  value="45"
+                  required
+                  class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition"
+                >
+                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-stone-400 pointer-events-none">
+                  menit
+                </span>
+              </div>
+
+              <!-- Preset Duration Chips -->
+              <div class="flex flex-wrap gap-1.5" id="durationChipsContainer">
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="15">15m</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="30">30m</button>
+                <button type="button" class="duration-chip active-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 transition min-h-[36px]" data-mins="45">45m</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="60">60m</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="90">90m</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="120">120m</button>
+              </div>
+            </div>
+
+            <!-- Catatan atau Lokasi -->
+            <div>
+              <label for="inputNote" class="block text-xs font-semibold text-stone-700 mb-1">
+                Catatan / Lokasi <span class="text-stone-400 font-normal">(Opsional)</span>
+              </label>
+              <input 
+                type="text" 
+                id="inputNote" 
+                placeholder="Contoh: Reservasi outdoor / Bawa jaket / Beli tiket app" 
+                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
+              >
+            </div>
+
+            <!-- Kategori / Ikon Aktivitas Cepat -->
+            <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1.5">
+                Kategori Kegiatan
+              </label>
+              <div class="grid grid-cols-4 gap-1.5" id="categoryChips">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[36px]" data-icon="🚗" data-cat="Jemput">
+                  <span>🚗</span> Jemput
+                </button>
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🍽️" data-cat="Makan">
+                  <span>🍽️</span> Makan
+                </button>
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="☕" data-cat="Ngopi">
+                  <span>☕</span> Ngopi
+                </button>
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🎬" data-cat="Nonton">
+                  <span>🎬</span> Nonton
+                </button>
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🚶" data-cat="Jalan">
+                  <span>🚶</span> Jalan
+                </button>
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🛍️" data-cat="Belanja">
+                  <span>🛍️</span> Belanja
+                </button>
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🌇" data-cat="Santai">
+                  <span>🌇</span> Santai
+                </button>
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🏠" data-cat="Pulang">
+                  <span>🏠</span> Pulang
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit" 
+              class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold text-sm shadow-md transition active:scale-[0.98] min-h-[48px]"
+            >
+              <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Tambahkan ke Rundown</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Quick Info Card -->
+        <div class="bg-rose-50/60 border border-rose-100 rounded-2xl p-4 text-xs text-rose-900 flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="leading-relaxed">
+            Data tersimpan otomatis di browser ini (Local Storage). Kamu bebas memindahkan urutan atau mengubah durasi, jam seluruh agenda akan terhitung ulang secara instan.
+          </p>
+        </div>
+
+      </section>
+
+      <!-- KOLOM KANAN: Timeline Preview Area (59% Desktop / 7 cols) -->
+      <section aria-label="Timeline Rundown" class="lg:col-span-7 space-y-4">
+        
+        <!-- Timeline Header Bar -->
+        <div class="bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm flex items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base sm:text-lg font-bold text-stone-900 tracking-tight">Timeline Rundown</h2>
+              <span id="liveBadge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Tersinkron
+              </span>
+            </div>
+            <p class="text-xs text-stone-500 mt-0.5">Urutan kegiatan berurutan dari jam awal sampai selesai</p>
+          </div>
+
+          <button 
+            id="btnCopyWaTimeline" 
+            type="button" 
+            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 rounded-xl transition active:scale-95 min-h-[40px]"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            <span>Salin Format WA</span>
+          </button>
+        </div>
+
+        <!-- Timeline Items List Container -->
+        <div id="timelineContainer" class="relative pl-4 sm:pl-6 space-y-3">
+          <!-- Continuous Vertical Background Line -->
+          <div class="absolute left-7 sm:left-9 top-6 bottom-6 w-0.5 bg-stone-200 -z-0"></div>
+
+          <!-- Cards will be rendered here dynamically via JS -->
+        </div>
+
+        <!-- Empty State Container -->
+        <div id="emptyState" class="hidden bg-white border border-dashed border-stone-300 rounded-2xl p-8 sm:p-12 text-center shadow-warm-sm">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-stone-900 mb-1">Belum Ada Agenda Kencan</h3>
+          <p class="text-xs text-stone-500 max-w-sm mx-auto mb-5 leading-relaxed">
+            Isi form di sebelah kiri untuk menambah kegiatan baru, atau klik tombol di bawah untuk memuat contoh itinerary siap pakai.
+          </p>
+          <button 
+            id="btnEmptyLoadSample" 
+            type="button" 
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm transition active:scale-95 min-h-[44px]"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Muat Contoh Itinerary
+          </button>
+        </div>
+
+        <!-- WhatsApp Preview Card -->
+        <div class="bg-stone-50 border border-stone-200 rounded-2xl p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 2.029.814 3.096.815h.005c3.18 0 5.767-2.586 5.768-5.766 0-3.18-2.587-5.767-5.769-5.767zm7.64 5.765c0 4.218-3.435 7.653-7.64 7.653-1.348 0-2.61-.351-3.717-.965l-4.144 1.087 1.107-4.043c-.694-1.164-1.066-2.502-1.066-3.732 0-4.218 3.435-7.653 7.64-7.653 4.205 0 7.64 3.435 7.64 7.653z"/>
+              </svg>
+              Pratinjau Teks Salinan WhatsApp
+            </span>
+            <button id="btnCopyWaPreview" type="button" class="text-xs font-bold text-rose-600 hover:text-rose-700 px-2 py-1 rounded transition">
+              Salin Teks
+            </button>
+          </div>
+          <pre id="waTextPreview" class="bg-white border border-stone-200 rounded-xl p-3 text-xs text-stone-700 font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed select-all max-h-48">Memuat pratinjau teks...</pre>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Edit Activity Modal -->
+  <div id="editModal" class="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-warm-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-warm-lg animate-card">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-stone-900">Ubah Aktivitas</h3>
+        <button id="btnCloseModal" type="button" class="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg transition min-h-[36px] min-w-[36px] flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <form id="formEditActivity" class="space-y-4">
+        <input type="hidden" id="editItemIndex">
+        
+        <div>
+          <label for="editInputTitle" class="block text-xs font-semibold text-stone-700 mb-1">
+            Nama Kegiatan <span class="text-rose-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="editInputTitle" 
+            required
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white transition"
+          >
+        </div>
+
+        <div>
+          <label for="editInputDuration" class="block text-xs font-semibold text-stone-700 mb-1">
+            Durasi (Menit) <span class="text-rose-500">*</span>
+          </label>
+          <input 
+            type="number" 
+            id="editInputDuration" 
+            min="5" 
+            max="1440" 
+            step="5"
+            required
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition"
+          >
+        </div>
+
+        <div>
+          <label for="editInputNote" class="block text-xs font-semibold text-stone-700 mb-1">
+            Catatan / Lokasi (Opsional)
+          </label>
+          <input 
+            type="text" 
+            id="editInputNote" 
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white transition"
+          >
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button 
+            type="button" 
+            id="btnCancelEdit" 
+            class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-100 transition min-h-[44px]"
+          >
+            Batal
+          </button>
+          <button 
+            type="submit" 
+            class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm transition min-h-[44px]"
+          >
+            Simpan Perubahan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Ponytail principle: clean state, native APIs, minimal abstractions
+    const STORAGE_KEY = 'date_itinerary_rundown_v2';
+
+    // Default sample itinerary
+    const DEFAULT_DATA = {
+      startTime: '10:00',
+      activities: [
+        {
+          id: 'act-1',
+          icon: '🚗',
+          title: 'Jemput & On the way',
+          duration: 45,
+          note: 'Bawa jaket & charger ponsel'
+        },
+        {
+          id: 'act-2',
+          icon: '☕',
+          title: 'Brunch & Ngopi Santai',
+          duration: 75,
+          note: 'Cafe Titik Koma (Reservasi semi-outdoor)'
+        },
+        {
+          id: 'act-3',
+          icon: '🎬',
+          title: 'Nonton Bioskop Premiere',
+          duration: 135,
+          note: 'Film pilihan jam tayang siang, tiket sudah di app'
+        },
+        {
+          id: 'act-4',
+          icon: '🛍️',
+          title: 'Jalan Santai & Hunting Photobox',
+          duration: 60,
+          note: 'Foto kenang-kenangan & cari gelato'
+        },
+        {
+          id: 'act-5',
+          icon: '🍽️',
+          title: 'Romantic Dinner',
+          duration: 90,
+          note: 'Resto Rooftop view senja'
+        },
+        {
+          id: 'act-6',
+          icon: '🏠',
+          title: 'Antar Pulang dengan Selamat',
+          duration: 40,
+          note: 'Mampir beli camilan malam'
+        }
+      ]
+    };
+
+    // State
+    let appState = {
+      startTime: '10:00',
+      activities: []
+    };
+
+    let selectedCategory = {
+      icon: '🚗',
+      cat: 'Jemput'
+    };
+
+    // Helper: parse HH:MM to total minutes
+    function timeToMinutes(timeStr) {
+      if (!timeStr || !timeStr.includes(':')) return 600; // default 10:00
+      const [h, m] = timeStr.split(':').map(Number);
+      return (h * 60) + (m || 0);
+    }
+
+    // Helper: minutes to HH:MM (handles 24h wrap gracefully)
+    function minutesToTime(totalMins) {
+      // Normalize to 24h
+      const normalized = ((totalMins % 1440) + 1440) % 1440;
+      const h = Math.floor(normalized / 60);
+      const m = normalized % 60;
+      const daysExtra = Math.floor(totalMins / 1440);
+      
+      const timeFormatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      return {
+        formatted: timeFormatted,
+        isNextDay: daysExtra > 0
+      };
+    }
+
+    // Helper: format duration in Indonesian
+    function formatDurationText(mins) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      if (h > 0 && m > 0) return `${h} Jam ${m} Menit`;
+      if (h > 0) return `${h} Jam`;
+      return `${m} Menit`;
+    }
+
+    // Load from LocalStorage
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.activities)) {
+            appState = parsed;
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Gagal membaca storage, menggunakan data standar', e);
+      }
+      // Fallback default
+      appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      saveState();
+    }
+
+    // Save to LocalStorage
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.error('Gagal menyimpan ke storage', e);
+      }
+    }
+
+    // Recalculate schedule for each activity
+    function calculateSchedule() {
+      let currentMins = timeToMinutes(appState.startTime);
+      let totalDuration = 0;
+
+      const schedule = appState.activities.map((act, index) => {
+        const start = currentMins;
+        const end = start + Number(act.duration || 0);
+        totalDuration += Number(act.duration || 0);
+        currentMins = end;
+
+        const startTimeObj = minutesToTime(start);
+        const endTimeObj = minutesToTime(end);
+
+        return {
+          ...act,
+          index,
+          startStr: startTimeObj.formatted,
+          endStr: endTimeObj.formatted,
+          isNextDay: endTimeObj.isNextDay
+        };
+      });
+
+      const finishTimeObj = minutesToTime(currentMins);
+
+      return {
+        items: schedule,
+        totalDurationMins: totalDuration,
+        endTimeFormatted: finishTimeObj.formatted,
+        isNextDayEnd: finishTimeObj.isNextDay
+      };
+    }
+
+    // Render Timeline & UI
+    function renderApp() {
+      const scheduleData = calculateSchedule();
+      const container = document.getElementById('timelineContainer');
+      const emptyState = document.getElementById('emptyState');
+      
+      // Update Anchor Time Input
+      const startInput = document.getElementById('startTimeInput');
+      if (startInput.value !== appState.startTime) {
+        startInput.value = appState.startTime;
+      }
+
+      // Update Summary Bar
+      document.getElementById('summaryTotalDuration').textContent = formatDurationText(scheduleData.totalDurationMins);
+      document.getElementById('summaryEndTime').textContent = scheduleData.items.length > 0
+        ? `${scheduleData.endTimeFormatted} WIB${scheduleData.isNextDayEnd ? ' (+1 hari)' : ''}`
+        : '--:--';
+      document.getElementById('summaryCount').textContent = scheduleData.items.length;
+
+      // Handle Empty State
+      if (scheduleData.items.length === 0) {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+        container.classList.remove('hidden');
+
+        // Render Cards
+        container.innerHTML = `
+          <!-- Continuous Vertical Background Line -->
+          <div class="absolute left-7 sm:left-9 top-6 bottom-6 w-0.5 bg-stone-200 -z-0"></div>
+          ${scheduleData.items.map((item, idx) => {
+            const isFirst = idx === 0;
+            const isLast = idx === scheduleData.items.length - 1;
+            
+            return `
+              <div class="timeline-item relative flex items-start gap-3 sm:gap-4 group animate-card" data-id="${item.id}">
+                
+                <!-- Timeline Dot Indicator -->
+                <div class="relative z-10 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white border-2 border-rose-500 shadow-sm flex items-center justify-center shrink-0 mt-3 text-xs font-bold text-rose-600">
+                  ${idx + 1}
+                </div>
+
+                <!-- Activity Card -->
+                <div class="flex-1 bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm hover:shadow-warm-md hover:border-rose-200 transition-all duration-200">
+                  
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-stone-100">
+                    <!-- Time Badge -->
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 text-rose-700 font-bold text-xs sm:text-sm border border-rose-200/80 tracking-tight">
+                        <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        ${item.startStr} - ${item.endStr}
+                        ${item.isNextDay ? '<span class="text-[10px] bg-rose-200/60 px-1.5 rounded text-rose-800">+1 hari</span>' : ''}
+                      </span>
+                      <span class="text-xs font-semibold px-2 py-0.5 rounded-lg bg-stone-100 text-stone-600">
+                        ${item.duration} menit
+                      </span>
+                    </div>
+
+                    <!-- Action Buttons: Up, Down, Edit, Delete -->
+                    <div class="flex items-center gap-1 self-end sm:self-center">
+                      <!-- Move Up -->
+                      <button 
+                        type="button" 
+                        class="btn-move-up p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center" 
+                        data-index="${idx}"
+                        ${isFirst ? 'disabled' : ''}
+                        title="Geser ke atas"
+                        aria-label="Pindahkan aktivitas ${item.title} ke atas"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                        </svg>
+                      </button>
+
+                      <!-- Move Down -->
+                      <button 
+                        type="button" 
+                        class="btn-move-down p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center" 
+                        data-index="${idx}"
+                        ${isLast ? 'disabled' : ''}
+                        title="Geser ke bawah"
+                        aria-label="Pindahkan aktivitas ${item.title} ke bawah"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      <!-- Edit Button -->
+                      <button 
+                        type="button" 
+                        class="btn-edit p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center" 
+                        data-index="${idx}"
+                        title="Ubah agenda"
+                        aria-label="Ubah aktivitas ${item.title}"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+
+                      <!-- Delete Button -->
+                      <button 
+                        type="button" 
+                        class="btn-delete p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center" 
+                        data-index="${idx}"
+                        title="Hapus agenda"
+                        aria-label="Hapus aktivitas ${item.title}"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Activity Details -->
+                  <div class="mt-3">
+                    <div class="flex items-start gap-2.5">
+                      <span class="text-xl sm:text-2xl shrink-0 mt-0.5 select-none" aria-hidden="true">${item.icon || '📌'}</span>
+                      <div class="flex-1 min-w-0">
+                        <h4 class="text-sm sm:text-base font-bold text-stone-900 break-words">${escapeHtml(item.title)}</h4>
+                        ${item.note ? `
+                          <div class="mt-1 flex items-start gap-1.5 text-xs text-stone-600 font-medium">
+                            <span class="text-rose-500 shrink-0 mt-0.5" aria-hidden="true">📍</span>
+                            <span class="break-words">${escapeHtml(item.note)}</span>
+                          </div>
+                        ` : ''}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            `;
+          }).join('')}
+        `;
+      }
+
+      // Update WhatsApp Preview Text
+      updateWhatsAppPreview(scheduleData);
+    }
+
+    // Generate formatted text for WhatsApp
+    function generateWhatsAppText(scheduleData) {
+      if (!scheduleData || scheduleData.items.length === 0) {
+        return '✨ Our Date Itinerary ✨\n(Belum ada agenda kencan yang ditambahkan)';
+      }
+
+      const lines = [
+        '✨ Our Date Itinerary ✨',
+        `📅 [Waktu Mulai: ${appState.startTime}]`,
+        ''
+      ];
+
+      scheduleData.items.forEach(item => {
+        lines.push(`⏰ ${item.startStr} - ${item.endStr} | ${item.icon ? item.icon + ' ' : ''}${item.title}`);
+        if (item.note && item.note.trim() !== '') {
+          lines.push(`📍 Catatan: ${item.note.trim()}`);
+        }
+        lines.push('');
+      });
+
+      lines.push(`Total Durasi: ${formatDurationText(scheduleData.totalDurationMins)} (Selesai ~${scheduleData.endTimeFormatted})`);
+      lines.push('See you there! ❤️');
+
+      return lines.join('\n');
+    }
+
+    function updateWhatsAppPreview(scheduleData) {
+      const text = generateWhatsAppText(scheduleData);
+      const pre = document.getElementById('waTextPreview');
+      if (pre) pre.textContent = text;
+    }
+
+    // Copy to clipboard with Toast feedback
+    async function copyToClipboard() {
+      const scheduleData = calculateSchedule();
+      const text = generateWhatsAppText(scheduleData);
+      
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Berhasil disalin ke clipboard! Siap di-paste ke WhatsApp.', 'success');
+      } catch (err) {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('Teks berhasil disalin!', 'success');
+      }
+    }
+
+    // Toast Notification Maker
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const bgColor = type === 'success' 
+        ? 'bg-stone-900 text-white' 
+        : 'bg-stone-800 text-white';
+
+      toast.className = `${bgColor} px-4 py-3 rounded-xl shadow-warm-lg flex items-center gap-2.5 text-xs font-semibold transition-all duration-300 pointer-events-auto border border-stone-700/50 max-w-sm`;
+      
+      toast.innerHTML = `
+        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span class="flex-1">${message}</span>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
+    // HTML sanitizer helper
+    function escapeHtml(string) {
+      if (!string) return '';
+      return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Initialize Event Handlers
+    function initEvents() {
+      // Anchor Start Time Change
+      const startTimeInput = document.getElementById('startTimeInput');
+      startTimeInput.addEventListener('change', (e) => {
+        appState.startTime = e.target.value || '10:00';
+        saveState();
+        renderApp();
+      });
+
+      // Start Time Presets
+      document.querySelectorAll('.preset-start-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const time = btn.dataset.time;
+          appState.startTime = time;
+          startTimeInput.value = time;
+          saveState();
+          renderApp();
+          showToast(`Waktu mulai diatur ke ${time}`, 'info');
+        });
+      });
+
+      // Duration Input & Chip Presets
+      const inputDuration = document.getElementById('inputDuration');
+      const durationPreviewText = document.getElementById('durationPreviewText');
+      
+      inputDuration.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10) || 0;
+        durationPreviewText.textContent = `${val} menit`;
+        updateActiveChip(val);
+      });
+
+      function updateActiveChip(mins) {
+        document.querySelectorAll('.duration-chip').forEach(chip => {
+          if (parseInt(chip.dataset.mins, 10) === mins) {
+            chip.className = 'duration-chip active-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 transition min-h-[36px]';
+          } else {
+            chip.className = 'duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]';
+          }
+        });
+      }
+
+      document.querySelectorAll('.duration-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const mins = parseInt(chip.dataset.mins, 10);
+          inputDuration.value = mins;
+          durationPreviewText.textContent = `${mins} menit`;
+          updateActiveChip(mins);
+        });
+      });
+
+      // Category / Icon Selection
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.category-btn').forEach(b => {
+            b.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]';
+          });
+          btn.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[36px]';
+          selectedCategory = {
+            icon: btn.dataset.icon,
+            cat: btn.dataset.cat
+          };
+        });
+      });
+
+      // Form Add Activity
+      const formAdd = document.getElementById('formAddActivity');
+      formAdd.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const titleInput = document.getElementById('inputTitle');
+        const durationInput = document.getElementById('inputDuration');
+        const noteInput = document.getElementById('inputNote');
+
+        const title = titleInput.value.trim();
+        const duration = parseInt(durationInput.value, 10) || 45;
+        const note = noteInput.value.trim();
+
+        if (!title) return;
+
+        const newActivity = {
+          id: 'act-' + Date.now(),
+          icon: selectedCategory.icon || '📌',
+          title,
+          duration,
+          note
+        };
+
+        appState.activities.push(newActivity);
+        saveState();
+        renderApp();
+
+        // Reset form inputs (preserve duration)
+        titleInput.value = '';
+        noteInput.value = '';
+        titleInput.focus();
+
+        showToast(`"${title}" berhasil ditambahkan ke rundown!`, 'success');
+      });
+
+      // Timeline delegation for Reorder, Edit, Delete
+      const timelineContainer = document.getElementById('timelineContainer');
+      timelineContainer.addEventListener('click', (e) => {
+        const btnUp = e.target.closest('.btn-move-up');
+        const btnDown = e.target.closest('.btn-move-down');
+        const btnDelete = e.target.closest('.btn-delete');
+        const btnEdit = e.target.closest('.btn-edit');
+
+        if (btnUp) {
+          const idx = parseInt(btnUp.dataset.index, 10);
+          if (idx > 0) {
+            const temp = appState.activities[idx];
+            appState.activities[idx] = appState.activities[idx - 1];
+            appState.activities[idx - 1] = temp;
+            saveState();
+            renderApp();
+          }
+        } else if (btnDown) {
+          const idx = parseInt(btnDown.dataset.index, 10);
+          if (idx < appState.activities.length - 1) {
+            const temp = appState.activities[idx];
+            appState.activities[idx] = appState.activities[idx + 1];
+            appState.activities[idx + 1] = temp;
+            saveState();
+            renderApp();
+          }
+        } else if (btnDelete) {
+          const idx = parseInt(btnDelete.dataset.index, 10);
+          const act = appState.activities[idx];
+          if (confirm(`Hapus kegiatan "${act.title}" dari rundown?`)) {
+            appState.activities.splice(idx, 1);
+            saveState();
+            renderApp();
+            showToast('Aktivitas dihapus dari rundown.', 'info');
+          }
+        } else if (btnEdit) {
+          const idx = parseInt(btnEdit.dataset.index, 10);
+          openEditModal(idx);
+        }
+      });
+
+      // Clear All
+      document.getElementById('btnClearAll').addEventListener('click', () => {
+        if (appState.activities.length === 0) return;
+        if (confirm('Yakin ingin menghapus seluruh jadwal kegiatan?')) {
+          appState.activities = [];
+          saveState();
+          renderApp();
+          showToast('Seluruh kegiatan telah dihapus.', 'info');
+        }
+      });
+
+      // Load Sample buttons
+      const handleLoadSample = () => {
+        appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        saveState();
+        renderApp();
+        showToast('Contoh agenda kencan berhasil dimuat!', 'success');
+      };
+      document.getElementById('btnLoadSample').addEventListener('click', handleLoadSample);
+      document.getElementById('btnEmptyLoadSample').addEventListener('click', handleLoadSample);
+
+      // Copy buttons
+      document.getElementById('btnCopyWaHeader').addEventListener('click', copyToClipboard);
+      document.getElementById('btnCopyWaTimeline').addEventListener('click', copyToClipboard);
+      document.getElementById('btnCopyWaPreview').addEventListener('click', copyToClipboard);
+
+      // Modal Events
+      const modal = document.getElementById('editModal');
+      const formEdit = document.getElementById('formEditActivity');
+      
+      function openEditModal(index) {
+        const item = appState.activities[index];
+        if (!item) return;
+
+        document.getElementById('editItemIndex').value = index;
+        document.getElementById('editInputTitle').value = item.title;
+        document.getElementById('editInputDuration').value = item.duration;
+        document.getElementById('editInputNote').value = item.note || '';
+
+        modal.classList.remove('hidden');
+        document.getElementById('editInputTitle').focus();
+      }
+
+      function closeEditModal() {
+        modal.classList.add('hidden');
+      }
+
+      document.getElementById('btnCloseModal').addEventListener('click', closeEditModal);
+      document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
+
+      // Close modal on escape
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+          closeEditModal();
+        }
+      });
+
+      formEdit.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const index = parseInt(document.getElementById('editItemIndex').value, 10);
+        if (isNaN(index) || !appState.activities[index]) return;
+
+        appState.activities[index].title = document.getElementById('editInputTitle').value.trim();
+        appState.activities[index].duration = parseInt(document.getElementById('editInputDuration').value, 10) || 30;
+        appState.activities[index].note = document.getElementById('editInputNote').value.trim();
+
+        saveState();
+        renderApp();
+        closeEditModal();
+        showToast('Perubahan kegiatan berhasil disimpan!', 'success');
+      });
+    }
+
+    // Startup initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      renderApp();
+      initEvents();
+    });
+  </script>
+</body>
+</html>
