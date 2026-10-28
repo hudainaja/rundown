@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Date Itinerary & Auto-Rundown Planner</title>
-  <meta name="description" content="Rencanakan agenda kencan impian multi-hari dengan kalkulasi jam otomatis, kolaborasi real-time bareng doi, dan ekspor rapi ke WhatsApp.">
+  <meta name="description" content="Rencanakan agenda kencan impian dengan Single-Stream Dynamic 2-Column Grid (Huda, Kenia & Bareng), input jam pintar, dan sinkronisasi real-time.">
   
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@
     }
   </script>
 
-  <!-- Firebase App & Database Compat SDK via CDN (No build tool needed) -->
+  <!-- Firebase App & Database Compat SDK via CDN (Optional custom RTDB) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -108,7 +108,7 @@
 
   <!-- Top App Navigation / Header -->
   <header class="bg-white/95 backdrop-blur-md border-b border-warm-border sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       
       <!-- Brand & Room Indicator -->
       <div class="flex items-center gap-3 min-w-0">
@@ -126,10 +126,10 @@
             <!-- Connection Status Badge -->
             <span id="connBadge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-stone-600 border border-stone-200 shrink-0">
               <span id="connDot" class="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
-              <span id="connText" class="truncate max-w-[120px] sm:max-w-xs">Mode Lokal</span>
+              <span id="connText" class="truncate max-w-[120px] sm:max-w-xs">Menghubungkan...</span>
             </span>
           </div>
-          <p class="text-[11px] text-stone-500 hidden sm:block truncate">Auto-rundown beruntun & kolaborasi kencan real-time</p>
+          <p class="text-[11px] text-stone-500 hidden sm:block truncate">Single-Stream Dynamic 2-Column Grid (Huda • Kenia • Bareng)</p>
         </div>
       </div>
 
@@ -173,8 +173,7 @@
           <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
-          <span class="hidden xs:inline">Bagikan ke Doi</span>
-          <span class="xs:hidden">Bagikan</span>
+          <span class="hidden xs:inline">Bagi Link</span>
         </button>
 
         <!-- Copy WhatsApp Options Dropdown Button -->
@@ -201,7 +200,7 @@
             </button>
             <button id="btnCopyAllDays" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-stone-700 hover:bg-rose-50 hover:text-rose-700 transition flex items-center justify-between">
               <span>Salin Seluruh Hari</span>
-              <span id="copyAllDaysBadge" class="text-[10px] bg-rose-100 text-rose-700 font-bold px-1.5 py-0.5 rounded">Semua Hari</span>
+              <span class="text-[10px] bg-rose-100 text-rose-700 font-bold px-1.5 py-0.5 rounded">Semua Hari</span>
             </button>
           </div>
         </div>
@@ -225,7 +224,7 @@
   </header>
 
   <!-- Main Container -->
-  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
+  <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
     
     <!-- Multi-Day Navigation Tabs Bar -->
     <section aria-label="Navigasi Hari Kencan" class="mb-6 bg-white border border-warm-border rounded-2xl p-2 sm:p-2.5 shadow-warm-sm flex items-center justify-between gap-2 overflow-x-auto">
@@ -275,23 +274,27 @@
             <div class="flex items-center gap-2">
               <span id="summaryDayTitleBadge" class="text-xs font-bold text-rose-600 uppercase tracking-wider">HARI 1</span>
               <span class="text-stone-300">•</span>
-              <span class="text-xs font-medium text-stone-500">Estimasi Rundown</span>
+              <span class="text-xs font-medium text-stone-500">Unified 2-Column Timeline</span>
             </div>
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-0.5">
-              <span id="summaryTotalDuration" class="text-lg sm:text-xl font-bold text-stone-900">0 Jam 0 Menit</span>
+              <span id="summaryTimeSpan" class="text-base sm:text-lg font-bold text-stone-900">08:30 — 21:30</span>
               <span class="text-stone-300 hidden sm:inline">•</span>
-              <span class="text-sm font-medium text-stone-600">
-                Selesai Pukul: <strong id="summaryEndTime" class="font-bold text-rose-600">--:--</strong>
+              <span id="summaryProgressText" class="text-xs sm:text-sm font-semibold text-rose-600">
+                0 / 0 Selesai
               </span>
             </div>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 self-start sm:self-center border-t sm:border-t-0 pt-3 sm:pt-0 border-stone-100 w-full sm:w-auto justify-between sm:justify-end">
-          <div class="text-xs text-stone-500">
-            Total Kegiatan: <span id="summaryCount" class="font-bold text-stone-800">0</span>
+        <div class="flex flex-wrap items-center gap-2.5 self-start sm:self-center border-t sm:border-t-0 pt-3 sm:pt-0 border-stone-100 w-full sm:w-auto justify-between sm:justify-end">
+          <!-- Category mini pills -->
+          <div class="flex items-center gap-1.5 text-xs font-semibold">
+            <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100" id="summaryHudaCount">🔵 0 Huda</span>
+            <span class="px-2 py-0.5 rounded-md bg-pink-50 text-pink-700 border border-pink-100" id="summaryKeniaCount">🌸 0 Kenia</span>
+            <span class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-100" id="summaryBarengCount">❤️ 0 Bareng</span>
           </div>
-          <button id="btnClearActiveDay" type="button" class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition min-h-[36px] flex items-center gap-1 focus:outline-none">
+
+          <button id="btnClearActiveDay" type="button" class="text-xs font-semibold text-stone-500 hover:text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition min-h-[34px] flex items-center gap-1 focus:outline-none">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
@@ -304,58 +307,114 @@
     <!-- Main Grid: 2 Columns on Desktop, 1 Column on Mobile -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
       
-      <!-- KOLOM KIRI: Sticky Control Panel & Input Form (41% Desktop / 5 cols) -->
-      <section aria-label="Panel Kontrol dan Input" class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+      <!-- KOLOM KIRI: Sticky Control Panel & Smart Input Form (lg:col-span-4 / xl:col-span-4) -->
+      <section aria-label="Panel Kontrol dan Input" class="lg:col-span-4 xl:col-span-4 space-y-6 lg:sticky lg:top-24">
         
-        <!-- Box 1: Anchor Start Time for Active Day -->
-        <div class="bg-white border border-warm-border rounded-2xl p-5 shadow-warm-sm">
-          <div class="flex items-center justify-between mb-1">
-            <label for="startTimeInput" class="block text-sm font-bold text-stone-900">
-              Waktu Mulai (<span id="labelActiveDayName">Hari 1</span>)
-            </label>
-            <span class="text-[11px] text-stone-400">Anchor Time</span>
-          </div>
-          <p class="text-xs text-stone-500 mb-3">
-            Tentukan jam awal mulai hari ini. Tiap hari memiliki jam mulai mandiri tanpa bentrok.
-          </p>
-
-          <div class="flex items-center gap-3">
-            <div class="relative flex-1">
-              <input 
-                type="time" 
-                id="startTimeInput" 
-                value="10:00"
-                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-base font-bold text-stone-800 focus:bg-white transition cursor-pointer"
-              >
-            </div>
-            <div class="text-xs text-stone-400 font-medium whitespace-nowrap">
-              WIB / Lokal
-            </div>
-          </div>
-
-          <!-- Quick presets for Start Time -->
-          <div class="mt-3 flex flex-wrap items-center gap-1.5">
-            <span class="text-[11px] text-stone-400 font-medium mr-1">Preset:</span>
-            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="08:30">08:30</button>
-            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="10:00">10:00</button>
-            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="13:00">13:00</button>
-            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="16:00">16:00</button>
-            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="18:30">18:30</button>
-          </div>
-        </div>
-
-        <!-- Box 2: Form Tambah Kegiatan -->
+        <!-- Box: Form Tambah Kegiatan -->
         <div class="bg-white border border-warm-border rounded-2xl p-5 shadow-warm-sm">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-sm font-bold text-stone-900 flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-rose-500"></span>
               Tambah Kegiatan (<span id="formDayBadge">Hari 1</span>)
             </h2>
-            <span class="text-[11px] text-stone-400">Auto-rundown</span>
+            <span class="text-[11px] text-stone-400">Smart Schedule</span>
           </div>
 
           <form id="formAddActivity" class="space-y-4">
-            <!-- Nama Kegiatan -->
+            
+            <!-- 1. Pilihan Toggle/Radio Tipe Kegiatan (Huda, Kenia, Bareng) -->
+            <div>
+              <label class="block text-xs font-bold text-stone-800 mb-1.5">
+                Pilih Jadwal Siapa? <span class="text-rose-500">*</span>
+              </label>
+              <div class="grid grid-cols-3 gap-1.5" id="ownerToggleGroup">
+                <button 
+                  type="button" 
+                  id="btnOwnerHuda" 
+                  data-owner="huda"
+                  class="owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-sky-400 bg-sky-100 text-sky-900 shadow-sm"
+                >
+                  <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+                  <span>🔵 Huda</span>
+                </button>
+                <button 
+                  type="button" 
+                  id="btnOwnerKenia" 
+                  data-owner="kenia"
+                  class="owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100"
+                >
+                  <span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span>
+                  <span>🌸 Kenia</span>
+                </button>
+                <button 
+                  type="button" 
+                  id="btnOwnerBareng" 
+                  data-owner="bareng"
+                  class="owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100"
+                >
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                  <span>❤️ Bareng</span>
+                </button>
+              </div>
+              <p id="ownerHintText" class="text-[11px] text-sky-700 mt-1 font-medium">
+                🔵 Jadwal Huda akan masuk di kolom kiri (col-span-1)
+              </p>
+            </div>
+
+            <!-- 2. Input Jam Bebas & Smart Auto-Fill + Quick Duration Chips -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="inputTimeStr" class="block text-xs font-bold text-stone-800">
+                  Waktu / Jam Kegiatan <span class="text-rose-500">*</span>
+                </label>
+                <span id="timeHintBadge" class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 text-stone-600 font-semibold">
+                  Smart Default
+                </span>
+              </div>
+
+              <div class="relative">
+                <input 
+                  type="text" 
+                  id="inputTimeStr" 
+                  placeholder="Misal 08:20 atau 15:00 - 19:00" 
+                  required
+                  class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-stone-900 placeholder:text-stone-400 focus:bg-white transition pr-10"
+                >
+                <button 
+                  type="button" 
+                  id="btnResetSmartTime" 
+                  title="Kembalikan ke saran jam pintar berikutnya"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-800 p-1 rounded-md text-xs transition"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
+              <p class="text-[11px] text-stone-500 mt-1">
+                Bebas ketik jam tunggal (cth: <code class="font-mono text-stone-700 bg-stone-100 px-1 rounded">08:20</code>) atau rentang (<code class="font-mono text-stone-700 bg-stone-100 px-1 rounded">15:00 - 19:00</code>).
+              </p>
+
+              <!-- Tombol Durasi Cepat (Quick Chips) -->
+              <div class="mt-2.5 pt-2 border-t border-stone-100">
+                <div class="text-[11px] font-semibold text-stone-600 mb-1.5 flex items-center justify-between">
+                  <span>Tombol Durasi Cepat (+Rentang):</span>
+                  <span class="text-[10px] text-stone-400 font-normal">Klik untuk auto-rentang</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5" id="quickDurationChips">
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="15">15m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="30">30m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="45">45m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="60">1 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="90">1.5 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="120">2 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="180">3 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="240">4 Jam</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Nama Kegiatan -->
             <div>
               <label for="inputTitle" class="block text-xs font-semibold text-stone-700 mb-1">
                 Nama Kegiatan <span class="text-rose-500">*</span>
@@ -363,71 +422,13 @@
               <input 
                 type="text" 
                 id="inputTitle" 
-                placeholder="Misal: Brunch & Ngopi, Nonton Bioskop, dsb." 
+                placeholder="Misal: Brunch & Ngopi, Nonton Bioskop, Cuci Mobil" 
                 required
                 class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
               >
             </div>
 
-            <!-- Durasi Kegiatan (Jam & Menit) + Preset Chips -->
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="text-xs font-semibold text-stone-700">
-                  Durasi Kegiatan <span class="text-rose-500">*</span>
-                </label>
-                <span id="durationPreviewText" class="text-xs font-bold text-rose-600">45 menit</span>
-              </div>
-              
-              <div class="grid grid-cols-2 gap-2 mb-2.5">
-                <!-- Input Jam -->
-                <div class="relative">
-                  <input 
-                    type="number" 
-                    id="inputDurationHours" 
-                    min="0" 
-                    max="24" 
-                    step="1" 
-                    value="0"
-                    placeholder="0"
-                    class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition pr-12"
-                  >
-                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 pointer-events-none">
-                    Jam
-                  </span>
-                </div>
-
-                <!-- Input Menit -->
-                <div class="relative">
-                  <input 
-                    type="number" 
-                    id="inputDurationMinutes" 
-                    min="0" 
-                    max="59" 
-                    step="5" 
-                    value="45"
-                    placeholder="0"
-                    class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition pr-14"
-                  >
-                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 pointer-events-none">
-                    Menit
-                  </span>
-                </div>
-              </div>
-
-              <!-- Preset Duration Chips (Menit & Jam) -->
-              <div class="flex flex-wrap gap-1.5" id="durationChipsContainer">
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="0" data-mins="15">15m</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="0" data-mins="30">30m</button>
-                <button type="button" class="duration-chip active-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 transition min-h-[36px]" data-hours="0" data-mins="45">45m</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="1" data-mins="0">1 Jam</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="1" data-mins="30">1.5 Jam</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="2" data-mins="0">2 Jam</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="2" data-mins="30">2.5 Jam</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="3" data-mins="0">3 Jam</button>
-              </div>
-            </div>
-
-            <!-- Catatan atau Lokasi -->
+            <!-- 4. Catatan atau Lokasi -->
             <div>
               <label for="inputNote" class="block text-xs font-semibold text-stone-700 mb-1">
                 Catatan / Lokasi <span class="text-stone-400 font-normal">(Opsional)</span>
@@ -435,39 +436,39 @@
               <input 
                 type="text" 
                 id="inputNote" 
-                placeholder="Contoh: Reservasi outdoor / Bawa jaket / Beli tiket app" 
+                placeholder="Contoh: Reservasi outdoor / Bawa jaket / Beli tiket" 
                 class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
               >
             </div>
 
-            <!-- Kategori / Ikon Aktivitas Cepat -->
+            <!-- 5. Kategori / Ikon Aktivitas Cepat -->
             <div>
               <label class="block text-xs font-semibold text-stone-700 mb-1.5">
                 Kategori Kegiatan
               </label>
               <div class="grid grid-cols-4 gap-1.5" id="categoryChips">
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[36px]" data-icon="🚗" data-cat="Jemput">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[34px]" data-icon="🚗" data-cat="Jemput">
                   <span>🚗</span> Jemput
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🍽️" data-cat="Makan">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🍽️" data-cat="Makan">
                   <span>🍽️</span> Makan
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="☕" data-cat="Ngopi">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="☕" data-cat="Ngopi">
                   <span>☕</span> Ngopi
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🎬" data-cat="Nonton">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🎬" data-cat="Nonton">
                   <span>🎬</span> Nonton
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🚶" data-cat="Jalan">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🚶" data-cat="Jalan">
                   <span>🚶</span> Jalan
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🛍️" data-cat="Belanja">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🛍️" data-cat="Belanja">
                   <span>🛍️</span> Belanja
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🌇" data-cat="Santai">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🌇" data-cat="Santai">
                   <span>🌇</span> Santai
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🏠" data-cat="Pulang">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🏠" data-cat="Pulang">
                   <span>🏠</span> Pulang
                 </button>
               </div>
@@ -486,20 +487,47 @@
           </form>
         </div>
 
+        <!-- Box 2: Anchor Start Time for Active Day (Patokan Dasar) -->
+        <div class="bg-white border border-warm-border rounded-2xl p-4 shadow-warm-sm">
+          <div class="flex items-center justify-between mb-1">
+            <label for="startTimeInput" class="block text-xs font-bold text-stone-800">
+              Patokan Jam Mulai (<span id="labelActiveDayName">Hari 1</span>)
+            </label>
+            <span class="text-[10px] text-stone-400">Anchor Time</span>
+          </div>
+          <p class="text-xs text-stone-500 mb-2.5">
+            Digunakan sebagai jam default pembuka hari jika belum ada agenda.
+          </p>
+
+          <div class="flex items-center gap-2">
+            <input 
+              type="time" 
+              id="startTimeInput" 
+              value="10:00"
+              class="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-sm font-bold text-stone-800 focus:bg-white transition cursor-pointer"
+            >
+            <div class="flex items-center gap-1">
+              <button type="button" class="preset-start-btn text-xs font-semibold px-2 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="08:30">08:30</button>
+              <button type="button" class="preset-start-btn text-xs font-semibold px-2 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="10:00">10:00</button>
+              <button type="button" class="preset-start-btn text-xs font-semibold px-2 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="13:00">13:00</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Room Sync Info Card -->
         <div class="bg-rose-50/60 border border-rose-100 rounded-2xl p-4 text-xs text-rose-900 flex items-start gap-2.5">
           <svg class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <div class="leading-relaxed">
-            <span class="font-bold">Real-Time Sync Aktif:</span> Setiap kali kamu atau doi menambah/menggeser kegiatan, jadwal langsung ter-update di kedua layar secara instan.
+            <span class="font-bold">Real-Time Sync Aktif:</span> Setiap kali kamu atau pacar menambah kegiatan, mencentang selesai, atau mengubah jam, kartu otomatis terurut dan ter-update di layar lawan bicara.
           </div>
         </div>
 
       </section>
 
-      <!-- KOLOM KANAN: Timeline Preview Area (59% Desktop / 7 cols) -->
-      <section aria-label="Timeline Rundown" class="lg:col-span-7 space-y-4">
+      <!-- KOLOM KANAN: Single-Stream Dynamic 2-Column Grid Timeline (lg:col-span-8 / xl:col-span-8) -->
+      <section aria-label="Timeline Rundown" class="lg:col-span-8 xl:col-span-8 space-y-4">
         
         <!-- Timeline Header Bar -->
         <div class="bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm flex items-center justify-between gap-3">
@@ -511,16 +539,10 @@
                 Tersinkron
               </span>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Urutan jadwal terkalkulasi otomatis secara berantai</p>
+            <p class="text-xs text-stone-500 mt-0.5">Auto-sort berdasarkan jam mulai • Huda (kiri), Kenia (kanan), Bareng (melebar di tengah)</p>
           </div>
 
           <div class="flex items-center gap-2">
-            <span id="saveStatusIndicator" class="text-[11px] font-medium text-stone-400 hidden sm:inline-flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              Tersimpan otomatis
-            </span>
             <!-- Dropdown Menu Opsi Jadwal -->
             <div class="relative">
               <button 
@@ -548,11 +570,27 @@
           </div>
         </div>
 
-        <!-- Timeline Items List Container -->
-        <div id="timelineContainer" class="relative pl-4 sm:pl-6 space-y-3">
-          <!-- Continuous Vertical Background Line -->
-          <div class="absolute left-7 sm:left-9 top-6 bottom-6 w-0.5 bg-stone-200 -z-0"></div>
-          <!-- Cards will be rendered dynamically via JS -->
+        <!-- Desktop Column Indicator / Legend -->
+        <div class="hidden md:grid md:grid-cols-2 gap-4">
+          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-sky-50/80 border border-sky-200 text-sky-900 text-xs font-bold shadow-sm">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+              <span>🔵 Kolom Kiri: Jadwal Huda</span>
+            </div>
+            <span class="text-[10px] text-sky-700 bg-sky-100 px-2 py-0.5 rounded-md font-semibold">col-span-1</span>
+          </div>
+          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-pink-50/80 border border-pink-200 text-pink-900 text-xs font-bold shadow-sm">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span>
+              <span>🌸 Kolom Kanan: Jadwal Kenia</span>
+            </div>
+            <span class="text-[10px] text-pink-700 bg-pink-100 px-2 py-0.5 rounded-md font-semibold">col-span-1 col-start-2</span>
+          </div>
+        </div>
+
+        <!-- Unified 2-Column Grid Container -->
+        <div id="timelineContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+          <!-- Cards rendered dynamically via JS -->
         </div>
 
         <!-- Empty State Container -->
@@ -564,7 +602,7 @@
           </div>
           <h3 class="text-base font-bold text-stone-900 mb-1">Belum Ada Agenda di Hari Ini</h3>
           <p class="text-xs text-stone-500 max-w-sm mx-auto mb-5 leading-relaxed">
-            Isi form di sebelah kiri untuk menambah kegiatan baru, atau klik tombol di bawah untuk memuat contoh itinerary siap pakai.
+            Pilih Huda, Kenia, atau Bareng di form sebelah kiri, lalu tentukan jam untuk menyusun alur kegiatan yang dinamis.
           </p>
           <button 
             id="btnEmptyLoadSample" 
@@ -623,6 +661,47 @@
       <form id="formEditActivity" class="space-y-4">
         <input type="hidden" id="editItemIndex">
         
+        <!-- Edit Owner Selection -->
+        <div>
+          <label class="block text-xs font-bold text-stone-800 mb-1.5">
+            Tipe Jadwal
+          </label>
+          <div class="grid grid-cols-3 gap-1.5" id="editOwnerToggleGroup">
+            <button type="button" id="btnEditOwnerHuda" data-owner="huda" class="edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600">
+              🔵 Huda
+            </button>
+            <button type="button" id="btnEditOwnerKenia" data-owner="kenia" class="edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600">
+              🌸 Kenia
+            </button>
+            <button type="button" id="btnEditOwnerBareng" data-owner="bareng" class="edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600">
+              ❤️ Bareng
+            </button>
+          </div>
+        </div>
+
+        <!-- Edit Time & Quick Chips -->
+        <div>
+          <label for="editTimeStr" class="block text-xs font-bold text-stone-800 mb-1">
+            Waktu / Jam Kegiatan <span class="text-rose-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="editTimeStr" 
+            required
+            placeholder="Misal 08:20 atau 15:00 - 19:00"
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-stone-900 focus:bg-white transition"
+          >
+          <div class="flex flex-wrap gap-1 mt-2" id="editQuickDurationChips">
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="15">15m</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="30">30m</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="45">45m</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="60">1 Jam</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="90">1.5 Jam</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="120">2 Jam</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="240">4 Jam</button>
+          </div>
+        </div>
+
         <div>
           <label for="editInputTitle" class="block text-xs font-semibold text-stone-700 mb-1">
             Nama Kegiatan <span class="text-rose-500">*</span>
@@ -633,45 +712,6 @@
             required
             class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white transition"
           >
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="text-xs font-semibold text-stone-700">
-              Durasi Kegiatan <span class="text-rose-500">*</span>
-            </label>
-            <span id="editDurationPreviewText" class="text-xs font-bold text-rose-600">30 menit</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="relative">
-              <input 
-                type="number" 
-                id="editDurationHours" 
-                min="0" 
-                max="24" 
-                step="1" 
-                value="0"
-                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition pr-12"
-              >
-              <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 pointer-events-none">
-                Jam
-              </span>
-            </div>
-            <div class="relative">
-              <input 
-                type="number" 
-                id="editDurationMinutes" 
-                min="0" 
-                max="59" 
-                step="5" 
-                value="30"
-                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition pr-14"
-              >
-              <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 pointer-events-none">
-                Menit
-              </span>
-            </div>
-          </div>
         </div>
 
         <div>
@@ -765,7 +805,7 @@
             class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-xs font-mono text-stone-800"
           >
           <p class="text-[11px] text-stone-500 mt-1.5 leading-relaxed">
-            Aplikasi sudah dilengkapi public cloud relay & local broadcast tab sync. Jika kamu punya proyek Firebase sendiri, cukup masukkan URL Realtime Database kamu di sini.
+            Aplikasi sudah dilengkapi cloud pubsub relay instan & local broadcast tab sync. Jika kamu punya proyek Firebase sendiri, masukkan URL Realtime Database di sini.
           </p>
         </div>
 
@@ -775,7 +815,7 @@
             type="button" 
             class="text-xs font-semibold text-stone-500 hover:text-rose-600 transition"
           >
-            Kembali ke Mode Lokal
+            Bikin Room Baru
           </button>
           <button 
             id="btnSaveSettings" 
@@ -792,90 +832,153 @@
   <!-- JavaScript Logic -->
   <script>
     // Ponytail & Anti-slop Architecture: Clean state, native browser features, zero bloat
-    const STORAGE_KEY = 'date_itinerary_multiday_v3';
+    const STORAGE_KEY = 'date_itinerary_stream_grid_v4';
     const FIREBASE_DB_KEY = 'date_planner_custom_firebase_url';
     
-    // Default Fallback Realtime DB endpoint (public open instance for date-planner rooms)
+    // Default Fallback Realtime DB endpoint
     const DEFAULT_RTDB_URL = "https://date-rundown-planner-default-rtdb.firebaseio.com";
 
-    // Default multi-day sample itinerary
+    // Default multi-day sample itinerary highlighting alternating Huda, Kenia & Bareng activities
     const DEFAULT_MULTI_DAY_DATA = {
       activeDayIndex: 0,
       days: [
         {
           id: 'day-1',
           title: 'Hari 1',
-          startTime: '10:00',
+          startTime: '08:30',
           activities: [
             {
               id: 'act-1-1',
+              owner: 'huda',
+              timeStr: '08:30 - 09:30',
               icon: '🚗',
-              title: 'Jemput & On the way',
-              duration: 45,
-              note: 'Bawa jaket & charger ponsel'
+              title: 'Cuci Mobil & Siapkan Outfit',
+              note: 'Cek bensin & e-toll siap',
+              done: false
             },
             {
               id: 'act-1-2',
-              icon: '☕',
-              title: 'Brunch & Ngopi Santai',
-              duration: 75,
-              note: 'Cafe Titik Koma (Reservasi outdoor)'
+              owner: 'kenia',
+              timeStr: '08:45 - 09:45',
+              icon: '💄',
+              title: 'Skincare & Makeup Cantik',
+              note: 'Outfit tema pastel hangat',
+              done: false
             },
             {
               id: 'act-1-3',
-              icon: '🎬',
-              title: 'Nonton Bioskop Premiere',
-              duration: 135,
-              note: 'Film pilihan jam tayang siang'
+              owner: 'bareng',
+              timeStr: '10:00 - 10:45',
+              icon: '🚗',
+              title: 'Jemput Doi & OTW ke Cafe',
+              note: 'Putar playlist lagu favorit berdua',
+              done: false
             },
             {
               id: 'act-1-4',
-              icon: '🛍️',
-              title: 'Jalan Santai & Hunting Photobox',
-              duration: 60,
-              note: 'Foto kenang-kenangan & cari gelato'
+              owner: 'bareng',
+              timeStr: '11:00 - 12:30',
+              icon: '☕',
+              title: 'Brunch & Ngopi Santai',
+              note: 'Cafe Titik Koma (Reservasi outdoor)',
+              done: false
             },
             {
               id: 'act-1-5',
-              icon: '🍽️',
-              title: 'Romantic Dinner',
-              duration: 90,
-              note: 'Resto Rooftop view senja'
+              owner: 'huda',
+              timeStr: '13:00 - 14:15',
+              icon: '📱',
+              title: 'Mampir Servis Gadget Sebentar',
+              note: 'Ambil tempered glass baru',
+              done: false
             },
             {
               id: 'act-1-6',
+              owner: 'kenia',
+              timeStr: '13:00 - 14:15',
+              icon: '🛍️',
+              title: 'Hunting Baju di Boutique Favorit',
+              note: 'Cari kado buat sahabat',
+              done: false
+            },
+            {
+              id: 'act-1-7',
+              owner: 'bareng',
+              timeStr: '14:30 - 17:00',
+              icon: '🎬',
+              title: 'Nonton Bioskop & Beli Popcorn',
+              note: 'Studio Premiere jam 14:45',
+              done: false
+            },
+            {
+              id: 'act-1-8',
+              owner: 'bareng',
+              timeStr: '17:30 - 18:30',
+              icon: '🌇',
+              title: 'Hunting Photobox & Gelato Senja',
+              note: 'Self-photo studio 4 pose lucu',
+              done: false
+            },
+            {
+              id: 'act-1-9',
+              owner: 'bareng',
+              timeStr: '19:00 - 20:30',
+              icon: '🍽️',
+              title: 'Romantic Dinner Rooftop',
+              note: 'Meja reservasi dengan city lights view',
+              done: false
+            },
+            {
+              id: 'act-1-10',
+              owner: 'bareng',
+              timeStr: '20:45 - 21:30',
               icon: '🏠',
               title: 'Antar Pulang dengan Selamat',
-              duration: 40,
-              note: 'Mampir beli camilan malam'
+              note: 'Kabari kalau sudah sampai rumah ya ❤️',
+              done: false
             }
           ]
         },
         {
           id: 'day-2',
           title: 'Hari 2',
-          startTime: '09:00',
+          startTime: '08:00',
           activities: [
             {
               id: 'act-2-1',
-              icon: '🥞',
-              title: 'Sarapan Pagi / Breakfast Date',
-              duration: 60,
-              note: 'Pancake & Waffle House'
+              owner: 'huda',
+              timeStr: '08:00 - 08:45',
+              icon: '🏃',
+              title: 'Jogging Pagi & Beli Sarapan',
+              note: 'Bubur ayam langganan',
+              done: false
             },
             {
               id: 'act-2-2',
-              icon: '🚶',
-              title: 'Jalan Santai di Taman Kota / Museum',
-              duration: 90,
-              note: 'Bawa kamera digital & topi'
+              owner: 'kenia',
+              timeStr: '08:15 - 09:00',
+              icon: '🥞',
+              title: 'Bikin Bekal & Buah Potong',
+              note: 'Bawa tumbler air dingin',
+              done: false
             },
             {
               id: 'act-2-3',
-              icon: '☕',
-              title: 'Afternoon Coffee & Boardgames',
-              duration: 75,
-              note: 'Main kartu obrolan deep talk'
+              owner: 'bareng',
+              timeStr: '09:30 - 11:30',
+              icon: '🚶',
+              title: 'Piknik di Taman Kota & Museum',
+              note: 'Gelar tikar di bawah pohon rindang',
+              done: false
+            },
+            {
+              id: 'act-2-4',
+              owner: 'bareng',
+              timeStr: '12:00 - 13:30',
+              icon: '🍽️',
+              title: 'Makan Siang Kuliner Nusantara',
+              note: 'Sate maranggi & es kelapa muda',
+              done: false
             }
           ]
         }
@@ -887,6 +990,9 @@
       activeDayIndex: 0,
       days: []
     };
+
+    let selectedOwner = 'huda'; // 'huda' | 'kenia' | 'bareng'
+    let editSelectedOwner = 'huda';
 
     let selectedCategory = {
       icon: '🚗',
@@ -900,43 +1006,91 @@
     let isIncomingSync = false;
     let syncDebounceTimer = null;
 
-    // Helper: parse HH:MM to total minutes
-    function timeToMinutes(timeStr) {
-      if (!timeStr || !timeStr.includes(':')) return 600; // default 10:00
-      const [h, m] = timeStr.split(':').map(Number);
-      return (h * 60) + (m || 0);
+    // ==========================================
+    // Smart Time Parsing, Calculations & Sorting
+    // ==========================================
+
+    // Extract start time in minutes (takes the first HH:MM encountered)
+    function extractStartTimeMinutes(timeStr) {
+      if (!timeStr) return 99999;
+      const match = String(timeStr).match(/(\d{1,2})[:.](\d{2})/);
+      if (match) {
+        const h = parseInt(match[1], 10);
+        const m = parseInt(match[2], 10);
+        return (h * 60) + m;
+      }
+      return 99999;
     }
 
-    // Helper: minutes to HH:MM (handles 24h wrap gracefully)
-    function minutesToTime(totalMins) {
+    // Extract end time in minutes (takes second HH:MM if range, or first if single)
+    function extractEndTimeMinutes(timeStr) {
+      if (!timeStr) return 0;
+      const matches = [...String(timeStr).matchAll(/(\d{1,2})[:.](\d{2})/g)];
+      if (matches.length >= 2) {
+        const h = parseInt(matches[1][1], 10);
+        const m = parseInt(matches[1][2], 10);
+        return (h * 60) + m;
+      } else if (matches.length === 1) {
+        const h = parseInt(matches[0][1], 10);
+        const m = parseInt(matches[0][2], 10);
+        return (h * 60) + m;
+      }
+      return 0;
+    }
+
+    // Convert total minutes to "HH:MM"
+    function minutesToTimeStr(totalMins) {
       const normalized = ((totalMins % 1440) + 1440) % 1440;
       const h = Math.floor(normalized / 60);
       const m = normalized % 60;
-      const daysExtra = Math.floor(totalMins / 1440);
-      
-      const timeFormatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-      return {
-        formatted: timeFormatted,
-        isNextDay: daysExtra > 0
-      };
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
     }
 
-    // Helper: format duration in Indonesian
-    function formatDurationText(mins) {
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
-      if (h > 0 && m > 0) return `${h} Jam ${m} Menit`;
-      if (h > 0) return `${h} Jam`;
-      return `${m} Menit`;
+    // Auto-Sort activities chronologically by start time
+    function sortActivities(activities) {
+      return [...activities].sort((a, b) => {
+        const tA = extractStartTimeMinutes(a.timeStr);
+        const tB = extractStartTimeMinutes(b.timeStr);
+        if (tA !== tB) return tA - tB;
+        // Tie-breaker: Huda left first, Kenia right second, Bareng center third
+        const order = { huda: 1, kenia: 2, bareng: 3 };
+        return (order[a.owner] || 2) - (order[b.owner] || 2);
+      });
     }
 
-    // Helper: format duration badge for timeline card (e.g. 1 Jam 30m, 2 Jam, 45m)
-    function formatDurationBadge(mins) {
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
-      if (h > 0 && m > 0) return `${h} Jam ${m}m`;
-      if (h > 0) return `${h} Jam`;
-      return `${m}m`;
+    // Smart Default Time Calculator:
+    // Finds the latest finished time from chosen category or overall
+    function getSmartDefaultTime(owner, dayObj) {
+      const activities = (dayObj && dayObj.activities) || [];
+      if (activities.length === 0) {
+        return dayObj?.startTime || '10:00';
+      }
+
+      let relevantActs = [];
+      if (owner === 'bareng') {
+        relevantActs = activities;
+      } else {
+        relevantActs = activities.filter(a => a.owner === owner || a.owner === 'bareng');
+      }
+
+      if (relevantActs.length === 0) {
+        return dayObj?.startTime || '10:00';
+      }
+
+      // Find max end time among relevant activities
+      let maxEndMins = 0;
+      relevantActs.forEach(act => {
+        const end = extractEndTimeMinutes(act.timeStr);
+        if (end > maxEndMins) {
+          maxEndMins = end;
+        }
+      });
+
+      if (maxEndMins > 0) {
+        return minutesToTimeStr(maxEndMins);
+      }
+
+      return dayObj?.startTime || '10:00';
     }
 
     // ==========================================
@@ -1024,7 +1178,21 @@
       }
     }
 
-    // Load State from LocalStorage (Guaranteed not to wipe user data on browser reload)
+    // ==========================================
+    // State Persistence & Migration
+    // ==========================================
+    function sanitizeActivity(act) {
+      return {
+        id: act.id || ('act-' + Math.random().toString(36).substring(2, 9)),
+        owner: (act.owner === 'huda' || act.owner === 'kenia' || act.owner === 'bareng') ? act.owner : 'bareng',
+        timeStr: act.timeStr || (act.duration ? `${act.startStr || '10:00'} - ${act.endStr || '11:00'}` : '10:00'),
+        icon: act.icon || '📌',
+        title: act.title || 'Agenda Kencan',
+        note: act.note || '',
+        done: Boolean(act.done)
+      };
+    }
+
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -1032,6 +1200,9 @@
           const parsed = JSON.parse(raw);
           if (parsed && Array.isArray(parsed.days)) {
             appState = parsed;
+            appState.days.forEach(day => {
+              day.activities = (day.activities || []).map(sanitizeActivity);
+            });
             if (appState.activeDayIndex >= appState.days.length) {
               appState.activeDayIndex = Math.max(0, appState.days.length - 1);
             }
@@ -1039,32 +1210,15 @@
           }
         }
 
-        // Backward compatibility checks
-        const backupRaw = localStorage.getItem('date_planner_local_backup_v4');
-        if (backupRaw) {
-          const parsed = JSON.parse(backupRaw);
+        // Backward compatibility from v3
+        const oldRaw = localStorage.getItem('date_itinerary_multiday_v3');
+        if (oldRaw) {
+          const parsed = JSON.parse(oldRaw);
           if (parsed && Array.isArray(parsed.days)) {
             appState = parsed;
-            saveState(false);
-            return;
-          }
-        }
-
-        const oldRaw = localStorage.getItem('date_itinerary_rundown_v2');
-        if (oldRaw) {
-          const oldParsed = JSON.parse(oldRaw);
-          if (oldParsed && Array.isArray(oldParsed.activities)) {
-            appState = {
-              activeDayIndex: 0,
-              days: [
-                {
-                  id: 'day-1',
-                  title: 'Hari 1',
-                  startTime: oldParsed.startTime || '10:00',
-                  activities: oldParsed.activities || []
-                }
-              ]
-            };
+            appState.days.forEach(day => {
+              day.activities = (day.activities || []).map(sanitizeActivity);
+            });
             saveState(false);
             return;
           }
@@ -1073,17 +1227,15 @@
         console.warn('Gagal membaca storage, menggunakan default', e);
       }
 
-      // Default sample state ONLY for initial brand-new load
+      // Initial sample state
       appState = JSON.parse(JSON.stringify(DEFAULT_MULTI_DAY_DATA));
       saveState(false);
     }
 
-    // Save State & Broadcast to Doi
     function saveState(shouldSync = true) {
       try {
         appState.updatedAt = Date.now();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-        localStorage.setItem('date_planner_local_backup_v4', JSON.stringify(appState));
       } catch (e) {
         console.error('Gagal menyimpan ke storage', e);
       }
@@ -1093,13 +1245,12 @@
       }
     }
 
-    // Get Active Day object safely
     function getActiveDay() {
       if (!appState.days || appState.days.length === 0) {
         appState.days = [{
           id: 'day-1',
           title: 'Hari 1',
-          startTime: '10:00',
+          startTime: '08:30',
           activities: []
         }];
         appState.activeDayIndex = 0;
@@ -1110,51 +1261,18 @@
       return appState.days[appState.activeDayIndex];
     }
 
-    // Calculate Schedule for a given day
-    function calculateScheduleForDay(dayObj) {
-      if (!dayObj) return { items: [], totalDurationMins: 0, endTimeFormatted: '--:--', isNextDayEnd: false };
-      
-      let currentMins = timeToMinutes(dayObj.startTime || '10:00');
-      let totalDuration = 0;
-
-      const schedule = (dayObj.activities || []).map((act, index) => {
-        const start = currentMins;
-        const dur = Number(act.duration || 0);
-        const end = start + dur;
-        totalDuration += dur;
-        currentMins = end;
-
-        const startTimeObj = minutesToTime(start);
-        const endTimeObj = minutesToTime(end);
-
-        return {
-          ...act,
-          index,
-          startStr: startTimeObj.formatted,
-          endStr: endTimeObj.formatted,
-          isNextDay: endTimeObj.isNextDay
-        };
-      });
-
-      const finishTimeObj = minutesToTime(currentMins);
-
-      return {
-        items: schedule,
-        totalDurationMins: totalDuration,
-        endTimeFormatted: finishTimeObj.formatted,
-        isNextDayEnd: finishTimeObj.isNextDay
-      };
-    }
-
-    // Render Full UI
+    // ==========================================
+    // UI Rendering
+    // ==========================================
     function renderApp() {
       const activeDay = getActiveDay();
-      const scheduleData = calculateScheduleForDay(activeDay);
       
-      // Render Day Tabs
+      // Auto-sort activities of active day
+      activeDay.activities = sortActivities(activeDay.activities || []);
+
       renderDayTabs();
 
-      // Update Header & Badge Information
+      // Header Badges
       const dayTitle = activeDay.title || `Hari ${appState.activeDayIndex + 1}`;
       document.getElementById('summaryDayTitleBadge').textContent = dayTitle.toUpperCase();
       document.getElementById('labelActiveDayName').textContent = dayTitle;
@@ -1162,20 +1280,41 @@
       document.getElementById('timelineActiveTitle').textContent = `Timeline ${dayTitle}`;
       document.getElementById('copyActiveDayBadge').textContent = dayTitle;
 
-      // Update Start Time input for active day
+      // Start Time input for active day
       const startInput = document.getElementById('startTimeInput');
-      if (startInput.value !== (activeDay.startTime || '10:00')) {
-        startInput.value = activeDay.startTime || '10:00';
+      if (startInput.value !== (activeDay.startTime || '08:30')) {
+        startInput.value = activeDay.startTime || '08:30';
       }
 
-      // Update Summary Bar
-      document.getElementById('summaryTotalDuration').textContent = formatDurationText(scheduleData.totalDurationMins);
-      document.getElementById('summaryEndTime').textContent = scheduleData.items.length > 0
-        ? `${scheduleData.endTimeFormatted} WIB${scheduleData.isNextDayEnd ? ' (+1 hari)' : ''}`
-        : '--:--';
-      document.getElementById('summaryCount').textContent = scheduleData.items.length;
+      // Compute summary metrics
+      const items = activeDay.activities;
+      let hudaCount = 0;
+      let keniaCount = 0;
+      let barengCount = 0;
+      let doneCount = 0;
 
-      // Show/hide Delete Active Day button (only if > 1 day)
+      items.forEach(it => {
+        if (it.owner === 'huda') hudaCount++;
+        else if (it.owner === 'kenia') keniaCount++;
+        else barengCount++;
+        if (it.done) doneCount++;
+      });
+
+      document.getElementById('summaryHudaCount').textContent = `🔵 ${hudaCount} Huda`;
+      document.getElementById('summaryKeniaCount').textContent = `🌸 ${keniaCount} Kenia`;
+      document.getElementById('summaryBarengCount').textContent = `❤️ ${barengCount} Bareng`;
+      document.getElementById('summaryProgressText').textContent = `${doneCount} / ${items.length} Selesai`;
+
+      if (items.length > 0) {
+        const firstTime = items[0].timeStr ? items[0].timeStr.split('-')[0].trim() : '--:--';
+        const lastItem = items[items.length - 1];
+        const lastTime = lastItem.timeStr ? lastItem.timeStr.split('-').pop().trim() : '--:--';
+        document.getElementById('summaryTimeSpan').textContent = `${firstTime} — ${lastTime}`;
+      } else {
+        document.getElementById('summaryTimeSpan').textContent = 'Belum ada agenda';
+      }
+
+      // Delete day button visibility
       const btnDeleteDay = document.getElementById('btnDeleteActiveDay');
       if (appState.days.length > 1) {
         btnDeleteDay.classList.remove('hidden');
@@ -1183,11 +1322,11 @@
         btnDeleteDay.classList.add('hidden');
       }
 
-      // Render Timeline Items or Empty State
+      // Render Timeline Cards in 2-Column Grid
       const container = document.getElementById('timelineContainer');
       const emptyState = document.getElementById('emptyState');
 
-      if (scheduleData.items.length === 0) {
+      if (items.length === 0) {
         container.innerHTML = '';
         container.classList.add('hidden');
         emptyState.classList.remove('hidden');
@@ -1195,78 +1334,91 @@
         emptyState.classList.add('hidden');
         container.classList.remove('hidden');
 
-        container.innerHTML = `
-          <!-- Continuous Vertical Background Line -->
-          <div class="absolute left-7 sm:left-9 top-6 bottom-6 w-0.5 bg-stone-200 -z-0"></div>
-          ${scheduleData.items.map((item, idx) => {
-            const isFirst = idx === 0;
-            const isLast = idx === scheduleData.items.length - 1;
-            
-            return `
-              <div class="timeline-item relative flex items-start gap-3 sm:gap-4 group animate-card" data-id="${item.id}">
-                
-                <!-- Timeline Dot Indicator -->
-                <div class="relative z-10 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white border-2 border-rose-500 shadow-sm flex items-center justify-center shrink-0 mt-3 text-xs font-bold text-rose-600">
-                  ${idx + 1}
-                </div>
+        container.innerHTML = items.map((item, idx) => {
+          let colClasses = '';
+          let borderBgClasses = '';
+          let badgeOwnerHtml = '';
+          let timeBadgeClasses = '';
 
-                <!-- Activity Card -->
-                <div class="flex-1 bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm hover:shadow-warm-md hover:border-rose-200 transition-all duration-200">
-                  
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-stone-100">
-                    <!-- Time Badge -->
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 text-rose-700 font-bold text-xs sm:text-sm border border-rose-200/80 tracking-tight">
-                        <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          if (item.owner === 'huda') {
+            // Kolom Kiri
+            colClasses = 'col-span-1 md:col-start-1 md:col-span-1';
+            borderBgClasses = 'border-sky-200/90 bg-white hover:border-sky-400 hover:shadow-warm-md';
+            badgeOwnerHtml = `
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800 border border-sky-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                <span>🔵 Huda</span>
+              </span>
+            `;
+            timeBadgeClasses = 'bg-sky-50 text-sky-700 border-sky-100';
+          } else if (item.owner === 'kenia') {
+            // Kolom Kanan
+            colClasses = 'col-span-1 md:col-start-2 md:col-span-1';
+            borderBgClasses = 'border-pink-200/90 bg-white hover:border-pink-400 hover:shadow-warm-md';
+            badgeOwnerHtml = `
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pink-100 text-pink-800 border border-pink-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-pink-400"></span>
+                <span>🌸 Kenia</span>
+              </span>
+            `;
+            timeBadgeClasses = 'bg-pink-50 text-pink-700 border-pink-100';
+          } else {
+            // Merged / Bareng: Melebar ke tengah (col-span-2)
+            colClasses = 'col-span-1 md:col-span-2';
+            borderBgClasses = 'border-rose-300 bg-gradient-to-r from-rose-50/70 via-white to-amber-50/40 hover:border-rose-400 hover:shadow-warm-md';
+            badgeOwnerHtml = `
+              <span class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white shadow-sm shadow-rose-200">
+                <span>❤️ Bareng (Merged)</span>
+              </span>
+            `;
+            timeBadgeClasses = 'bg-rose-100/80 text-rose-800 border-rose-200';
+          }
+
+          const doneOpacity = item.done ? 'opacity-65' : '';
+          const strikeTitle = item.done ? 'line-through text-stone-400' : 'text-stone-900';
+          const strikeNote = item.done ? 'line-through text-stone-400' : 'text-stone-600';
+
+          return `
+            <div class="${colClasses} transition-all duration-200 animate-card" data-id="${item.id}">
+              <div class="h-full border rounded-2xl p-4 sm:p-5 shadow-warm-sm flex flex-col justify-between ${borderBgClasses} ${doneOpacity}">
+                
+                <div>
+                  <!-- Card Header: Badges & Actions -->
+                  <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-stone-100">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      ${badgeOwnerHtml}
+                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg font-bold text-xs border ${timeBadgeClasses}">
+                        <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        ${item.startStr} - ${item.endStr}
-                        ${item.isNextDay ? '<span class="text-[10px] bg-rose-200/60 px-1.5 rounded text-rose-800">+1 hari</span>' : ''}
-                      </span>
-                      <span class="text-xs font-semibold px-2 py-0.5 rounded-lg bg-stone-100 text-stone-600">
-                        ${formatDurationBadge(item.duration)}
+                        <span>${escapeHtml(item.timeStr || '--:--')}</span>
                       </span>
                     </div>
 
-                    <!-- Action Buttons: Up, Down, Edit, Delete -->
-                    <div class="flex items-center gap-1 self-end sm:self-center">
-                      <!-- Move Up -->
+                    <!-- Right Card Actions: Done, Edit, Delete -->
+                    <div class="flex items-center gap-1">
+                      <!-- Toggle Done Button -->
                       <button 
                         type="button" 
-                        class="btn-move-up p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center" 
-                        data-index="${idx}"
-                        ${isFirst ? 'disabled' : ''}
-                        title="Geser ke atas"
-                        aria-label="Pindahkan aktivitas ${item.title} ke atas"
+                        class="btn-toggle-done inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition ${item.done ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-stone-100 hover:bg-stone-200 text-stone-600'}"
+                        data-id="${item.id}"
+                        title="${item.done ? 'Tandai belum selesai' : 'Tandai selesai'}"
                       >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
-                        </svg>
-                      </button>
-
-                      <!-- Move Down -->
-                      <button 
-                        type="button" 
-                        class="btn-move-down p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center" 
-                        data-index="${idx}"
-                        ${isLast ? 'disabled' : ''}
-                        title="Geser ke bawah"
-                        aria-label="Pindahkan aktivitas ${item.title} ke bawah"
-                      >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                        </svg>
+                        <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[10px] font-bold ${item.done ? 'bg-emerald-600 text-white' : 'border border-stone-400 bg-white'}">
+                          ${item.done ? '✓' : ''}
+                        </span>
+                        <span class="text-[11px]">${item.done ? 'Selesai' : 'Done'}</span>
                       </button>
 
                       <!-- Edit Button -->
                       <button 
                         type="button" 
-                        class="btn-edit p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center" 
-                        data-index="${idx}"
-                        title="Ubah agenda"
-                        aria-label="Ubah aktivitas ${item.title}"
+                        class="btn-edit p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition min-w-[32px] min-h-[32px] flex items-center justify-center" 
+                        data-id="${item.id}"
+                        title="Ubah aktivitas"
+                        aria-label="Ubah ${item.title}"
                       >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
@@ -1274,26 +1426,28 @@
                       <!-- Delete Button -->
                       <button 
                         type="button" 
-                        class="btn-delete p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center" 
-                        data-index="${idx}"
-                        title="Hapus agenda"
-                        aria-label="Hapus aktivitas ${item.title}"
+                        class="btn-delete p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition min-w-[32px] min-h-[32px] flex items-center justify-center" 
+                        data-id="${item.id}"
+                        title="Hapus aktivitas"
+                        aria-label="Hapus ${item.title}"
                       >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
                     </div>
                   </div>
 
-                  <!-- Activity Details -->
+                  <!-- Activity Title & Description -->
                   <div class="mt-3">
                     <div class="flex items-start gap-2.5">
-                      <span class="text-xl sm:text-2xl shrink-0 mt-0.5 select-none" aria-hidden="true">${item.icon || '📌'}</span>
+                      <span class="text-xl shrink-0 mt-0.5 select-none" aria-hidden="true">${item.icon || '📌'}</span>
                       <div class="flex-1 min-w-0">
-                        <h4 class="text-sm sm:text-base font-bold text-stone-900 break-words">${escapeHtml(item.title)}</h4>
+                        <h4 class="text-sm sm:text-base font-bold break-words ${strikeTitle}">
+                          ${escapeHtml(item.title)}
+                        </h4>
                         ${item.note ? `
-                          <div class="mt-1 flex items-start gap-1.5 text-xs text-stone-600 font-medium">
+                          <div class="mt-1 flex items-start gap-1.5 text-xs font-medium ${strikeNote}">
                             <span class="text-rose-500 shrink-0 mt-0.5" aria-hidden="true">📍</span>
                             <span class="break-words">${escapeHtml(item.note)}</span>
                           </div>
@@ -1301,15 +1455,21 @@
                       </div>
                     </div>
                   </div>
-
                 </div>
+
+                <!-- Footer Time Stamp / Status -->
+                <div class="mt-3 pt-2 border-t border-stone-100/80 flex items-center justify-between text-[11px] text-stone-400">
+                  <span>Urutan #${idx + 1}</span>
+                  <span class="capitalize">${item.owner === 'bareng' ? 'Bersama' : item.owner}</span>
+                </div>
+
               </div>
-            `;
-          }).join('')}
-        `;
+            </div>
+          `;
+        }).join('');
       }
 
-      // Update WhatsApp Preview Text
+      // Refresh WhatsApp Preview
       updateWhatsAppPreview();
     }
 
@@ -1336,32 +1496,36 @@
       }).join('');
     }
 
-    // WhatsApp Text Generator for Single Day
+    // WhatsApp Text Generator
     function generateWhatsAppTextForDay(dayObj, dayNumber) {
-      const schedule = calculateScheduleForDay(dayObj);
+      const activities = sortActivities(dayObj.activities || []);
       const title = dayObj.title || `Hari ${dayNumber}`;
       
       const lines = [
-        `📅 *${title.toUpperCase()}* [Waktu Mulai: ${dayObj.startTime || '10:00'}]`
+        `📅 *${title.toUpperCase()}*`
       ];
 
-      if (!schedule.items || schedule.items.length === 0) {
+      if (activities.length === 0) {
         lines.push('(Belum ada kegiatan dijadwalkan)');
       } else {
-        schedule.items.forEach(item => {
-          lines.push(`⏰ ${item.startStr} - ${item.endStr} | ${item.icon ? item.icon + ' ' : ''}${item.title}`);
+        activities.forEach(item => {
+          let ownerTag = '';
+          if (item.owner === 'huda') ownerTag = '🔵 [Huda]';
+          else if (item.owner === 'kenia') ownerTag = '🌸 [Kenia]';
+          else ownerTag = '❤️ [Bareng]';
+
+          const doneMark = item.done ? '✅ ' : '⏳ ';
+          lines.push(`${doneMark}⏰ ${item.timeStr || '--:--'} | ${ownerTag} ${item.icon ? item.icon + ' ' : ''}${item.title}`);
           if (item.note && item.note.trim() !== '') {
-            lines.push(`📍 Catatan: ${item.note.trim()}`);
+            lines.push(`   📍 Catatan: ${item.note.trim()}`);
           }
           lines.push('');
         });
-        lines.push(`Total Durasi: ${formatDurationText(schedule.totalDurationMins)} (Selesai ~${schedule.endTimeFormatted})`);
       }
 
       return lines.join('\n');
     }
 
-    // WhatsApp Text Generator for ALL Days
     function generateWhatsAppTextAllDays() {
       const parts = [
         '✨ Our Date Itinerary ✨',
@@ -1400,7 +1564,7 @@
       }
     }
 
-    // Toast notification with optional direct Undo action
+    // Toast notification
     function showToast(message, type = 'info', withUndo = false) {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
@@ -1519,7 +1683,6 @@
     function joinRoom(roomId) {
       currentRoomId = roomId;
       
-      // Update browser URL
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.set('room', roomId);
       window.history.replaceState({}, '', newUrl.toString());
@@ -1527,7 +1690,6 @@
       const settingsInput = document.getElementById('settingsRoomInput');
       if (settingsInput) settingsInput.value = roomId;
 
-      // Connect to Cloud Relay & Firebase
       connectRoomRelay(roomId);
     }
 
@@ -1556,7 +1718,6 @@
           updateConnBadge('connected', `🟢 Terhubung: ${roomId}`);
           console.log(`🟢 [Realtime] Sukses terhubung ke room [${roomId}]! Siap sinkronisasi instan.`);
           
-          // Request current room state from peers if any are active
           sendPayloadOverSocket({
             type: 'HELLO_HANDSHAKE',
             senderId: myClientId,
@@ -1571,7 +1732,6 @@
             if (outer.event === 'message' && outer.message) {
               const payload = JSON.parse(outer.message);
               
-              // Skip own echo
               if (payload.senderId === myClientId) return;
               if (payload.roomId !== currentRoomId) return;
 
@@ -1584,7 +1744,7 @@
               }
             }
           } catch (err) {
-            // Keepalive or ping
+            // ping/keepalive
           }
         };
 
@@ -1608,7 +1768,6 @@
         updateConnBadge('disconnected', `🔴 Sync Gagal`);
       }
 
-      // Also attach Firebase Realtime Database
       connectFirebase(roomId);
     }
 
@@ -1644,7 +1803,6 @@
           rtdbRef = db.ref('rooms/' + roomId);
           console.log(`🔥 [Firebase RTDB] Listener aktif di path: rooms/${roomId}`);
 
-          // Listen for remote updates via Firebase RTDB
           rtdbRef.on('value', (snapshot) => {
             const val = snapshot.val();
             if (val && val.senderId && val.senderId !== myClientId && val.days) {
@@ -1661,7 +1819,6 @@
     function handleRemoteStateUpdate(remoteState) {
       if (!remoteState || !Array.isArray(remoteState.days)) return;
       
-      // Avoid overwriting newer local edits if remote is older
       if (appState && appState.updatedAt && remoteState.updatedAt) {
         if (remoteState.updatedAt < appState.updatedAt) {
           console.log('ℹ️ [Realtime] Mengabaikan update remote yang lebih lama dari data lokal');
@@ -1701,7 +1858,7 @@
         // 1. Send via Cloud PubSub
         sendPayloadOverSocket(payload);
 
-        // 2. Send via Firebase Realtime Database if configured
+        // 2. Send via Firebase Realtime Database
         if (rtdbRef) {
           try {
             rtdbRef.set({
@@ -1730,7 +1887,6 @@
       }
     }
 
-    // Share Link Generator
     function shareRoomLink() {
       const roomId = currentRoomId || getOrInitRoomId();
       const shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomId)}`;
@@ -1741,8 +1897,126 @@
     // ==========================================
     // Event Handlers & Initialization
     // ==========================================
+    function setFormOwner(owner) {
+      selectedOwner = owner;
+
+      const btnHuda = document.getElementById('btnOwnerHuda');
+      const btnKenia = document.getElementById('btnOwnerKenia');
+      const btnBareng = document.getElementById('btnOwnerBareng');
+      const hintText = document.getElementById('ownerHintText');
+
+      if (btnHuda) {
+        btnHuda.className = owner === 'huda'
+          ? 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-sky-400 bg-sky-100 text-sky-900 shadow-sm'
+          : 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100';
+      }
+      if (btnKenia) {
+        btnKenia.className = owner === 'kenia'
+          ? 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-pink-400 bg-pink-100 text-pink-900 shadow-sm'
+          : 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100';
+      }
+      if (btnBareng) {
+        btnBareng.className = owner === 'bareng'
+          ? 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-rose-500 bg-rose-500 text-white shadow-sm'
+          : 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100';
+      }
+
+      if (hintText) {
+        if (owner === 'huda') {
+          hintText.textContent = '🔵 Jadwal Huda akan masuk di kolom kiri (col-span-1)';
+          hintText.className = 'text-[11px] text-sky-700 mt-1 font-medium';
+        } else if (owner === 'kenia') {
+          hintText.textContent = '🌸 Jadwal Kenia akan masuk di kolom kanan (col-span-1 col-start-2)';
+          hintText.className = 'text-[11px] text-pink-700 mt-1 font-medium';
+        } else {
+          hintText.textContent = '❤️ Jadwal Bareng otomatis melebar di tengah (col-span-2)';
+          hintText.className = 'text-[11px] text-rose-700 mt-1 font-medium';
+        }
+      }
+
+      // Auto-Fill Jam Mulai (Smart Default)
+      autoFillSmartTime(false);
+    }
+
+    function setEditOwner(owner) {
+      editSelectedOwner = owner;
+      const btnHuda = document.getElementById('btnEditOwnerHuda');
+      const btnKenia = document.getElementById('btnEditOwnerKenia');
+      const btnBareng = document.getElementById('btnEditOwnerBareng');
+
+      if (btnHuda) {
+        btnHuda.className = owner === 'huda'
+          ? 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-sky-400 bg-sky-100 text-sky-900 shadow-sm'
+          : 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600';
+      }
+      if (btnKenia) {
+        btnKenia.className = owner === 'kenia'
+          ? 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-pink-400 bg-pink-100 text-pink-900 shadow-sm'
+          : 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600';
+      }
+      if (btnBareng) {
+        btnBareng.className = owner === 'bareng'
+          ? 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-rose-500 bg-rose-500 text-white shadow-sm'
+          : 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600';
+      }
+    }
+
+    function autoFillSmartTime(force = true) {
+      const timeInput = document.getElementById('inputTimeStr');
+      if (!timeInput) return;
+
+      if (!force && timeInput.value.trim() !== '') {
+        return;
+      }
+
+      const activeDay = getActiveDay();
+      const smart = getSmartDefaultTime(selectedOwner, activeDay);
+      timeInput.value = smart;
+
+      const badge = document.getElementById('timeHintBadge');
+      if (badge) badge.textContent = `Saran: ${smart}`;
+    }
+
+    // Quick Duration Chip Click Handler:
+    // If input has "15:00" and user clicks [4 Jam], formats to "15:00 - 19:00"
+    function applyDurationChip(mins, isEditModal = false) {
+      const inputEl = isEditModal 
+        ? document.getElementById('editTimeStr') 
+        : document.getElementById('inputTimeStr');
+      
+      if (!inputEl) return;
+
+      const currentVal = inputEl.value.trim();
+      let startMins = extractStartTimeMinutes(currentVal);
+
+      if (startMins >= 1440 || startMins === 99999) {
+        const activeDay = getActiveDay();
+        const owner = isEditModal ? editSelectedOwner : selectedOwner;
+        const defaultTime = getSmartDefaultTime(owner, activeDay);
+        startMins = extractStartTimeMinutes(defaultTime);
+      }
+
+      const endMins = (startMins + mins) % 1440;
+      const startStr = minutesToTimeStr(startMins);
+      const endStr = minutesToTimeStr(endMins);
+
+      inputEl.value = `${startStr} - ${endStr}`;
+      inputEl.focus();
+
+      // Highlight active chip
+      const selector = isEditModal ? '.edit-quick-chip' : '.quick-chip';
+      document.querySelectorAll(selector).forEach(chip => {
+        const chipMins = parseInt(chip.dataset.mins, 10);
+        if (chipMins === mins) {
+          chip.className = `${selector.replace('.', '')} text-xs font-bold px-2.5 py-1 rounded-lg border border-rose-400 bg-rose-100 text-rose-800 transition shadow-sm`;
+        } else {
+          chip.className = `${selector.replace('.', '')} text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition`;
+        }
+      });
+    }
+
     function initEvents() {
-      // 0. Undo and Redo Button Events & Shortcuts
+      // 0. Undo and Redo Button Events & Keyboard Shortcuts
       const btnUndo = document.getElementById('btnUndo');
       const btnRedo = document.getElementById('btnRedo');
       if (btnUndo) btnUndo.addEventListener('click', performUndo);
@@ -1766,12 +2040,40 @@
         }
       });
 
-      // 1. Anchor Start Time change for active day
+      // 1. Owner Selection Buttons in Form
+      document.getElementById('btnOwnerHuda')?.addEventListener('click', () => setFormOwner('huda'));
+      document.getElementById('btnOwnerKenia')?.addEventListener('click', () => setFormOwner('kenia'));
+      document.getElementById('btnOwnerBareng')?.addEventListener('click', () => setFormOwner('bareng'));
+
+      // 2. Reset Smart Time Button
+      document.getElementById('btnResetSmartTime')?.addEventListener('click', () => {
+        autoFillSmartTime(true);
+        showToast('Waktu diset ulang ke saran jadwal berikutnya.', 'info');
+      });
+
+      // 3. Quick Duration Chips Delegation
+      document.getElementById('quickDurationChips')?.addEventListener('click', (e) => {
+        const chip = e.target.closest('.quick-chip');
+        if (chip) {
+          const mins = parseInt(chip.dataset.mins, 10);
+          applyDurationChip(mins, false);
+        }
+      });
+
+      document.getElementById('editQuickDurationChips')?.addEventListener('click', (e) => {
+        const chip = e.target.closest('.edit-quick-chip');
+        if (chip) {
+          const mins = parseInt(chip.dataset.mins, 10);
+          applyDurationChip(mins, true);
+        }
+      });
+
+      // 4. Anchor Start Time change for active day
       const startTimeInput = document.getElementById('startTimeInput');
       startTimeInput.addEventListener('change', (e) => {
-        recordHistory('Ubah Waktu Mulai');
+        recordHistory('Ubah Patokan Jam Mulai');
         const activeDay = getActiveDay();
-        activeDay.startTime = e.target.value || '10:00';
+        activeDay.startTime = e.target.value || '08:30';
         saveState();
         renderApp();
       });
@@ -1780,17 +2082,17 @@
       document.querySelectorAll('.preset-start-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const time = btn.dataset.time;
-          recordHistory(`Ubah Waktu Mulai ke ${time}`);
+          recordHistory(`Ubah Jam Mulai ke ${time}`);
           const activeDay = getActiveDay();
           activeDay.startTime = time;
           startTimeInput.value = time;
           saveState();
           renderApp();
-          showToast(`Waktu mulai diatur ke ${time}`, 'info');
+          showToast(`Jam mulai diatur ke ${time}`, 'info');
         });
       });
 
-      // 2. Multi-Day Tab switching
+      // 5. Multi-Day Tab switching
       document.getElementById('dayTabsContainer').addEventListener('click', (e) => {
         const btn = e.target.closest('.day-tab-btn');
         if (btn) {
@@ -1799,28 +2101,30 @@
             appState.activeDayIndex = dayIndex;
             saveState(false);
             renderApp();
+            autoFillSmartTime(false);
           }
         }
       });
 
-      // 3. Add New Day
+      // 6. Add New Day
       document.getElementById('btnAddDay').addEventListener('click', () => {
         recordHistory('Tambah Hari');
         const newDayNumber = appState.days.length + 1;
         const newDay = {
           id: `day-${Date.now()}`,
           title: `Hari ${newDayNumber}`,
-          startTime: '10:00',
+          startTime: '09:00',
           activities: []
         };
         appState.days.push(newDay);
         appState.activeDayIndex = appState.days.length - 1;
         saveState();
         renderApp();
+        autoFillSmartTime(true);
         showToast(`Hari ${newDayNumber} berhasil ditambahkan!`, 'success');
       });
 
-      // 4. Delete Active Day
+      // 7. Delete Active Day
       document.getElementById('btnDeleteActiveDay').addEventListener('click', () => {
         if (appState.days.length <= 1) {
           showToast('Minimal harus ada 1 hari kencan.', 'info');
@@ -1828,7 +2132,7 @@
         }
 
         const activeDay = getActiveDay();
-        if (confirm(`Yakin ingin menghapus ${activeDay.title}? Seluruh aktivitas di hari ini akan dihapus.`)) {
+        if (confirm(`Yakin ingin menghapus ${activeDay.title}? Seluruh kegiatan di hari ini akan dihapus.`)) {
           recordHistory(`Hapus ${activeDay.title}`);
           appState.days.splice(appState.activeDayIndex, 1);
           if (appState.activeDayIndex >= appState.days.length) {
@@ -1840,7 +2144,7 @@
         }
       });
 
-      // 5. Clear Activities of Active Day
+      // 8. Clear Activities of Active Day
       document.getElementById('btnClearActiveDay').addEventListener('click', () => {
         const activeDay = getActiveDay();
         if (!activeDay.activities || activeDay.activities.length === 0) return;
@@ -1850,33 +2154,49 @@
           activeDay.activities = [];
           saveState();
           renderApp();
+          autoFillSmartTime(true);
           showToast(`Agenda ${activeDay.title} telah dibersihkan.`, 'info', true);
         }
       });
 
-      // 6. Form Add Activity
+      // 9. Category Chip Selection
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.category-btn').forEach(b => {
+            b.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]';
+          });
+          btn.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[34px]';
+          selectedCategory = {
+            icon: btn.dataset.icon,
+            cat: btn.dataset.cat
+          };
+        });
+      });
+
+      // 10. Form Add Activity Submit
       const formAdd = document.getElementById('formAddActivity');
       formAdd.addEventListener('submit', (e) => {
         e.preventDefault();
         const titleInput = document.getElementById('inputTitle');
+        const timeInput = document.getElementById('inputTimeStr');
         const noteInput = document.getElementById('inputNote');
 
         const title = titleInput.value.trim();
-        const h = parseInt(document.getElementById('inputDurationHours').value, 10) || 0;
-        const m = parseInt(document.getElementById('inputDurationMinutes').value, 10) || 0;
-        const duration = Math.max(5, (h * 60) + m);
+        const timeStr = timeInput.value.trim();
         const note = noteInput.value.trim();
 
-        if (!title) return;
+        if (!title || !timeStr) return;
 
         recordHistory(`Tambah: ${title}`);
 
         const newActivity = {
           id: 'act-' + Date.now(),
+          owner: selectedOwner,
+          timeStr: timeStr,
           icon: selectedCategory.icon || '📌',
-          title,
-          duration,
-          note
+          title: title,
+          note: note,
+          done: false
         };
 
         const activeDay = getActiveDay();
@@ -1890,113 +2210,99 @@
         noteInput.value = '';
         titleInput.focus();
 
-        showToast(`"${title}" berhasil ditambahkan ke ${activeDay.title}!`, 'success', true);
+        // Calculate next smart default time
+        autoFillSmartTime(true);
+
+        const ownerLabel = selectedOwner === 'huda' ? '🔵 Jadwal Huda' : (selectedOwner === 'kenia' ? '🌸 Jadwal Kenia' : '❤️ Jadwal Bareng');
+        showToast(`"${title}" ditambahkan ke ${ownerLabel}!`, 'success', true);
       });
 
-      // Duration Input (Hours & Minutes) & Chip Presets
-      const inputDurationHours = document.getElementById('inputDurationHours');
-      const inputDurationMinutes = document.getElementById('inputDurationMinutes');
-      const durationPreviewText = document.getElementById('durationPreviewText');
-      
-      function updateAddDurationPreview() {
-        const h = parseInt(inputDurationHours.value, 10) || 0;
-        const m = parseInt(inputDurationMinutes.value, 10) || 0;
-        const total = (h * 60) + m;
-        if (h > 0 && m > 0) {
-          durationPreviewText.textContent = `${h} Jam ${m} Menit (${total}m)`;
-        } else if (h > 0) {
-          durationPreviewText.textContent = `${h} Jam (${total}m)`;
-        } else {
-          durationPreviewText.textContent = `${m} menit`;
-        }
-        updateActiveChip(h, m);
-      }
-
-      inputDurationHours.addEventListener('input', updateAddDurationPreview);
-      inputDurationMinutes.addEventListener('input', updateAddDurationPreview);
-
-      function updateActiveChip(h, m) {
-        document.querySelectorAll('.duration-chip').forEach(chip => {
-          const chipH = parseInt(chip.dataset.hours, 10) || 0;
-          const chipM = parseInt(chip.dataset.mins, 10) || 0;
-          if (chipH === h && chipM === m) {
-            chip.className = 'duration-chip active-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 transition min-h-[36px]';
-          } else {
-            chip.className = 'duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]';
-          }
-        });
-      }
-
-      document.querySelectorAll('.duration-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-          const h = parseInt(chip.dataset.hours, 10) || 0;
-          const m = parseInt(chip.dataset.mins, 10) || 0;
-          inputDurationHours.value = h;
-          inputDurationMinutes.value = m;
-          updateAddDurationPreview();
-        });
-      });
-
-      // Category Selection
-      document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.category-btn').forEach(b => {
-            b.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]';
-          });
-          btn.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[36px]';
-          selectedCategory = {
-            icon: btn.dataset.icon,
-            cat: btn.dataset.cat
-          };
-        });
-      });
-
-      // 7. Timeline Reorder, Edit, Delete Delegation
+      // 11. Timeline Delegated Actions: Done Toggle, Edit, Delete
       const timelineContainer = document.getElementById('timelineContainer');
       timelineContainer.addEventListener('click', (e) => {
-        const btnUp = e.target.closest('.btn-move-up');
-        const btnDown = e.target.closest('.btn-move-down');
-        const btnDelete = e.target.closest('.btn-delete');
+        const btnDone = e.target.closest('.btn-toggle-done');
         const btnEdit = e.target.closest('.btn-edit');
+        const btnDelete = e.target.closest('.btn-delete');
         const activeDay = getActiveDay();
 
-        if (btnUp) {
-          const idx = parseInt(btnUp.dataset.index, 10);
-          if (idx > 0 && activeDay.activities[idx]) {
-            recordHistory('Pindahkan ke Atas');
-            const temp = activeDay.activities[idx];
-            activeDay.activities[idx] = activeDay.activities[idx - 1];
-            activeDay.activities[idx - 1] = temp;
+        if (btnDone) {
+          const actId = btnDone.dataset.id;
+          const act = activeDay.activities.find(a => a.id === actId);
+          if (act) {
+            act.done = !act.done;
+            recordHistory(`Tandai ${act.done ? 'Selesai' : 'Belum Selesai'}: ${act.title}`);
             saveState();
             renderApp();
-          }
-        } else if (btnDown) {
-          const idx = parseInt(btnDown.dataset.index, 10);
-          if (idx < activeDay.activities.length - 1 && activeDay.activities[idx]) {
-            recordHistory('Pindahkan ke Bawah');
-            const temp = activeDay.activities[idx];
-            activeDay.activities[idx] = activeDay.activities[idx + 1];
-            activeDay.activities[idx + 1] = temp;
-            saveState();
-            renderApp();
-          }
-        } else if (btnDelete) {
-          const idx = parseInt(btnDelete.dataset.index, 10);
-          const act = activeDay.activities[idx];
-          if (act && confirm(`Hapus kegiatan "${act.title}"?`)) {
-            recordHistory(`Hapus: ${act.title}`);
-            activeDay.activities.splice(idx, 1);
-            saveState();
-            renderApp();
-            showToast(`Aktivitas "${act.title}" dihapus.`, 'info', true);
+            showToast(act.done ? `✅ "${act.title}" selesai!` : `"${act.title}" ditandai belum selesai`, 'info');
           }
         } else if (btnEdit) {
-          const idx = parseInt(btnEdit.dataset.index, 10);
-          openEditModal(idx);
+          const actId = btnEdit.dataset.id;
+          openEditModal(actId);
+        } else if (btnDelete) {
+          const actId = btnDelete.dataset.id;
+          const act = activeDay.activities.find(a => a.id === actId);
+          if (act && confirm(`Hapus kegiatan "${act.title}"?`)) {
+            recordHistory(`Hapus: ${act.title}`);
+            activeDay.activities = activeDay.activities.filter(a => a.id !== actId);
+            saveState();
+            renderApp();
+            showToast(`"${act.title}" dihapus.`, 'info', true);
+          }
         }
       });
 
-      // 8. Safe Sample Itinerary Loader & Reset Options
+      // 12. Edit Activity Modal
+      const editModal = document.getElementById('editModal');
+      const formEdit = document.getElementById('formEditActivity');
+
+      document.getElementById('btnEditOwnerHuda')?.addEventListener('click', () => setEditOwner('huda'));
+      document.getElementById('btnEditOwnerKenia')?.addEventListener('click', () => setEditOwner('kenia'));
+      document.getElementById('btnEditOwnerBareng')?.addEventListener('click', () => setEditOwner('bareng'));
+
+      function openEditModal(actId) {
+        const activeDay = getActiveDay();
+        const item = activeDay.activities.find(a => a.id === actId);
+        if (!item) return;
+
+        document.getElementById('editItemIndex').value = actId;
+        document.getElementById('editInputTitle').value = item.title;
+        document.getElementById('editTimeStr').value = item.timeStr;
+        document.getElementById('editInputNote').value = item.note || '';
+        
+        setEditOwner(item.owner || 'bareng');
+
+        editModal.classList.remove('hidden');
+        document.getElementById('editInputTitle').focus();
+      }
+
+      function closeEditModal() {
+        editModal.classList.add('hidden');
+      }
+
+      document.getElementById('btnCloseModal')?.addEventListener('click', closeEditModal);
+      document.getElementById('btnCancelEdit')?.addEventListener('click', closeEditModal);
+
+      formEdit.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const actId = document.getElementById('editItemIndex').value;
+        const activeDay = getActiveDay();
+        const item = activeDay.activities.find(a => a.id === actId);
+        if (!item) return;
+
+        recordHistory(`Ubah: ${item.title}`);
+
+        item.owner = editSelectedOwner;
+        item.title = document.getElementById('editInputTitle').value.trim();
+        item.timeStr = document.getElementById('editTimeStr').value.trim();
+        item.note = document.getElementById('editInputNote').value.trim();
+
+        saveState();
+        renderApp();
+        closeEditModal();
+        showToast('Perubahan kegiatan berhasil disimpan!', 'success', true);
+      });
+
+      // 13. Sample Loaders & Reset
       const handleLoadSample = (force = false) => {
         const hasExisting = appState.days.some(d => d.activities && d.activities.length > 0);
         if (hasExisting && !force) {
@@ -2008,6 +2314,7 @@
         appState = JSON.parse(JSON.stringify(DEFAULT_MULTI_DAY_DATA));
         saveState();
         renderApp();
+        autoFillSmartTime(true);
         showToast('Contoh itinerary kencan berhasil dimuat!', 'success', true);
       };
 
@@ -2022,17 +2329,18 @@
             {
               id: 'day-1',
               title: 'Hari 1',
-              startTime: '10:00',
+              startTime: '08:30',
               activities: []
             }
           ]
         };
         saveState();
         renderApp();
+        autoFillSmartTime(true);
         showToast('Rencana kencan telah dikosongkan.', 'info', true);
       };
 
-      // Timeline Options Menu
+      // Timeline Options Menu Dropdown
       const btnTimelineMenu = document.getElementById('btnTimelineMenu');
       const timelineOptionsMenu = document.getElementById('timelineOptionsMenu');
       if (btnTimelineMenu) {
@@ -2061,7 +2369,7 @@
         handleLoadSample(true);
       });
 
-      // 9. WhatsApp Copy Dropdown & Buttons
+      // 14. WhatsApp Copy Dropdown & Buttons
       const btnCopyWaMain = document.getElementById('btnCopyWaMain');
       const copyWaMenu = document.getElementById('copyWaMenu');
 
@@ -2076,115 +2384,44 @@
         }
       });
 
-      document.getElementById('btnCopyActiveDay').addEventListener('click', () => {
+      document.getElementById('btnCopyActiveDay')?.addEventListener('click', () => {
         const activeDay = getActiveDay();
         const text = generateWhatsAppTextForDay(activeDay, appState.activeDayIndex + 1);
         copyTextToClipboard(text, `Format WhatsApp untuk ${activeDay.title} berhasil disalin!`);
       });
 
-      document.getElementById('btnCopyAllDays').addEventListener('click', () => {
+      document.getElementById('btnCopyAllDays')?.addEventListener('click', () => {
         const text = generateWhatsAppTextAllDays();
         copyTextToClipboard(text, 'Rangkuman SELURUH HARI berhasil disalin ke WhatsApp!');
       });
 
-      document.getElementById('btnQuickCopyActive').addEventListener('click', () => {
+      document.getElementById('btnQuickCopyActive')?.addEventListener('click', () => {
         const activeDay = getActiveDay();
         const text = generateWhatsAppTextForDay(activeDay, appState.activeDayIndex + 1);
         copyTextToClipboard(text, `Format WhatsApp untuk ${activeDay.title} berhasil disalin!`);
       });
 
-      document.getElementById('btnQuickCopyAll').addEventListener('click', () => {
+      document.getElementById('btnQuickCopyAll')?.addEventListener('click', () => {
         const text = generateWhatsAppTextAllDays();
         copyTextToClipboard(text, 'Rangkuman SELURUH HARI berhasil disalin ke WhatsApp!');
       });
 
-      // 10. Share Room Button
-      document.getElementById('btnShareRoom').addEventListener('click', shareRoomLink);
+      // 15. Share Room Button
+      document.getElementById('btnShareRoom')?.addEventListener('click', shareRoomLink);
 
-      // 11. Edit Activity Modal
-      const editModal = document.getElementById('editModal');
-      const formEdit = document.getElementById('formEditActivity');
-
-      function openEditModal(index) {
-        const activeDay = getActiveDay();
-        const item = activeDay.activities[index];
-        if (!item) return;
-
-        document.getElementById('editItemIndex').value = index;
-        document.getElementById('editInputTitle').value = item.title;
-
-        const totalMins = item.duration || 30;
-        const h = Math.floor(totalMins / 60);
-        const m = totalMins % 60;
-        document.getElementById('editDurationHours').value = h;
-        document.getElementById('editDurationMinutes').value = m;
-        updateEditDurationPreview();
-
-        document.getElementById('editInputNote').value = item.note || '';
-
-        editModal.classList.remove('hidden');
-        document.getElementById('editInputTitle').focus();
-      }
-
-      function updateEditDurationPreview() {
-        const h = parseInt(document.getElementById('editDurationHours').value, 10) || 0;
-        const m = parseInt(document.getElementById('editDurationMinutes').value, 10) || 0;
-        const total = (h * 60) + m;
-        const preview = document.getElementById('editDurationPreviewText');
-        if (h > 0 && m > 0) {
-          preview.textContent = `${h} Jam ${m} Menit (${total}m)`;
-        } else if (h > 0) {
-          preview.textContent = `${h} Jam (${total}m)`;
-        } else {
-          preview.textContent = `${m} menit`;
-        }
-      }
-
-      document.getElementById('editDurationHours').addEventListener('input', updateEditDurationPreview);
-      document.getElementById('editDurationMinutes').addEventListener('input', updateEditDurationPreview);
-
-      function closeEditModal() {
-        editModal.classList.add('hidden');
-      }
-
-      document.getElementById('btnCloseModal').addEventListener('click', closeEditModal);
-      document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
-
-      formEdit.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const index = parseInt(document.getElementById('editItemIndex').value, 10);
-        const activeDay = getActiveDay();
-        if (isNaN(index) || !activeDay.activities[index]) return;
-
-        const h = parseInt(document.getElementById('editDurationHours').value, 10) || 0;
-        const m = parseInt(document.getElementById('editDurationMinutes').value, 10) || 0;
-        const total = Math.max(5, (h * 60) + m);
-
-        recordHistory(`Ubah: ${activeDay.activities[index].title}`);
-
-        activeDay.activities[index].title = document.getElementById('editInputTitle').value.trim();
-        activeDay.activities[index].duration = total;
-        activeDay.activities[index].note = document.getElementById('editInputNote').value.trim();
-
-        saveState();
-        renderApp();
-        closeEditModal();
-        showToast('Perubahan kegiatan berhasil disimpan!', 'success', true);
-      });
-
-      // 12. Settings Modal
+      // 16. Settings Modal
       const settingsModal = document.getElementById('settingsModal');
-      document.getElementById('btnOpenSettings').addEventListener('click', () => {
+      document.getElementById('btnOpenSettings')?.addEventListener('click', () => {
         document.getElementById('settingsRoomInput').value = currentRoomId || '';
         document.getElementById('settingsDbUrl').value = localStorage.getItem(FIREBASE_DB_KEY) || '';
         settingsModal.classList.remove('hidden');
       });
 
-      document.getElementById('btnCloseSettingsModal').addEventListener('click', () => {
+      document.getElementById('btnCloseSettingsModal')?.addEventListener('click', () => {
         settingsModal.classList.add('hidden');
       });
 
-      document.getElementById('btnApplyRoom').addEventListener('click', () => {
+      document.getElementById('btnApplyRoom')?.addEventListener('click', () => {
         const roomId = document.getElementById('settingsRoomInput').value.trim();
         if (roomId) {
           joinRoom(roomId);
@@ -2192,12 +2429,12 @@
         }
       });
 
-      document.getElementById('btnResetToLocal').addEventListener('click', () => {
+      document.getElementById('btnResetToLocal')?.addEventListener('click', () => {
         leaveRoom();
         settingsModal.classList.add('hidden');
       });
 
-      document.getElementById('btnSaveSettings').addEventListener('click', () => {
+      document.getElementById('btnSaveSettings')?.addEventListener('click', () => {
         const customUrl = document.getElementById('settingsDbUrl').value.trim();
         if (customUrl) {
           localStorage.setItem(FIREBASE_DB_KEY, customUrl);
@@ -2231,6 +2468,7 @@
       renderApp();
       initEvents();
       updateUndoRedoButtons();
+      autoFillSmartTime(false);
       initRealtimeSync();
     });
   </script>
