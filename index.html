@@ -1452,25 +1452,40 @@
     }
 
     // ==========================================
-    // Real-Time Room & Firebase Sync Engine
+    // Real-Time Room & Cloud Sync Engine
     // ==========================================
-    function initRealtimeSync() {
-      // 1. Check URL parameters for ?room=
+    const myClientId = 'usr_' + Math.random().toString(36).substring(2, 9);
+    let activeWebSocket = null;
+    let reconnectTimeout = null;
+
+    function getOrInitRoomId() {
       const urlParams = new URLSearchParams(window.location.search);
-      const roomParam = urlParams.get('room');
-
-      if (roomParam && roomParam.trim() !== '') {
-        joinRoom(roomParam.trim());
+      let room = urlParams.get('room');
+      if (!room || room.trim() === '') {
+        const randomId = Math.floor(1000 + Math.random() * 9000);
+        room = `date-kita-${randomId}`;
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('room', room);
+        window.history.replaceState({}, '', newUrl.toString());
+        console.log('✨ [Room] Dibuat Room ID baru otomatis:', room);
       } else {
-        updateConnBadge(false, 'Mode Lokal');
+        room = room.trim().toLowerCase();
+        console.log('🔗 [Room] Menggunakan Room ID dari URL:', room);
       }
+      return room;
+    }
 
-      // 2. Setup BroadcastChannel for Instant Cross-Tab Sync (Same Browser)
+    function initRealtimeSync() {
+      const roomId = getOrInitRoomId();
+      joinRoom(roomId);
+
+      // Local cross-tab broadcast channel
       try {
-        localBroadcastChannel = new BroadcastChannel('date_planner_room_sync');
+        localBroadcastChannel = new BroadcastChannel(`date_planner_room_${roomId}`);
         localBroadcastChannel.onmessage = (event) => {
-          if (event.data && event.data.type === 'SYNC_STATE') {
-            if (event.data.roomId === currentRoomId) {
+          if (event.data && event.data.type === 'STATE_UPDATE') {
+            if (event.data.roomId === currentRoomId && event.data.senderId !== myClientId) {
+              console.log('📥 [Local Tab Sync] Menerima data dari tab lain:', event.data.state);
               handleRemoteStateUpdate(event.data.state);
             }
           }
@@ -1480,133 +1495,247 @@
       }
     }
 
-    function updateConnBadge(isConnected, text) {
+    function updateConnBadge(status, text) {
       const badge = document.getElementById('connBadge');
       const dot = document.getElementById('connDot');
       const label = document.getElementById('connText');
+      if (!badge || !dot || !label) return;
 
-      if (isConnected) {
-        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0';
+      if (status === 'connected') {
+        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 cursor-pointer hover:bg-emerald-100 transition';
         dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse';
-        label.textContent = text || 'Doi Online / Terhubung';
+        label.textContent = text || `🟢 Terhubung: ${currentRoomId}`;
+      } else if (status === 'connecting') {
+        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 shrink-0 cursor-pointer';
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
+        label.textContent = text || `🟡 Menghubungkan...`;
       } else {
-        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-stone-600 border border-stone-200 shrink-0';
-        dot.className = 'w-1.5 h-1.5 rounded-full bg-stone-400';
-        label.textContent = text || 'Mode Lokal';
+        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 shrink-0 cursor-pointer';
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500';
+        label.textContent = text || `🔴 Terputus`;
       }
     }
 
     function joinRoom(roomId) {
       currentRoomId = roomId;
       
-      // Update browser URL without reload
+      // Update browser URL
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.set('room', roomId);
       window.history.replaceState({}, '', newUrl.toString());
 
-      updateConnBadge(true, `🟢 Room: ${roomId}`);
-      document.getElementById('settingsRoomInput').value = roomId;
+      const settingsInput = document.getElementById('settingsRoomInput');
+      if (settingsInput) settingsInput.value = roomId;
 
-      // Connect to Firebase Realtime Database
-      connectFirebase(roomId);
-
-      showToast(`Terhubung ke Room "${roomId}". Siap kolaborasi bareng doi!`, 'success');
+      // Connect to Cloud Relay & Firebase
+      connectRoomRelay(roomId);
     }
 
     function leaveRoom() {
-      currentRoomId = null;
-      if (rtdbRef) {
-        try { rtdbRef.off(); } catch (e) {}
-        rtdbRef = null;
-      }
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('room');
-      window.history.replaceState({}, '', newUrl.toString());
+      const newRoom = `date-kita-${Math.floor(1000 + Math.random() * 9000)}`;
+      joinRoom(newRoom);
+      showToast(`Beralih ke room baru "${newRoom}".`, 'info');
+    }
 
-      updateConnBadge(false, 'Mode Lokal');
-      showToast('Kembali ke mode lokal mandiri.', 'info');
+    function connectRoomRelay(roomId) {
+      if (activeWebSocket) {
+        try { activeWebSocket.close(); } catch (e) {}
+        activeWebSocket = null;
+      }
+
+      updateConnBadge('connecting', `🟡 Menghubungkan ke ${roomId}...`);
+      console.log('🔄 [Realtime] Membuka koneksi cloud untuk room:', roomId);
+
+      const wsUrl = `wss://ntfy.sh/rundown_room_${encodeURIComponent(roomId)}/ws`;
+      
+      try {
+        const ws = new WebSocket(wsUrl);
+        activeWebSocket = ws;
+
+        ws.onopen = () => {
+          updateConnBadge('connected', `🟢 Terhubung: ${roomId}`);
+          console.log(`🟢 [Realtime] Sukses terhubung ke room [${roomId}]! Siap sinkronisasi instan.`);
+          
+          // Request current room state from peers if any are active
+          sendPayloadOverSocket({
+            type: 'HELLO_HANDSHAKE',
+            senderId: myClientId,
+            roomId: roomId,
+            timestamp: Date.now()
+          });
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const outer = JSON.parse(event.data);
+            if (outer.event === 'message' && outer.message) {
+              const payload = JSON.parse(outer.message);
+              
+              // Skip own echo
+              if (payload.senderId === myClientId) return;
+              if (payload.roomId !== currentRoomId) return;
+
+              if (payload.type === 'HELLO_HANDSHAKE') {
+                console.log('👋 [Realtime] Doi baru saja membuka link room! Mengirimkan data jadwal terkini...');
+                broadcastStateChange(true);
+              } else if (payload.type === 'STATE_UPDATE' && payload.state) {
+                console.log('📥 [Realtime] Data baru diterima dari remote room:', roomId, payload.state);
+                handleRemoteStateUpdate(payload.state);
+              }
+            }
+          } catch (err) {
+            // Keepalive or ping
+          }
+        };
+
+        ws.onclose = () => {
+          if (currentRoomId === roomId) {
+            console.warn('⚠️ [Realtime] Koneksi terputus, mencoba menyambung kembali dalam 2 detik...');
+            updateConnBadge('disconnected', `🔴 Terputus / Reconnecting...`);
+            clearTimeout(reconnectTimeout);
+            reconnectTimeout = setTimeout(() => {
+              connectRoomRelay(roomId);
+            }, 2000);
+          }
+        };
+
+        ws.onerror = (err) => {
+          console.warn('⚠️ [Realtime] Notice koneksi WebSocket:', err);
+        };
+
+      } catch (err) {
+        console.error('❌ [Realtime] Gagal membuat koneksi WebSocket:', err);
+        updateConnBadge('disconnected', `🔴 Sync Gagal`);
+      }
+
+      // Also attach Firebase Realtime Database
+      connectFirebase(roomId);
+    }
+
+    function sendPayloadOverSocket(payload) {
+      const roomId = currentRoomId;
+      if (!roomId) return;
+
+      const jsonStr = JSON.stringify(payload);
+
+      fetch(`https://ntfy.sh/rundown_room_${encodeURIComponent(roomId)}`, {
+        method: 'POST',
+        body: jsonStr,
+        headers: { 'Content-Type': 'text/plain' }
+      }).then(() => {
+        console.log('📤 [Realtime] Data berhasil dikirim ke cloud room:', roomId);
+      }).catch(err => {
+        console.warn('⚠️ [Realtime] Gagal broadcast via cloud relay:', err);
+      });
     }
 
     function connectFirebase(roomId) {
-      const customDbUrl = localStorage.getItem(FIREBASE_DB_KEY) || DEFAULT_RTDB_URL;
+      const customDbUrl = localStorage.getItem(FIREBASE_DB_KEY);
       
       try {
-        if (!firebase.apps.length) {
+        if (!firebase.apps.length && customDbUrl) {
           firebase.initializeApp({
             databaseURL: customDbUrl
           });
         }
         
-        const db = firebase.database();
-        rtdbRef = db.ref('rooms/' + roomId);
+        if (firebase.apps.length) {
+          const db = firebase.database();
+          rtdbRef = db.ref('rooms/' + roomId);
+          console.log(`🔥 [Firebase RTDB] Listener aktif di path: rooms/${roomId}`);
 
-        // Listen for remote updates
-        rtdbRef.on('value', (snapshot) => {
-          const val = snapshot.val();
-          if (val && val.days) {
-            handleRemoteStateUpdate(val);
-          } else if (!val) {
-            // First time room creation: upload current state
-            rtdbRef.set(appState);
-          }
-        });
-
+          // Listen for remote updates via Firebase RTDB
+          rtdbRef.on('value', (snapshot) => {
+            const val = snapshot.val();
+            if (val && val.senderId && val.senderId !== myClientId && val.days) {
+              console.log(`📥 [Firebase RTDB] Data diterima dari rooms/${roomId}:`, val);
+              handleRemoteStateUpdate(val);
+            }
+          });
+        }
       } catch (err) {
         console.warn('Firebase connection notice:', err);
-        // Fallback gracefully to BroadcastChannel
       }
     }
 
     function handleRemoteStateUpdate(remoteState) {
       if (!remoteState || !Array.isArray(remoteState.days)) return;
       
+      // Avoid overwriting newer local edits if remote is older
+      if (appState && appState.updatedAt && remoteState.updatedAt) {
+        if (remoteState.updatedAt < appState.updatedAt) {
+          console.log('ℹ️ [Realtime] Mengabaikan update remote yang lebih lama dari data lokal');
+          return;
+        }
+      }
+
+      console.log('⚡ [Realtime] Mengaplikasikan data remote ke layar secara reaktif...');
       isIncomingSync = true;
       appState = remoteState;
       saveState(false);
       renderApp();
       isIncomingSync = false;
+
+      showToast('✨ Jadwal kencan baru saja diperbarui oleh doi!', 'info');
     }
 
-    function broadcastStateChange() {
-      if (!currentRoomId) return;
+    function broadcastStateChange(immediate = false) {
+      if (!currentRoomId || isIncomingSync) return;
 
-      // Debounce network write to prevent excessive traffic
       clearTimeout(syncDebounceTimer);
-      syncDebounceTimer = setTimeout(() => {
-        // 1. Sync via Firebase Realtime Database if connected
+
+      const send = () => {
+        const payload = {
+          type: 'STATE_UPDATE',
+          roomId: currentRoomId,
+          senderId: myClientId,
+          timestamp: Date.now(),
+          state: {
+            ...appState,
+            updatedAt: Date.now()
+          }
+        };
+
+        console.log(`📤 [Realtime] Mengirimkan perubahan jadwal ke room [${currentRoomId}]...`);
+
+        // 1. Send via Cloud PubSub
+        sendPayloadOverSocket(payload);
+
+        // 2. Send via Firebase Realtime Database if configured
         if (rtdbRef) {
           try {
-            rtdbRef.set(appState);
+            rtdbRef.set({
+              senderId: myClientId,
+              updatedAt: Date.now(),
+              ...appState
+            });
+            console.log(`🔥 [Firebase RTDB] Data di-set ke path: rooms/${currentRoomId}`);
           } catch (e) {
-            console.error('Firebase sync error:', e);
+            console.warn('Firebase set error:', e);
           }
         }
 
-        // 2. Sync via BroadcastChannel (local tabs/split-screens)
+        // 3. Send via local BroadcastChannel
         if (localBroadcastChannel) {
           try {
-            localBroadcastChannel.postMessage({
-              type: 'SYNC_STATE',
-              roomId: currentRoomId,
-              state: appState
-            });
+            localBroadcastChannel.postMessage(payload);
           } catch (e) {}
         }
-      }, 250);
+      };
+
+      if (immediate) {
+        send();
+      } else {
+        syncDebounceTimer = setTimeout(send, 180);
+      }
     }
 
     // Share Link Generator
     function shareRoomLink() {
-      let roomId = currentRoomId;
-      if (!roomId) {
-        // Generate sweet random room slug
-        const randomNum = Math.floor(1000 + Math.random() * 9000);
-        roomId = `date-kita-${randomNum}`;
-        joinRoom(roomId);
-      }
-
+      const roomId = currentRoomId || getOrInitRoomId();
       const shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomId)}`;
-      copyTextToClipboard(shareUrl, 'Link kolaborasi disalin! Kirimkan ke pacar agar bisa mengedit bareng.');
+      copyTextToClipboard(shareUrl, `Link room "${roomId}" disalin! Kirimkan ke pacar agar bisa merencanakan bareng.`);
+      console.log('📋 [Share] Link room disalin ke clipboard:', shareUrl);
     }
 
     // ==========================================
