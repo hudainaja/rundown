@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Date Itinerary & Auto-Rundown Planner</title>
-  <meta name="description" content="Rencanakan agenda kencan impian dengan kalkulasi jam otomatis, visualisasi timeline yang hangat dan estetik, serta fitur salin ke WhatsApp.">
+  <meta name="description" content="Rencanakan agenda kencan impian multi-hari dengan kalkulasi jam otomatis, kolaborasi real-time bareng doi, dan ekspor rapi ke WhatsApp.">
   
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,8 +54,12 @@
     }
   </script>
 
+  <!-- Firebase App & Database Compat SDK via CDN (No build tool needed) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <style>
-    /* Custom refined touches following antislop principles */
+    /* Antislop principles: clean surfaces, no gratuitous glow, clear hierarchy */
     body {
       background-color: #faf8f5;
       color: #27272a;
@@ -63,7 +67,7 @@
     }
 
     /* Accessible focus rings */
-    input:focus-visible, button:focus-visible, textarea:focus-visible {
+    input:focus-visible, button:focus-visible, textarea:focus-visible, select:focus-visible {
       outline: 2px solid #e11d48;
       outline-offset: 2px;
     }
@@ -84,11 +88,11 @@
       background: #d3cac0;
     }
 
-    /* Animations */
+    /* Smooth card entry */
     @keyframes fadeInSlide {
       from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(6px);
       }
       to {
         opacity: 1;
@@ -96,53 +100,98 @@
       }
     }
     .animate-card {
-      animation: fadeInSlide 0.22s ease-out forwards;
-    }
-
-    /* Timeline connectors */
-    .timeline-item:last-child .timeline-line {
-      display: none;
+      animation: fadeInSlide 0.2s ease-out forwards;
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans selection:bg-rose-100 selection:text-rose-900 text-stone-800">
 
   <!-- Top App Navigation / Header -->
-  <header class="bg-white/90 backdrop-blur-md border-b border-warm-border sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-sm shadow-rose-200">
-          <!-- Calendar Heart Icon -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-warm-border sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      
+      <!-- Brand & Room Indicator -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-sm shadow-rose-200 shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 14c-.6-1-1.8-1.3-2.5-.7-.7.7-.6 1.8.3 2.7l2.2 2 2.2-2c.9-.9 1-2 .3-2.7-.7-.6-1.9-.3-2.5.7z"/>
           </svg>
         </div>
-        <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-stone-900 flex items-center gap-2">
-            Date Planner
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/60 hidden sm:inline-block">Auto-Rundown</span>
-          </h1>
-          <p class="text-xs text-stone-500 hidden sm:block">Susun agenda kencan dengan kalkulasi jam otomatis & instan</p>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold tracking-tight text-stone-900 truncate">
+              Date Planner
+            </h1>
+            <!-- Connection Status Badge -->
+            <span id="connBadge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-stone-600 border border-stone-200 shrink-0">
+              <span id="connDot" class="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
+              <span id="connText" class="truncate max-w-[120px] sm:max-w-xs">Mode Lokal</span>
+            </span>
+          </div>
+          <p class="text-[11px] text-stone-500 hidden sm:block truncate">Auto-rundown beruntun & kolaborasi kencan real-time</p>
         </div>
       </div>
 
       <!-- Quick Header Actions -->
-      <div class="flex items-center gap-2">
-        <button id="btnLoadSample" type="button" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 active:scale-95 rounded-lg transition min-h-[40px] focus:outline-none">
-          <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Share Link to Doi Button -->
+        <button 
+          id="btnShareRoom" 
+          type="button" 
+          class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 active:scale-95 rounded-xl transition min-h-[40px] focus:outline-none"
+          title="Salin link room untuk ajak pacar merencanakan bareng secara real-time"
+        >
+          <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
-          <span class="hidden xs:inline">Contoh Acara</span>
-          <span class="xs:hidden">Contoh</span>
+          <span class="hidden xs:inline">Bagikan ke Doi</span>
+          <span class="xs:hidden">Bagikan</span>
         </button>
 
-        <button id="btnCopyWaHeader" type="button" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 rounded-lg shadow-sm shadow-rose-200 transition min-h-[40px] focus:outline-none">
+        <!-- Copy WhatsApp Options Dropdown Button -->
+        <div class="relative">
+          <button 
+            id="btnCopyWaMain" 
+            type="button" 
+            class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 rounded-xl shadow-sm shadow-rose-200 transition min-h-[40px] focus:outline-none"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            <span>Salin WA</span>
+            <svg class="w-3 h-3 text-rose-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu Salin WA -->
+          <div id="copyWaMenu" class="hidden absolute right-0 mt-2 w-56 bg-white border border-warm-border rounded-xl shadow-warm-lg py-1.5 z-50 animate-card">
+            <button id="btnCopyActiveDay" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-stone-700 hover:bg-rose-50 hover:text-rose-700 transition flex items-center justify-between">
+              <span>Salin Hari Aktif Saja</span>
+              <span id="copyActiveDayBadge" class="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded">Hari 1</span>
+            </button>
+            <button id="btnCopyAllDays" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-stone-700 hover:bg-rose-50 hover:text-rose-700 transition flex items-center justify-between">
+              <span>Salin Seluruh Hari</span>
+              <span id="copyAllDaysBadge" class="text-[10px] bg-rose-100 text-rose-700 font-bold px-1.5 py-0.5 rounded">Semua Hari</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Room Settings / Config Icon Button -->
+        <button 
+          id="btnOpenSettings" 
+          type="button" 
+          class="p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl transition min-h-[40px] min-w-[40px] flex items-center justify-center focus:outline-none"
+          title="Pengaturan Database & Sesi Room"
+          aria-label="Pengaturan"
+        >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span>Salin ke WA</span>
         </button>
+
       </div>
     </div>
   </header>
@@ -150,18 +199,56 @@
   <!-- Main Container -->
   <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
     
-    <!-- Top Summary Banner (Always visible & responsive) -->
-    <section aria-label="Ringkasan Rundown" class="mb-6 bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm">
+    <!-- Multi-Day Navigation Tabs Bar -->
+    <section aria-label="Navigasi Hari Kencan" class="mb-6 bg-white border border-warm-border rounded-2xl p-2 sm:p-2.5 shadow-warm-sm flex items-center justify-between gap-2 overflow-x-auto">
+      <div id="dayTabsContainer" class="flex items-center gap-1.5 min-w-0 flex-nowrap overflow-x-auto py-0.5">
+        <!-- Day tabs rendered via JS -->
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-stone-200">
+        <!-- Add New Day Button -->
+        <button 
+          id="btnAddDay" 
+          type="button" 
+          class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 active:scale-95 rounded-xl transition min-h-[38px] whitespace-nowrap focus:outline-none"
+          title="Tambah hari kencan berikutnya (misal Hari 2)"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Tambah Hari</span>
+        </button>
+
+        <!-- Delete Active Day Button (hidden if only 1 day) -->
+        <button 
+          id="btnDeleteActiveDay" 
+          type="button" 
+          class="p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition min-h-[38px] min-w-[38px] flex items-center justify-center focus:outline-none"
+          title="Hapus hari yang sedang aktif"
+          aria-label="Hapus Hari Ini"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Top Summary Banner for Active Day -->
+    <section aria-label="Ringkasan Rundown Hari Aktif" class="mb-6 bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-700 shrink-0">
-            <!-- Clock Icon -->
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div>
-            <div class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Estimasi Waktu Kencan</div>
+            <div class="flex items-center gap-2">
+              <span id="summaryDayTitleBadge" class="text-xs font-bold text-rose-600 uppercase tracking-wider">HARI 1</span>
+              <span class="text-stone-300">•</span>
+              <span class="text-xs font-medium text-stone-500">Estimasi Rundown</span>
+            </div>
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-0.5">
               <span id="summaryTotalDuration" class="text-lg sm:text-xl font-bold text-stone-900">0 Jam 0 Menit</span>
               <span class="text-stone-300 hidden sm:inline">•</span>
@@ -176,11 +263,11 @@
           <div class="text-xs text-stone-500">
             Total Kegiatan: <span id="summaryCount" class="font-bold text-stone-800">0</span>
           </div>
-          <button id="btnClearAll" type="button" class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition min-h-[36px] flex items-center gap-1 focus:outline-none">
+          <button id="btnClearActiveDay" type="button" class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition min-h-[36px] flex items-center gap-1 focus:outline-none">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-            Hapus Semua
+            Bersihkan Hari Ini
           </button>
         </div>
       </div>
@@ -192,13 +279,16 @@
       <!-- KOLOM KIRI: Sticky Control Panel & Input Form (41% Desktop / 5 cols) -->
       <section aria-label="Panel Kontrol dan Input" class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
         
-        <!-- Box 1: Anchor Start Time -->
+        <!-- Box 1: Anchor Start Time for Active Day -->
         <div class="bg-white border border-warm-border rounded-2xl p-5 shadow-warm-sm">
-          <label for="startTimeInput" class="block text-sm font-bold text-stone-900 mb-1">
-            Waktu Mulai Kencan (Anchor Time)
-          </label>
+          <div class="flex items-center justify-between mb-1">
+            <label for="startTimeInput" class="block text-sm font-bold text-stone-900">
+              Waktu Mulai (<span id="labelActiveDayName">Hari 1</span>)
+            </label>
+            <span class="text-[11px] text-stone-400">Anchor Time</span>
+          </div>
           <p class="text-xs text-stone-500 mb-3">
-            Tentukan jam awal mulai. Seluruh rundown di sebelah kanan akan terkalkulasi berurutan dari jam ini.
+            Tentukan jam awal mulai hari ini. Tiap hari memiliki jam mulai mandiri tanpa bentrok.
           </p>
 
           <div class="flex items-center gap-3">
@@ -218,7 +308,7 @@
           <!-- Quick presets for Start Time -->
           <div class="mt-3 flex flex-wrap items-center gap-1.5">
             <span class="text-[11px] text-stone-400 font-medium mr-1">Preset:</span>
-            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="09:00">09:00</button>
+            <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="08:30">08:30</button>
             <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="10:00">10:00</button>
             <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="13:00">13:00</button>
             <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1 rounded-md bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="16:00">16:00</button>
@@ -231,9 +321,9 @@
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-sm font-bold text-stone-900 flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-              Tambah Aktivitas
+              Tambah Kegiatan (<span id="formDayBadge">Hari 1</span>)
             </h2>
-            <span class="text-[11px] text-stone-400">Otomatis urut ke bawah</span>
+            <span class="text-[11px] text-stone-400">Auto-rundown</span>
           </div>
 
           <form id="formAddActivity" class="space-y-4">
@@ -242,15 +332,13 @@
               <label for="inputTitle" class="block text-xs font-semibold text-stone-700 mb-1">
                 Nama Kegiatan <span class="text-rose-500">*</span>
               </label>
-              <div class="relative">
-                <input 
-                  type="text" 
-                  id="inputTitle" 
-                  placeholder="Misal: Brunch & Ngopi, Nonton Bioskop, dsb." 
-                  required
-                  class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
-                >
-              </div>
+              <input 
+                type="text" 
+                id="inputTitle" 
+                placeholder="Misal: Brunch & Ngopi, Nonton Bioskop, dsb." 
+                required
+                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
+              >
             </div>
 
             <!-- Durasi (Menit) + Preset Chips -->
@@ -348,14 +436,14 @@
           </form>
         </div>
 
-        <!-- Quick Info Card -->
+        <!-- Room Sync Info Card -->
         <div class="bg-rose-50/60 border border-rose-100 rounded-2xl p-4 text-xs text-rose-900 flex items-start gap-2.5">
           <svg class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          <p class="leading-relaxed">
-            Data tersimpan otomatis di browser ini (Local Storage). Kamu bebas memindahkan urutan atau mengubah durasi, jam seluruh agenda akan terhitung ulang secara instan.
-          </p>
+          <div class="leading-relaxed">
+            <span class="font-bold">Real-Time Sync Aktif:</span> Setiap kali kamu atau doi menambah/menggeser kegiatan, jadwal langsung ter-update di kedua layar secara instan.
+          </div>
         </div>
 
       </section>
@@ -367,33 +455,35 @@
         <div class="bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm flex items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
-              <h2 class="text-base sm:text-lg font-bold text-stone-900 tracking-tight">Timeline Rundown</h2>
-              <span id="liveBadge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
+              <h2 id="timelineActiveTitle" class="text-base sm:text-lg font-bold text-stone-900 tracking-tight">Timeline Rundown</h2>
+              <span id="timelineSyncIndicator" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 Tersinkron
               </span>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Urutan kegiatan berurutan dari jam awal sampai selesai</p>
+            <p class="text-xs text-stone-500 mt-0.5">Urutan jadwal terkalkulasi otomatis secara berantai</p>
           </div>
 
-          <button 
-            id="btnCopyWaTimeline" 
-            type="button" 
-            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 rounded-xl transition active:scale-95 min-h-[40px]"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-            </svg>
-            <span>Salin Format WA</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button 
+              id="btnLoadSample" 
+              type="button" 
+              class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 active:scale-95 rounded-xl transition min-h-[38px]"
+              title="Muat contoh jadwal kencan romantis"
+            >
+              <svg class="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Muat Contoh</span>
+            </button>
+          </div>
         </div>
 
         <!-- Timeline Items List Container -->
         <div id="timelineContainer" class="relative pl-4 sm:pl-6 space-y-3">
           <!-- Continuous Vertical Background Line -->
           <div class="absolute left-7 sm:left-9 top-6 bottom-6 w-0.5 bg-stone-200 -z-0"></div>
-
-          <!-- Cards will be rendered here dynamically via JS -->
+          <!-- Cards will be rendered dynamically via JS -->
         </div>
 
         <!-- Empty State Container -->
@@ -403,7 +493,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
-          <h3 class="text-base font-bold text-stone-900 mb-1">Belum Ada Agenda Kencan</h3>
+          <h3 class="text-base font-bold text-stone-900 mb-1">Belum Ada Agenda di Hari Ini</h3>
           <p class="text-xs text-stone-500 max-w-sm mx-auto mb-5 leading-relaxed">
             Isi form di sebelah kiri untuk menambah kegiatan baru, atau klik tombol di bawah untuk memuat contoh itinerary siap pakai.
           </p>
@@ -426,11 +516,17 @@
               <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 2.029.814 3.096.815h.005c3.18 0 5.767-2.586 5.768-5.766 0-3.18-2.587-5.767-5.769-5.767zm7.64 5.765c0 4.218-3.435 7.653-7.64 7.653-1.348 0-2.61-.351-3.717-.965l-4.144 1.087 1.107-4.043c-.694-1.164-1.066-2.502-1.066-3.732 0-4.218 3.435-7.653 7.64-7.653 4.205 0 7.64 3.435 7.64 7.653z"/>
               </svg>
-              Pratinjau Teks Salinan WhatsApp
+              Pratinjau Teks WhatsApp (Siap Kirim)
             </span>
-            <button id="btnCopyWaPreview" type="button" class="text-xs font-bold text-rose-600 hover:text-rose-700 px-2 py-1 rounded transition">
-              Salin Teks
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="btnQuickCopyActive" type="button" class="text-xs font-bold text-rose-600 hover:text-rose-700 px-2 py-1 rounded transition">
+                Salin Hari Ini
+              </button>
+              <span class="text-stone-300">|</span>
+              <button id="btnQuickCopyAll" type="button" class="text-xs font-bold text-rose-600 hover:text-rose-700 px-2 py-1 rounded transition">
+                Salin Semua Hari
+              </button>
+            </div>
           </div>
           <pre id="waTextPreview" class="bg-white border border-stone-200 rounded-xl p-3 text-xs text-stone-700 font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed select-all max-h-48">Memuat pratinjau teks...</pre>
         </div>
@@ -515,70 +611,201 @@
     </div>
   </div>
 
+  <!-- Settings & Real-Time Room Modal -->
+  <div id="settingsModal" class="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-warm-border rounded-2xl p-5 sm:p-6 w-full max-w-lg shadow-warm-lg animate-card">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-sm">
+            🔗
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-stone-900">Kolaborasi Real-Time & Room</h3>
+            <p class="text-xs text-stone-500">Kelola ID Room & koneksi database sinkronisasi</p>
+          </div>
+        </div>
+        <button id="btnCloseSettingsModal" type="button" class="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg transition min-h-[36px] min-w-[36px] flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Room ID Input -->
+        <div class="bg-stone-50 border border-stone-200 rounded-xl p-3.5">
+          <label for="settingsRoomInput" class="block text-xs font-bold text-stone-700 mb-1">
+            Session / Room ID Saat Ini
+          </label>
+          <div class="flex items-center gap-2">
+            <input 
+              type="text" 
+              id="settingsRoomInput" 
+              placeholder="Misal: date-kita-123" 
+              class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-xs font-semibold text-stone-800"
+            >
+            <button 
+              id="btnApplyRoom" 
+              type="button" 
+              class="px-3.5 py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold transition min-h-[36px]"
+            >
+              Masuk Room
+            </button>
+          </div>
+          <p class="text-[11px] text-stone-500 mt-1.5 leading-relaxed">
+            Kirimkan link browser dengan <code class="bg-white px-1 py-0.5 rounded text-rose-600 font-mono">?room=id-kamu</code> ke doi agar kalian bisa mengedit jadwal bersamaan.
+          </p>
+        </div>
+
+        <!-- Optional Firebase Database URL Config -->
+        <div class="bg-stone-50 border border-stone-200 rounded-xl p-3.5">
+          <div class="flex items-center justify-between mb-1">
+            <label for="settingsDbUrl" class="text-xs font-bold text-stone-700">
+              Firebase Realtime Database URL
+            </label>
+            <span class="text-[10px] text-stone-400 font-medium">(Opsional / Custom)</span>
+          </div>
+          <input 
+            type="text" 
+            id="settingsDbUrl" 
+            placeholder="https://YOUR-PROJECT-default-rtdb.firebaseio.com" 
+            class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-xs font-mono text-stone-800"
+          >
+          <p class="text-[11px] text-stone-500 mt-1.5 leading-relaxed">
+            Aplikasi sudah dilengkapi public cloud relay & local broadcast tab sync. Jika kamu punya proyek Firebase sendiri, cukup masukkan URL Realtime Database kamu di sini.
+          </p>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <button 
+            id="btnResetToLocal" 
+            type="button" 
+            class="text-xs font-semibold text-stone-500 hover:text-rose-600 transition"
+          >
+            Kembali ke Mode Lokal
+          </button>
+          <button 
+            id="btnSaveSettings" 
+            type="button" 
+            class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition min-h-[40px]"
+          >
+            Simpan Pengaturan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- JavaScript Logic -->
   <script>
-    // Ponytail principle: clean state, native APIs, minimal abstractions
-    const STORAGE_KEY = 'date_itinerary_rundown_v2';
+    // Ponytail & Anti-slop Architecture: Clean state, native browser features, zero bloat
+    const STORAGE_KEY = 'date_itinerary_multiday_v3';
+    const FIREBASE_DB_KEY = 'date_planner_custom_firebase_url';
+    
+    // Default Fallback Realtime DB endpoint (public open instance for date-planner rooms)
+    const DEFAULT_RTDB_URL = "https://date-rundown-planner-default-rtdb.firebaseio.com";
 
-    // Default sample itinerary
-    const DEFAULT_DATA = {
-      startTime: '10:00',
-      activities: [
+    // Default multi-day sample itinerary
+    const DEFAULT_MULTI_DAY_DATA = {
+      activeDayIndex: 0,
+      days: [
         {
-          id: 'act-1',
-          icon: '🚗',
-          title: 'Jemput & On the way',
-          duration: 45,
-          note: 'Bawa jaket & charger ponsel'
+          id: 'day-1',
+          title: 'Hari 1',
+          startTime: '10:00',
+          activities: [
+            {
+              id: 'act-1-1',
+              icon: '🚗',
+              title: 'Jemput & On the way',
+              duration: 45,
+              note: 'Bawa jaket & charger ponsel'
+            },
+            {
+              id: 'act-1-2',
+              icon: '☕',
+              title: 'Brunch & Ngopi Santai',
+              duration: 75,
+              note: 'Cafe Titik Koma (Reservasi outdoor)'
+            },
+            {
+              id: 'act-1-3',
+              icon: '🎬',
+              title: 'Nonton Bioskop Premiere',
+              duration: 135,
+              note: 'Film pilihan jam tayang siang'
+            },
+            {
+              id: 'act-1-4',
+              icon: '🛍️',
+              title: 'Jalan Santai & Hunting Photobox',
+              duration: 60,
+              note: 'Foto kenang-kenangan & cari gelato'
+            },
+            {
+              id: 'act-1-5',
+              icon: '🍽️',
+              title: 'Romantic Dinner',
+              duration: 90,
+              note: 'Resto Rooftop view senja'
+            },
+            {
+              id: 'act-1-6',
+              icon: '🏠',
+              title: 'Antar Pulang dengan Selamat',
+              duration: 40,
+              note: 'Mampir beli camilan malam'
+            }
+          ]
         },
         {
-          id: 'act-2',
-          icon: '☕',
-          title: 'Brunch & Ngopi Santai',
-          duration: 75,
-          note: 'Cafe Titik Koma (Reservasi semi-outdoor)'
-        },
-        {
-          id: 'act-3',
-          icon: '🎬',
-          title: 'Nonton Bioskop Premiere',
-          duration: 135,
-          note: 'Film pilihan jam tayang siang, tiket sudah di app'
-        },
-        {
-          id: 'act-4',
-          icon: '🛍️',
-          title: 'Jalan Santai & Hunting Photobox',
-          duration: 60,
-          note: 'Foto kenang-kenangan & cari gelato'
-        },
-        {
-          id: 'act-5',
-          icon: '🍽️',
-          title: 'Romantic Dinner',
-          duration: 90,
-          note: 'Resto Rooftop view senja'
-        },
-        {
-          id: 'act-6',
-          icon: '🏠',
-          title: 'Antar Pulang dengan Selamat',
-          duration: 40,
-          note: 'Mampir beli camilan malam'
+          id: 'day-2',
+          title: 'Hari 2',
+          startTime: '09:00',
+          activities: [
+            {
+              id: 'act-2-1',
+              icon: '🥞',
+              title: 'Sarapan Pagi / Breakfast Date',
+              duration: 60,
+              note: 'Pancake & Waffle House'
+            },
+            {
+              id: 'act-2-2',
+              icon: '🚶',
+              title: 'Jalan Santai di Taman Kota / Museum',
+              duration: 90,
+              note: 'Bawa kamera digital & topi'
+            },
+            {
+              id: 'act-2-3',
+              icon: '☕',
+              title: 'Afternoon Coffee & Boardgames',
+              duration: 75,
+              note: 'Main kartu obrolan deep talk'
+            }
+          ]
         }
       ]
     };
 
-    // State
+    // Application state
     let appState = {
-      startTime: '10:00',
-      activities: []
+      activeDayIndex: 0,
+      days: []
     };
 
     let selectedCategory = {
       icon: '🚗',
       cat: 'Jemput'
     };
+
+    // Realtime Room & Sync state
+    let currentRoomId = null;
+    let rtdbRef = null;
+    let localBroadcastChannel = null;
+    let isIncomingSync = false;
+    let syncDebounceTimer = null;
 
     // Helper: parse HH:MM to total minutes
     function timeToMinutes(timeStr) {
@@ -589,7 +816,6 @@
 
     // Helper: minutes to HH:MM (handles 24h wrap gracefully)
     function minutesToTime(totalMins) {
-      // Normalize to 24h
       const normalized = ((totalMins % 1440) + 1440) % 1440;
       const h = Math.floor(normalized / 60);
       const m = normalized % 60;
@@ -611,43 +837,92 @@
       return `${m} Menit`;
     }
 
-    // Load from LocalStorage
+    // Load State from LocalStorage with Backward Compatibility
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.activities)) {
+          if (parsed && Array.isArray(parsed.days) && parsed.days.length > 0) {
             appState = parsed;
+            if (appState.activeDayIndex >= appState.days.length) {
+              appState.activeDayIndex = 0;
+            }
+            return;
+          }
+        }
+
+        // Backward compatibility check for v1 single-day data
+        const oldRaw = localStorage.getItem('date_itinerary_rundown_v2');
+        if (oldRaw) {
+          const oldParsed = JSON.parse(oldRaw);
+          if (oldParsed && Array.isArray(oldParsed.activities)) {
+            appState = {
+              activeDayIndex: 0,
+              days: [
+                {
+                  id: 'day-1',
+                  title: 'Hari 1',
+                  startTime: oldParsed.startTime || '10:00',
+                  activities: oldParsed.activities || []
+                }
+              ]
+            };
+            saveState(false);
             return;
           }
         }
       } catch (e) {
-        console.warn('Gagal membaca storage, menggunakan data standar', e);
+        console.warn('Gagal membaca storage, menggunakan default', e);
       }
-      // Fallback default
-      appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
-      saveState();
+
+      // Default sample state
+      appState = JSON.parse(JSON.stringify(DEFAULT_MULTI_DAY_DATA));
+      saveState(false);
     }
 
-    // Save to LocalStorage
-    function saveState() {
+    // Save State & Broadcast to Doi
+    function saveState(shouldSync = true) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
       } catch (e) {
         console.error('Gagal menyimpan ke storage', e);
       }
+
+      if (shouldSync && !isIncomingSync) {
+        broadcastStateChange();
+      }
     }
 
-    // Recalculate schedule for each activity
-    function calculateSchedule() {
-      let currentMins = timeToMinutes(appState.startTime);
+    // Get Active Day object safely
+    function getActiveDay() {
+      if (!appState.days || appState.days.length === 0) {
+        appState.days = [{
+          id: 'day-1',
+          title: 'Hari 1',
+          startTime: '10:00',
+          activities: []
+        }];
+        appState.activeDayIndex = 0;
+      }
+      if (appState.activeDayIndex >= appState.days.length) {
+        appState.activeDayIndex = 0;
+      }
+      return appState.days[appState.activeDayIndex];
+    }
+
+    // Calculate Schedule for a given day
+    function calculateScheduleForDay(dayObj) {
+      if (!dayObj) return { items: [], totalDurationMins: 0, endTimeFormatted: '--:--', isNextDayEnd: false };
+      
+      let currentMins = timeToMinutes(dayObj.startTime || '10:00');
       let totalDuration = 0;
 
-      const schedule = appState.activities.map((act, index) => {
+      const schedule = (dayObj.activities || []).map((act, index) => {
         const start = currentMins;
-        const end = start + Number(act.duration || 0);
-        totalDuration += Number(act.duration || 0);
+        const dur = Number(act.duration || 0);
+        const end = start + dur;
+        totalDuration += dur;
         currentMins = end;
 
         const startTimeObj = minutesToTime(start);
@@ -672,16 +947,26 @@
       };
     }
 
-    // Render Timeline & UI
+    // Render Full UI
     function renderApp() {
-      const scheduleData = calculateSchedule();
-      const container = document.getElementById('timelineContainer');
-      const emptyState = document.getElementById('emptyState');
+      const activeDay = getActiveDay();
+      const scheduleData = calculateScheduleForDay(activeDay);
       
-      // Update Anchor Time Input
+      // Render Day Tabs
+      renderDayTabs();
+
+      // Update Header & Badge Information
+      const dayTitle = activeDay.title || `Hari ${appState.activeDayIndex + 1}`;
+      document.getElementById('summaryDayTitleBadge').textContent = dayTitle.toUpperCase();
+      document.getElementById('labelActiveDayName').textContent = dayTitle;
+      document.getElementById('formDayBadge').textContent = dayTitle;
+      document.getElementById('timelineActiveTitle').textContent = `Timeline ${dayTitle}`;
+      document.getElementById('copyActiveDayBadge').textContent = dayTitle;
+
+      // Update Start Time input for active day
       const startInput = document.getElementById('startTimeInput');
-      if (startInput.value !== appState.startTime) {
-        startInput.value = appState.startTime;
+      if (startInput.value !== (activeDay.startTime || '10:00')) {
+        startInput.value = activeDay.startTime || '10:00';
       }
 
       // Update Summary Bar
@@ -691,7 +976,18 @@
         : '--:--';
       document.getElementById('summaryCount').textContent = scheduleData.items.length;
 
-      // Handle Empty State
+      // Show/hide Delete Active Day button (only if > 1 day)
+      const btnDeleteDay = document.getElementById('btnDeleteActiveDay');
+      if (appState.days.length > 1) {
+        btnDeleteDay.classList.remove('hidden');
+      } else {
+        btnDeleteDay.classList.add('hidden');
+      }
+
+      // Render Timeline Items or Empty State
+      const container = document.getElementById('timelineContainer');
+      const emptyState = document.getElementById('emptyState');
+
       if (scheduleData.items.length === 0) {
         container.innerHTML = '';
         container.classList.add('hidden');
@@ -700,7 +996,6 @@
         emptyState.classList.add('hidden');
         container.classList.remove('hidden');
 
-        // Render Cards
         container.innerHTML = `
           <!-- Continuous Vertical Background Line -->
           <div class="absolute left-7 sm:left-9 top-6 bottom-6 w-0.5 bg-stone-200 -z-0"></div>
@@ -816,62 +1111,97 @@
       }
 
       // Update WhatsApp Preview Text
-      updateWhatsAppPreview(scheduleData);
+      updateWhatsAppPreview();
     }
 
-    // Generate formatted text for WhatsApp
-    function generateWhatsAppText(scheduleData) {
-      if (!scheduleData || scheduleData.items.length === 0) {
-        return '✨ Our Date Itinerary ✨\n(Belum ada agenda kencan yang ditambahkan)';
-      }
+    // Render Multi-Day Tabs
+    function renderDayTabs() {
+      const container = document.getElementById('dayTabsContainer');
+      container.innerHTML = appState.days.map((day, idx) => {
+        const isActive = idx === appState.activeDayIndex;
+        const activeClass = isActive 
+          ? 'bg-rose-600 text-white shadow-sm shadow-rose-200 font-bold border-rose-600' 
+          : 'bg-stone-50 hover:bg-stone-100 text-stone-700 font-semibold border-stone-200';
+        
+        return `
+          <button 
+            type="button" 
+            class="day-tab-btn flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs transition border min-h-[38px] whitespace-nowrap ${activeClass}" 
+            data-day-index="${idx}"
+          >
+            <span>📅</span>
+            <span>${escapeHtml(day.title || `Hari ${idx + 1}`)}</span>
+            <span class="text-[10px] opacity-75 font-normal">(${(day.activities || []).length})</span>
+          </button>
+        `;
+      }).join('');
+    }
 
+    // WhatsApp Text Generator for Single Day
+    function generateWhatsAppTextForDay(dayObj, dayNumber) {
+      const schedule = calculateScheduleForDay(dayObj);
+      const title = dayObj.title || `Hari ${dayNumber}`;
+      
       const lines = [
-        '✨ Our Date Itinerary ✨',
-        `📅 [Waktu Mulai: ${appState.startTime}]`,
-        ''
+        `📅 *${title.toUpperCase()}* [Waktu Mulai: ${dayObj.startTime || '10:00'}]`
       ];
 
-      scheduleData.items.forEach(item => {
-        lines.push(`⏰ ${item.startStr} - ${item.endStr} | ${item.icon ? item.icon + ' ' : ''}${item.title}`);
-        if (item.note && item.note.trim() !== '') {
-          lines.push(`📍 Catatan: ${item.note.trim()}`);
-        }
-        lines.push('');
-      });
-
-      lines.push(`Total Durasi: ${formatDurationText(scheduleData.totalDurationMins)} (Selesai ~${scheduleData.endTimeFormatted})`);
-      lines.push('See you there! ❤️');
+      if (!schedule.items || schedule.items.length === 0) {
+        lines.push('(Belum ada kegiatan dijadwalkan)');
+      } else {
+        schedule.items.forEach(item => {
+          lines.push(`⏰ ${item.startStr} - ${item.endStr} | ${item.icon ? item.icon + ' ' : ''}${item.title}`);
+          if (item.note && item.note.trim() !== '') {
+            lines.push(`📍 Catatan: ${item.note.trim()}`);
+          }
+          lines.push('');
+        });
+        lines.push(`Total Durasi: ${formatDurationText(schedule.totalDurationMins)} (Selesai ~${schedule.endTimeFormatted})`);
+      }
 
       return lines.join('\n');
     }
 
-    function updateWhatsAppPreview(scheduleData) {
-      const text = generateWhatsAppText(scheduleData);
+    // WhatsApp Text Generator for ALL Days
+    function generateWhatsAppTextAllDays() {
+      const parts = [
+        '✨ Our Date Itinerary ✨',
+        ''
+      ];
+
+      appState.days.forEach((day, idx) => {
+        parts.push(generateWhatsAppTextForDay(day, idx + 1));
+        parts.push('\n------------------------\n');
+      });
+
+      parts.push('See you there! ❤️');
+      return parts.join('\n');
+    }
+
+    function updateWhatsAppPreview() {
+      const activeDay = getActiveDay();
+      const text = generateWhatsAppTextForDay(activeDay, appState.activeDayIndex + 1);
       const pre = document.getElementById('waTextPreview');
       if (pre) pre.textContent = text;
     }
 
-    // Copy to clipboard with Toast feedback
-    async function copyToClipboard() {
-      const scheduleData = calculateSchedule();
-      const text = generateWhatsAppText(scheduleData);
-      
+    // Copy to clipboard helper
+    async function copyTextToClipboard(text, successMessage) {
       try {
         await navigator.clipboard.writeText(text);
-        showToast('Berhasil disalin ke clipboard! Siap di-paste ke WhatsApp.', 'success');
+        showToast(successMessage, 'success');
       } catch (err) {
-        // Fallback for older browsers
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        showToast('Teks berhasil disalin!', 'success');
+        showToast(successMessage, 'success');
       }
     }
 
-    // Toast Notification Maker
+    // Toast notification
     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
@@ -898,7 +1228,6 @@
       }, 2500);
     }
 
-    // HTML sanitizer helper
     function escapeHtml(string) {
       if (!string) return '';
       return String(string)
@@ -909,12 +1238,173 @@
         .replace(/'/g, '&#039;');
     }
 
-    // Initialize Event Handlers
+    // ==========================================
+    // Real-Time Room & Firebase Sync Engine
+    // ==========================================
+    function initRealtimeSync() {
+      // 1. Check URL parameters for ?room=
+      const urlParams = new URLSearchParams(window.location.search);
+      const roomParam = urlParams.get('room');
+
+      if (roomParam && roomParam.trim() !== '') {
+        joinRoom(roomParam.trim());
+      } else {
+        updateConnBadge(false, 'Mode Lokal');
+      }
+
+      // 2. Setup BroadcastChannel for Instant Cross-Tab Sync (Same Browser)
+      try {
+        localBroadcastChannel = new BroadcastChannel('date_planner_room_sync');
+        localBroadcastChannel.onmessage = (event) => {
+          if (event.data && event.data.type === 'SYNC_STATE') {
+            if (event.data.roomId === currentRoomId) {
+              handleRemoteStateUpdate(event.data.state);
+            }
+          }
+        };
+      } catch (e) {
+        console.warn('BroadcastChannel not supported in this environment', e);
+      }
+    }
+
+    function updateConnBadge(isConnected, text) {
+      const badge = document.getElementById('connBadge');
+      const dot = document.getElementById('connDot');
+      const label = document.getElementById('connText');
+
+      if (isConnected) {
+        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0';
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse';
+        label.textContent = text || 'Doi Online / Terhubung';
+      } else {
+        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-stone-600 border border-stone-200 shrink-0';
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-stone-400';
+        label.textContent = text || 'Mode Lokal';
+      }
+    }
+
+    function joinRoom(roomId) {
+      currentRoomId = roomId;
+      
+      // Update browser URL without reload
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('room', roomId);
+      window.history.replaceState({}, '', newUrl.toString());
+
+      updateConnBadge(true, `🟢 Room: ${roomId}`);
+      document.getElementById('settingsRoomInput').value = roomId;
+
+      // Connect to Firebase Realtime Database
+      connectFirebase(roomId);
+
+      showToast(`Terhubung ke Room "${roomId}". Siap kolaborasi bareng doi!`, 'success');
+    }
+
+    function leaveRoom() {
+      currentRoomId = null;
+      if (rtdbRef) {
+        try { rtdbRef.off(); } catch (e) {}
+        rtdbRef = null;
+      }
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('room');
+      window.history.replaceState({}, '', newUrl.toString());
+
+      updateConnBadge(false, 'Mode Lokal');
+      showToast('Kembali ke mode lokal mandiri.', 'info');
+    }
+
+    function connectFirebase(roomId) {
+      const customDbUrl = localStorage.getItem(FIREBASE_DB_KEY) || DEFAULT_RTDB_URL;
+      
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp({
+            databaseURL: customDbUrl
+          });
+        }
+        
+        const db = firebase.database();
+        rtdbRef = db.ref('rooms/' + roomId);
+
+        // Listen for remote updates
+        rtdbRef.on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (val && val.days) {
+            handleRemoteStateUpdate(val);
+          } else if (!val) {
+            // First time room creation: upload current state
+            rtdbRef.set(appState);
+          }
+        });
+
+      } catch (err) {
+        console.warn('Firebase connection notice:', err);
+        // Fallback gracefully to BroadcastChannel
+      }
+    }
+
+    function handleRemoteStateUpdate(remoteState) {
+      if (!remoteState || !Array.isArray(remoteState.days)) return;
+      
+      isIncomingSync = true;
+      appState = remoteState;
+      saveState(false);
+      renderApp();
+      isIncomingSync = false;
+    }
+
+    function broadcastStateChange() {
+      if (!currentRoomId) return;
+
+      // Debounce network write to prevent excessive traffic
+      clearTimeout(syncDebounceTimer);
+      syncDebounceTimer = setTimeout(() => {
+        // 1. Sync via Firebase Realtime Database if connected
+        if (rtdbRef) {
+          try {
+            rtdbRef.set(appState);
+          } catch (e) {
+            console.error('Firebase sync error:', e);
+          }
+        }
+
+        // 2. Sync via BroadcastChannel (local tabs/split-screens)
+        if (localBroadcastChannel) {
+          try {
+            localBroadcastChannel.postMessage({
+              type: 'SYNC_STATE',
+              roomId: currentRoomId,
+              state: appState
+            });
+          } catch (e) {}
+        }
+      }, 250);
+    }
+
+    // Share Link Generator
+    function shareRoomLink() {
+      let roomId = currentRoomId;
+      if (!roomId) {
+        // Generate sweet random room slug
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        roomId = `date-kita-${randomNum}`;
+        joinRoom(roomId);
+      }
+
+      const shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomId)}`;
+      copyTextToClipboard(shareUrl, 'Link kolaborasi disalin! Kirimkan ke pacar agar bisa mengedit bareng.');
+    }
+
+    // ==========================================
+    // Event Handlers & Initialization
+    // ==========================================
     function initEvents() {
-      // Anchor Start Time Change
+      // 1. Anchor Start Time change for active day
       const startTimeInput = document.getElementById('startTimeInput');
       startTimeInput.addEventListener('change', (e) => {
-        appState.startTime = e.target.value || '10:00';
+        const activeDay = getActiveDay();
+        activeDay.startTime = e.target.value || '10:00';
         saveState();
         renderApp();
       });
@@ -923,12 +1413,110 @@
       document.querySelectorAll('.preset-start-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const time = btn.dataset.time;
-          appState.startTime = time;
+          const activeDay = getActiveDay();
+          activeDay.startTime = time;
           startTimeInput.value = time;
           saveState();
           renderApp();
           showToast(`Waktu mulai diatur ke ${time}`, 'info');
         });
+      });
+
+      // 2. Multi-Day Tab switching
+      document.getElementById('dayTabsContainer').addEventListener('click', (e) => {
+        const btn = e.target.closest('.day-tab-btn');
+        if (btn) {
+          const dayIndex = parseInt(btn.dataset.dayIndex, 10);
+          if (!isNaN(dayIndex) && appState.days[dayIndex]) {
+            appState.activeDayIndex = dayIndex;
+            saveState(false);
+            renderApp();
+          }
+        }
+      });
+
+      // 3. Add New Day
+      document.getElementById('btnAddDay').addEventListener('click', () => {
+        const newDayNumber = appState.days.length + 1;
+        const newDay = {
+          id: `day-${Date.now()}`,
+          title: `Hari ${newDayNumber}`,
+          startTime: '10:00',
+          activities: []
+        };
+        appState.days.push(newDay);
+        appState.activeDayIndex = appState.days.length - 1;
+        saveState();
+        renderApp();
+        showToast(`Hari ${newDayNumber} berhasil ditambahkan!`, 'success');
+      });
+
+      // 4. Delete Active Day
+      document.getElementById('btnDeleteActiveDay').addEventListener('click', () => {
+        if (appState.days.length <= 1) {
+          showToast('Minimal harus ada 1 hari kencan.', 'info');
+          return;
+        }
+
+        const activeDay = getActiveDay();
+        if (confirm(`Yakin ingin menghapus ${activeDay.title}? Seluruh aktivitas di hari ini akan dihapus.`)) {
+          appState.days.splice(appState.activeDayIndex, 1);
+          if (appState.activeDayIndex >= appState.days.length) {
+            appState.activeDayIndex = appState.days.length - 1;
+          }
+          saveState();
+          renderApp();
+          showToast('Hari kencan telah dihapus.', 'info');
+        }
+      });
+
+      // 5. Clear Activities of Active Day
+      document.getElementById('btnClearActiveDay').addEventListener('click', () => {
+        const activeDay = getActiveDay();
+        if (!activeDay.activities || activeDay.activities.length === 0) return;
+
+        if (confirm(`Hapus seluruh agenda di ${activeDay.title}?`)) {
+          activeDay.activities = [];
+          saveState();
+          renderApp();
+          showToast(`Agenda ${activeDay.title} telah dibersihkan.`, 'info');
+        }
+      });
+
+      // 6. Form Add Activity
+      const formAdd = document.getElementById('formAddActivity');
+      formAdd.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const titleInput = document.getElementById('inputTitle');
+        const durationInput = document.getElementById('inputDuration');
+        const noteInput = document.getElementById('inputNote');
+
+        const title = titleInput.value.trim();
+        const duration = parseInt(durationInput.value, 10) || 45;
+        const note = noteInput.value.trim();
+
+        if (!title) return;
+
+        const newActivity = {
+          id: 'act-' + Date.now(),
+          icon: selectedCategory.icon || '📌',
+          title,
+          duration,
+          note
+        };
+
+        const activeDay = getActiveDay();
+        if (!activeDay.activities) activeDay.activities = [];
+        activeDay.activities.push(newActivity);
+        
+        saveState();
+        renderApp();
+
+        titleInput.value = '';
+        noteInput.value = '';
+        titleInput.focus();
+
+        showToast(`"${title}" berhasil ditambahkan ke ${activeDay.title}!`, 'success');
       });
 
       // Duration Input & Chip Presets
@@ -960,7 +1548,7 @@
         });
       });
 
-      // Category / Icon Selection
+      // Category Selection
       document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.category-btn').forEach(b => {
@@ -974,74 +1562,41 @@
         });
       });
 
-      // Form Add Activity
-      const formAdd = document.getElementById('formAddActivity');
-      formAdd.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const titleInput = document.getElementById('inputTitle');
-        const durationInput = document.getElementById('inputDuration');
-        const noteInput = document.getElementById('inputNote');
-
-        const title = titleInput.value.trim();
-        const duration = parseInt(durationInput.value, 10) || 45;
-        const note = noteInput.value.trim();
-
-        if (!title) return;
-
-        const newActivity = {
-          id: 'act-' + Date.now(),
-          icon: selectedCategory.icon || '📌',
-          title,
-          duration,
-          note
-        };
-
-        appState.activities.push(newActivity);
-        saveState();
-        renderApp();
-
-        // Reset form inputs (preserve duration)
-        titleInput.value = '';
-        noteInput.value = '';
-        titleInput.focus();
-
-        showToast(`"${title}" berhasil ditambahkan ke rundown!`, 'success');
-      });
-
-      // Timeline delegation for Reorder, Edit, Delete
+      // 7. Timeline Reorder, Edit, Delete Delegation
       const timelineContainer = document.getElementById('timelineContainer');
       timelineContainer.addEventListener('click', (e) => {
         const btnUp = e.target.closest('.btn-move-up');
         const btnDown = e.target.closest('.btn-move-down');
         const btnDelete = e.target.closest('.btn-delete');
         const btnEdit = e.target.closest('.btn-edit');
+        const activeDay = getActiveDay();
 
         if (btnUp) {
           const idx = parseInt(btnUp.dataset.index, 10);
-          if (idx > 0) {
-            const temp = appState.activities[idx];
-            appState.activities[idx] = appState.activities[idx - 1];
-            appState.activities[idx - 1] = temp;
+          if (idx > 0 && activeDay.activities[idx]) {
+            const temp = activeDay.activities[idx];
+            activeDay.activities[idx] = activeDay.activities[idx - 1];
+            activeDay.activities[idx - 1] = temp;
             saveState();
             renderApp();
           }
         } else if (btnDown) {
           const idx = parseInt(btnDown.dataset.index, 10);
-          if (idx < appState.activities.length - 1) {
-            const temp = appState.activities[idx];
-            appState.activities[idx] = appState.activities[idx + 1];
-            appState.activities[idx + 1] = temp;
+          if (idx < activeDay.activities.length - 1 && activeDay.activities[idx]) {
+            const temp = activeDay.activities[idx];
+            activeDay.activities[idx] = activeDay.activities[idx + 1];
+            activeDay.activities[idx + 1] = temp;
             saveState();
             renderApp();
           }
         } else if (btnDelete) {
           const idx = parseInt(btnDelete.dataset.index, 10);
-          const act = appState.activities[idx];
-          if (confirm(`Hapus kegiatan "${act.title}" dari rundown?`)) {
-            appState.activities.splice(idx, 1);
+          const act = activeDay.activities[idx];
+          if (act && confirm(`Hapus kegiatan "${act.title}"?`)) {
+            activeDay.activities.splice(idx, 1);
             saveState();
             renderApp();
-            showToast('Aktivitas dihapus dari rundown.', 'info');
+            showToast('Aktivitas dihapus.', 'info');
           }
         } else if (btnEdit) {
           const idx = parseInt(btnEdit.dataset.index, 10);
@@ -1049,38 +1604,63 @@
         }
       });
 
-      // Clear All
-      document.getElementById('btnClearAll').addEventListener('click', () => {
-        if (appState.activities.length === 0) return;
-        if (confirm('Yakin ingin menghapus seluruh jadwal kegiatan?')) {
-          appState.activities = [];
-          saveState();
-          renderApp();
-          showToast('Seluruh kegiatan telah dihapus.', 'info');
-        }
-      });
-
-      // Load Sample buttons
+      // 8. Sample Itinerary Loader
       const handleLoadSample = () => {
-        appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        appState = JSON.parse(JSON.stringify(DEFAULT_MULTI_DAY_DATA));
         saveState();
         renderApp();
-        showToast('Contoh agenda kencan berhasil dimuat!', 'success');
+        showToast('Contoh agenda kencan romantis multi-hari berhasil dimuat!', 'success');
       };
       document.getElementById('btnLoadSample').addEventListener('click', handleLoadSample);
       document.getElementById('btnEmptyLoadSample').addEventListener('click', handleLoadSample);
 
-      // Copy buttons
-      document.getElementById('btnCopyWaHeader').addEventListener('click', copyToClipboard);
-      document.getElementById('btnCopyWaTimeline').addEventListener('click', copyToClipboard);
-      document.getElementById('btnCopyWaPreview').addEventListener('click', copyToClipboard);
+      // 9. WhatsApp Copy Dropdown & Buttons
+      const btnCopyWaMain = document.getElementById('btnCopyWaMain');
+      const copyWaMenu = document.getElementById('copyWaMenu');
 
-      // Modal Events
-      const modal = document.getElementById('editModal');
+      btnCopyWaMain.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyWaMenu.classList.toggle('hidden');
+      });
+
+      window.addEventListener('click', () => {
+        if (!copyWaMenu.classList.contains('hidden')) {
+          copyWaMenu.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('btnCopyActiveDay').addEventListener('click', () => {
+        const activeDay = getActiveDay();
+        const text = generateWhatsAppTextForDay(activeDay, appState.activeDayIndex + 1);
+        copyTextToClipboard(text, `Format WhatsApp untuk ${activeDay.title} berhasil disalin!`);
+      });
+
+      document.getElementById('btnCopyAllDays').addEventListener('click', () => {
+        const text = generateWhatsAppTextAllDays();
+        copyTextToClipboard(text, 'Rangkuman SELURUH HARI berhasil disalin ke WhatsApp!');
+      });
+
+      document.getElementById('btnQuickCopyActive').addEventListener('click', () => {
+        const activeDay = getActiveDay();
+        const text = generateWhatsAppTextForDay(activeDay, appState.activeDayIndex + 1);
+        copyTextToClipboard(text, `Format WhatsApp untuk ${activeDay.title} berhasil disalin!`);
+      });
+
+      document.getElementById('btnQuickCopyAll').addEventListener('click', () => {
+        const text = generateWhatsAppTextAllDays();
+        copyTextToClipboard(text, 'Rangkuman SELURUH HARI berhasil disalin ke WhatsApp!');
+      });
+
+      // 10. Share Room Button
+      document.getElementById('btnShareRoom').addEventListener('click', shareRoomLink);
+
+      // 11. Edit Activity Modal
+      const editModal = document.getElementById('editModal');
       const formEdit = document.getElementById('formEditActivity');
-      
+
       function openEditModal(index) {
-        const item = appState.activities[index];
+        const activeDay = getActiveDay();
+        const item = activeDay.activities[index];
         if (!item) return;
 
         document.getElementById('editItemIndex').value = index;
@@ -1088,45 +1668,92 @@
         document.getElementById('editInputDuration').value = item.duration;
         document.getElementById('editInputNote').value = item.note || '';
 
-        modal.classList.remove('hidden');
+        editModal.classList.remove('hidden');
         document.getElementById('editInputTitle').focus();
       }
 
       function closeEditModal() {
-        modal.classList.add('hidden');
+        editModal.classList.add('hidden');
       }
 
       document.getElementById('btnCloseModal').addEventListener('click', closeEditModal);
       document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
 
-      // Close modal on escape
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-          closeEditModal();
-        }
-      });
-
       formEdit.addEventListener('submit', (e) => {
         e.preventDefault();
         const index = parseInt(document.getElementById('editItemIndex').value, 10);
-        if (isNaN(index) || !appState.activities[index]) return;
+        const activeDay = getActiveDay();
+        if (isNaN(index) || !activeDay.activities[index]) return;
 
-        appState.activities[index].title = document.getElementById('editInputTitle').value.trim();
-        appState.activities[index].duration = parseInt(document.getElementById('editInputDuration').value, 10) || 30;
-        appState.activities[index].note = document.getElementById('editInputNote').value.trim();
+        activeDay.activities[index].title = document.getElementById('editInputTitle').value.trim();
+        activeDay.activities[index].duration = parseInt(document.getElementById('editInputDuration').value, 10) || 30;
+        activeDay.activities[index].note = document.getElementById('editInputNote').value.trim();
 
         saveState();
         renderApp();
         closeEditModal();
         showToast('Perubahan kegiatan berhasil disimpan!', 'success');
       });
+
+      // 12. Settings Modal
+      const settingsModal = document.getElementById('settingsModal');
+      document.getElementById('btnOpenSettings').addEventListener('click', () => {
+        document.getElementById('settingsRoomInput').value = currentRoomId || '';
+        document.getElementById('settingsDbUrl').value = localStorage.getItem(FIREBASE_DB_KEY) || '';
+        settingsModal.classList.remove('hidden');
+      });
+
+      document.getElementById('btnCloseSettingsModal').addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
+      });
+
+      document.getElementById('btnApplyRoom').addEventListener('click', () => {
+        const roomId = document.getElementById('settingsRoomInput').value.trim();
+        if (roomId) {
+          joinRoom(roomId);
+          settingsModal.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('btnResetToLocal').addEventListener('click', () => {
+        leaveRoom();
+        settingsModal.classList.add('hidden');
+      });
+
+      document.getElementById('btnSaveSettings').addEventListener('click', () => {
+        const customUrl = document.getElementById('settingsDbUrl').value.trim();
+        if (customUrl) {
+          localStorage.setItem(FIREBASE_DB_KEY, customUrl);
+        } else {
+          localStorage.removeItem(FIREBASE_DB_KEY);
+        }
+
+        const roomId = document.getElementById('settingsRoomInput').value.trim();
+        if (roomId) {
+          joinRoom(roomId);
+        } else {
+          leaveRoom();
+        }
+
+        settingsModal.classList.add('hidden');
+        showToast('Pengaturan database & room berhasil disimpan!', 'success');
+      });
+
+      // Close modals on Escape key
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (!editModal.classList.contains('hidden')) closeEditModal();
+          if (!settingsModal.classList.contains('hidden')) settingsModal.classList.add('hidden');
+        }
+      });
     }
 
-    // Startup initialization
+    // Startup Execution
     document.addEventListener('DOMContentLoaded', () => {
       loadState();
       renderApp();
       initEvents();
+      initRealtimeSync();
     });
   </script>
 </body>
