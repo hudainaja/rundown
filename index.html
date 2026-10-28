@@ -134,7 +134,35 @@
       </div>
 
       <!-- Quick Header Actions -->
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- Undo Button -->
+        <button 
+          id="btnUndo" 
+          type="button" 
+          disabled
+          class="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed rounded-xl transition min-h-[40px] min-w-[40px] flex items-center justify-center focus:outline-none"
+          title="Batalkan perubahan (Undo: Ctrl+Z)"
+          aria-label="Undo"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v2m0 0l-4-4m4 4l4-4M3 10l4-4m-4 4l4 4" />
+          </svg>
+        </button>
+
+        <!-- Redo Button -->
+        <button 
+          id="btnRedo" 
+          type="button" 
+          disabled
+          class="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed rounded-xl transition min-h-[40px] min-w-[40px] flex items-center justify-center focus:outline-none"
+          title="Ulangi perubahan (Redo: Ctrl+Y / Ctrl+Shift+Z)"
+          aria-label="Redo"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 10H11a5 5 0 00-5 5v2m0 0l4-4m-4 4l-4-4m18-6l-4-4m4 4l-4 4" />
+          </svg>
+        </button>
+
         <!-- Share Link to Doi Button -->
         <button 
           id="btnShareRoom" 
@@ -183,7 +211,7 @@
           id="btnOpenSettings" 
           type="button" 
           class="p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl transition min-h-[40px] min-w-[40px] flex items-center justify-center focus:outline-none"
-          title="Pengaturan Database & Sesi Room"
+          title="Pengaturan Database, Backup & Sesi Room"
           aria-label="Pengaturan"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -487,17 +515,36 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button 
-              id="btnLoadSample" 
-              type="button" 
-              class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 active:scale-95 rounded-xl transition min-h-[38px]"
-              title="Muat contoh jadwal kencan romantis"
-            >
-              <svg class="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <span id="saveStatusIndicator" class="text-[11px] font-medium text-stone-400 hidden sm:inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              <span>Muat Contoh</span>
-            </button>
+              Tersimpan otomatis
+            </span>
+            <!-- Dropdown Menu Opsi Jadwal -->
+            <div class="relative">
+              <button 
+                id="btnTimelineMenu" 
+                type="button" 
+                class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 active:scale-95 rounded-xl transition min-h-[38px] focus:outline-none"
+                title="Pilihan jadwal lanjutan"
+              >
+                <span>Opsi</span>
+                <svg class="w-3 h-3 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div id="timelineOptionsMenu" class="hidden absolute right-0 mt-2 w-56 bg-white border border-warm-border rounded-xl shadow-warm-lg py-1.5 z-30 animate-card">
+                <button id="btnMenuLoadSample" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-stone-700 hover:bg-rose-50 hover:text-rose-700 transition flex items-center gap-2">
+                  <span>💡</span>
+                  <span>Muat Contoh Itinerary...</span>
+                </button>
+                <button id="btnMenuResetAll" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition flex items-center gap-2">
+                  <span>🗑️</span>
+                  <span>Mulai dari Rencana Kosong...</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -892,22 +939,117 @@
       return `${m}m`;
     }
 
-    // Load State from LocalStorage with Backward Compatibility
+    // ==========================================
+    // History & Undo / Redo Engine
+    // ==========================================
+    const undoStack = [];
+    const redoStack = [];
+    const MAX_HISTORY = 50;
+
+    function recordHistory(actionLabel = 'Perubahan') {
+      try {
+        const snapshot = JSON.parse(JSON.stringify(appState));
+        undoStack.push({
+          label: actionLabel,
+          state: snapshot
+        });
+        if (undoStack.length > MAX_HISTORY) {
+          undoStack.shift();
+        }
+        redoStack.length = 0;
+        updateUndoRedoButtons();
+      } catch (e) {
+        console.error('Failed to record history', e);
+      }
+    }
+
+    function performUndo() {
+      if (undoStack.length === 0) {
+        showToast('Tidak ada aksi yang bisa dibatalkan.', 'info');
+        return;
+      }
+
+      const previous = undoStack.pop();
+      redoStack.push({
+        label: previous.label,
+        state: JSON.parse(JSON.stringify(appState))
+      });
+
+      isIncomingSync = true;
+      appState = previous.state;
+      saveState(true);
+      renderApp();
+      isIncomingSync = false;
+
+      updateUndoRedoButtons();
+      showToast(`↩️ Dibatalkan: ${previous.label}`, 'info');
+    }
+
+    function performRedo() {
+      if (redoStack.length === 0) {
+        showToast('Tidak ada aksi yang bisa diulang.', 'info');
+        return;
+      }
+
+      const next = redoStack.pop();
+      undoStack.push({
+        label: next.label,
+        state: JSON.parse(JSON.stringify(appState))
+      });
+
+      isIncomingSync = true;
+      appState = next.state;
+      saveState(true);
+      renderApp();
+      isIncomingSync = false;
+
+      updateUndoRedoButtons();
+      showToast(`↪️ Dikembalikan: ${next.label}`, 'info');
+    }
+
+    function updateUndoRedoButtons() {
+      const btnUndo = document.getElementById('btnUndo');
+      const btnRedo = document.getElementById('btnRedo');
+      if (btnUndo) {
+        btnUndo.disabled = undoStack.length === 0;
+        btnUndo.title = undoStack.length > 0
+          ? `Batalkan: ${undoStack[undoStack.length - 1].label} (Ctrl+Z)`
+          : 'Tidak ada perubahan untuk dibatalkan (Ctrl+Z)';
+      }
+      if (btnRedo) {
+        btnRedo.disabled = redoStack.length === 0;
+        btnRedo.title = redoStack.length > 0
+          ? `Ulangi: ${redoStack[redoStack.length - 1].label} (Ctrl+Y)`
+          : 'Tidak ada perubahan untuk diulangi (Ctrl+Y)';
+      }
+    }
+
+    // Load State from LocalStorage (Guaranteed not to wipe user data on browser reload)
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.days) && parsed.days.length > 0) {
+          if (parsed && Array.isArray(parsed.days)) {
             appState = parsed;
             if (appState.activeDayIndex >= appState.days.length) {
-              appState.activeDayIndex = 0;
+              appState.activeDayIndex = Math.max(0, appState.days.length - 1);
             }
             return;
           }
         }
 
-        // Backward compatibility check for v1 single-day data
+        // Backward compatibility checks
+        const backupRaw = localStorage.getItem('date_planner_local_backup_v4');
+        if (backupRaw) {
+          const parsed = JSON.parse(backupRaw);
+          if (parsed && Array.isArray(parsed.days)) {
+            appState = parsed;
+            saveState(false);
+            return;
+          }
+        }
+
         const oldRaw = localStorage.getItem('date_itinerary_rundown_v2');
         if (oldRaw) {
           const oldParsed = JSON.parse(oldRaw);
@@ -931,7 +1073,7 @@
         console.warn('Gagal membaca storage, menggunakan default', e);
       }
 
-      // Default sample state
+      // Default sample state ONLY for initial brand-new load
       appState = JSON.parse(JSON.stringify(DEFAULT_MULTI_DAY_DATA));
       saveState(false);
     }
@@ -939,7 +1081,9 @@
     // Save State & Broadcast to Doi
     function saveState(shouldSync = true) {
       try {
+        appState.updatedAt = Date.now();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        localStorage.setItem('date_planner_local_backup_v4', JSON.stringify(appState));
       } catch (e) {
         console.error('Gagal menyimpan ke storage', e);
       }
@@ -1256,8 +1400,8 @@
       }
     }
 
-    // Toast notification
-    function showToast(message, type = 'info') {
+    // Toast notification with optional direct Undo action
+    function showToast(message, type = 'info', withUndo = false) {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
       
@@ -1267,12 +1411,26 @@
 
       toast.className = `${bgColor} px-4 py-3 rounded-xl shadow-warm-lg flex items-center gap-2.5 text-xs font-semibold transition-all duration-300 pointer-events-auto border border-stone-700/50 max-w-sm`;
       
+      const undoBtnHtml = withUndo ? `
+        <button type="button" class="btn-toast-undo ml-2 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold transition shadow-sm shrink-0">
+          Batalkan (Undo)
+        </button>
+      ` : '';
+
       toast.innerHTML = `
         <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
         </svg>
-        <span class="flex-1">${message}</span>
+        <span class="flex-1 leading-snug">${message}</span>
+        ${undoBtnHtml}
       `;
+
+      if (withUndo) {
+        toast.querySelector('.btn-toast-undo')?.addEventListener('click', () => {
+          performUndo();
+          toast.remove();
+        });
+      }
 
       container.appendChild(toast);
 
@@ -1280,7 +1438,7 @@
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(10px)';
         setTimeout(() => toast.remove(), 300);
-      }, 2500);
+      }, withUndo ? 5000 : 2500);
     }
 
     function escapeHtml(string) {
@@ -1455,9 +1613,34 @@
     // Event Handlers & Initialization
     // ==========================================
     function initEvents() {
+      // 0. Undo and Redo Button Events & Shortcuts
+      const btnUndo = document.getElementById('btnUndo');
+      const btnRedo = document.getElementById('btnRedo');
+      if (btnUndo) btnUndo.addEventListener('click', performUndo);
+      if (btnRedo) btnRedo.addEventListener('click', performRedo);
+
+      window.addEventListener('keydown', (e) => {
+        const tag = (e.target && e.target.tagName) || '';
+        if (tag === 'INPUT' && (e.target.type === 'text' || e.target.type === 'number')) return;
+        if (tag === 'TEXTAREA') return;
+
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+          e.preventDefault();
+          if (e.shiftKey) {
+            performRedo();
+          } else {
+            performUndo();
+          }
+        } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) {
+          e.preventDefault();
+          performRedo();
+        }
+      });
+
       // 1. Anchor Start Time change for active day
       const startTimeInput = document.getElementById('startTimeInput');
       startTimeInput.addEventListener('change', (e) => {
+        recordHistory('Ubah Waktu Mulai');
         const activeDay = getActiveDay();
         activeDay.startTime = e.target.value || '10:00';
         saveState();
@@ -1468,6 +1651,7 @@
       document.querySelectorAll('.preset-start-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const time = btn.dataset.time;
+          recordHistory(`Ubah Waktu Mulai ke ${time}`);
           const activeDay = getActiveDay();
           activeDay.startTime = time;
           startTimeInput.value = time;
@@ -1492,6 +1676,7 @@
 
       // 3. Add New Day
       document.getElementById('btnAddDay').addEventListener('click', () => {
+        recordHistory('Tambah Hari');
         const newDayNumber = appState.days.length + 1;
         const newDay = {
           id: `day-${Date.now()}`,
@@ -1515,13 +1700,14 @@
 
         const activeDay = getActiveDay();
         if (confirm(`Yakin ingin menghapus ${activeDay.title}? Seluruh aktivitas di hari ini akan dihapus.`)) {
+          recordHistory(`Hapus ${activeDay.title}`);
           appState.days.splice(appState.activeDayIndex, 1);
           if (appState.activeDayIndex >= appState.days.length) {
             appState.activeDayIndex = appState.days.length - 1;
           }
           saveState();
           renderApp();
-          showToast('Hari kencan telah dihapus.', 'info');
+          showToast('Hari kencan telah dihapus.', 'info', true);
         }
       });
 
@@ -1530,11 +1716,12 @@
         const activeDay = getActiveDay();
         if (!activeDay.activities || activeDay.activities.length === 0) return;
 
-        if (confirm(`Hapus seluruh agenda di ${activeDay.title}?`)) {
+        if (confirm(`Hapus seluruh agenda di ${activeDay.title}? (Bisa dibatalkan dengan Undo)`)) {
+          recordHistory(`Bersihkan ${activeDay.title}`);
           activeDay.activities = [];
           saveState();
           renderApp();
-          showToast(`Agenda ${activeDay.title} telah dibersihkan.`, 'info');
+          showToast(`Agenda ${activeDay.title} telah dibersihkan.`, 'info', true);
         }
       });
 
@@ -1552,6 +1739,8 @@
         const note = noteInput.value.trim();
 
         if (!title) return;
+
+        recordHistory(`Tambah: ${title}`);
 
         const newActivity = {
           id: 'act-' + Date.now(),
@@ -1572,7 +1761,7 @@
         noteInput.value = '';
         titleInput.focus();
 
-        showToast(`"${title}" berhasil ditambahkan ke ${activeDay.title}!`, 'success');
+        showToast(`"${title}" berhasil ditambahkan ke ${activeDay.title}!`, 'success', true);
       });
 
       // Duration Input (Hours & Minutes) & Chip Presets
@@ -1645,6 +1834,7 @@
         if (btnUp) {
           const idx = parseInt(btnUp.dataset.index, 10);
           if (idx > 0 && activeDay.activities[idx]) {
+            recordHistory('Pindahkan ke Atas');
             const temp = activeDay.activities[idx];
             activeDay.activities[idx] = activeDay.activities[idx - 1];
             activeDay.activities[idx - 1] = temp;
@@ -1654,6 +1844,7 @@
         } else if (btnDown) {
           const idx = parseInt(btnDown.dataset.index, 10);
           if (idx < activeDay.activities.length - 1 && activeDay.activities[idx]) {
+            recordHistory('Pindahkan ke Bawah');
             const temp = activeDay.activities[idx];
             activeDay.activities[idx] = activeDay.activities[idx + 1];
             activeDay.activities[idx + 1] = temp;
@@ -1664,10 +1855,11 @@
           const idx = parseInt(btnDelete.dataset.index, 10);
           const act = activeDay.activities[idx];
           if (act && confirm(`Hapus kegiatan "${act.title}"?`)) {
+            recordHistory(`Hapus: ${act.title}`);
             activeDay.activities.splice(idx, 1);
             saveState();
             renderApp();
-            showToast('Aktivitas dihapus.', 'info');
+            showToast(`Aktivitas "${act.title}" dihapus.`, 'info', true);
           }
         } else if (btnEdit) {
           const idx = parseInt(btnEdit.dataset.index, 10);
@@ -1675,15 +1867,70 @@
         }
       });
 
-      // 8. Sample Itinerary Loader
-      const handleLoadSample = () => {
+      // 8. Safe Sample Itinerary Loader & Reset Options
+      const handleLoadSample = (force = false) => {
+        const hasExisting = appState.days.some(d => d.activities && d.activities.length > 0);
+        if (hasExisting && !force) {
+          if (!confirm('Perhatian: Memuat contoh akan menggantikan rencana kamu saat ini.\n\nTenang, data lama tetap bisa dikembalikan kapan saja dengan tombol Undo (Ctrl+Z).\n\nLanjutkan muat contoh?')) {
+            return;
+          }
+        }
+        recordHistory('Muat Contoh Itinerary');
         appState = JSON.parse(JSON.stringify(DEFAULT_MULTI_DAY_DATA));
         saveState();
         renderApp();
-        showToast('Contoh agenda kencan romantis multi-hari berhasil dimuat!', 'success');
+        showToast('Contoh itinerary kencan berhasil dimuat!', 'success', true);
       };
-      document.getElementById('btnLoadSample').addEventListener('click', handleLoadSample);
-      document.getElementById('btnEmptyLoadSample').addEventListener('click', handleLoadSample);
+
+      const handleResetAll = () => {
+        if (!confirm('Kosongkan semua rencana untuk mulai dari awal?\n\n(Tindakan ini tetap bisa dibatalkan dengan tombol Undo / Ctrl+Z)')) {
+          return;
+        }
+        recordHistory('Mulai Rencana Kosong');
+        appState = {
+          activeDayIndex: 0,
+          days: [
+            {
+              id: 'day-1',
+              title: 'Hari 1',
+              startTime: '10:00',
+              activities: []
+            }
+          ]
+        };
+        saveState();
+        renderApp();
+        showToast('Rencana kencan telah dikosongkan.', 'info', true);
+      };
+
+      // Timeline Options Menu
+      const btnTimelineMenu = document.getElementById('btnTimelineMenu');
+      const timelineOptionsMenu = document.getElementById('timelineOptionsMenu');
+      if (btnTimelineMenu) {
+        btnTimelineMenu.addEventListener('click', (e) => {
+          e.stopPropagation();
+          timelineOptionsMenu.classList.toggle('hidden');
+        });
+        window.addEventListener('click', () => {
+          if (timelineOptionsMenu && !timelineOptionsMenu.classList.contains('hidden')) {
+            timelineOptionsMenu.classList.add('hidden');
+          }
+        });
+      }
+
+      document.getElementById('btnMenuLoadSample')?.addEventListener('click', () => {
+        if (timelineOptionsMenu) timelineOptionsMenu.classList.add('hidden');
+        handleLoadSample();
+      });
+
+      document.getElementById('btnMenuResetAll')?.addEventListener('click', () => {
+        if (timelineOptionsMenu) timelineOptionsMenu.classList.add('hidden');
+        handleResetAll();
+      });
+
+      document.getElementById('btnEmptyLoadSample')?.addEventListener('click', () => {
+        handleLoadSample(true);
+      });
 
       // 9. WhatsApp Copy Dropdown & Buttons
       const btnCopyWaMain = document.getElementById('btnCopyWaMain');
@@ -1784,6 +2031,8 @@
         const m = parseInt(document.getElementById('editDurationMinutes').value, 10) || 0;
         const total = Math.max(5, (h * 60) + m);
 
+        recordHistory(`Ubah: ${activeDay.activities[index].title}`);
+
         activeDay.activities[index].title = document.getElementById('editInputTitle').value.trim();
         activeDay.activities[index].duration = total;
         activeDay.activities[index].note = document.getElementById('editInputNote').value.trim();
@@ -1791,7 +2040,7 @@
         saveState();
         renderApp();
         closeEditModal();
-        showToast('Perubahan kegiatan berhasil disimpan!', 'success');
+        showToast('Perubahan kegiatan berhasil disimpan!', 'success', true);
       });
 
       // 12. Settings Modal
@@ -1852,6 +2101,7 @@
       loadState();
       renderApp();
       initEvents();
+      updateUndoRedoButtons();
       initRealtimeSync();
     });
   </script>
