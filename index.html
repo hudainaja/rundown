@@ -59,33 +59,64 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
-    /* Antislop principles: grounded surfaces, zero gratuitous glow/pulse, clear hierarchy */
-    body {
-      background-color: #faf8f5;
-      color: #27272a;
-      -webkit-tap-highlight-color: transparent;
+    /* Impeccable Design System: Grounded warmth, WCAG AA contrast, browser surfaces */
+    :root {
+      --color-brand-600: #e11d48;
+      --color-brand-700: #be123c;
+      --color-canvas: #faf8f5;
+      --color-text: #27272a;
+      --color-border: #f2ece4;
     }
 
-    /* Accessible focus rings */
-    input:focus-visible, button:focus-visible, textarea:focus-visible, select:focus-visible {
-      outline: 2px solid #e11d48;
+    body {
+      background-color: var(--color-canvas);
+      color: var(--color-text);
+      -webkit-tap-highlight-color: transparent;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Browser Surface Theming (Impeccable Craft Floor) */
+    ::selection {
+      background-color: #ffe4e6;
+      color: #881337;
+    }
+
+    input, textarea {
+      caret-color: var(--color-brand-600);
+    }
+
+    /* Accessible, high-contrast focus rings */
+    input:focus-visible, button:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+      outline: 2px solid var(--color-brand-600);
       outline-offset: 2px;
     }
 
-    /* Subtle custom scrollbar */
+    /* Native & Tabular Numeric Alignment for times and counts */
+    .font-mono, [data-tnum], time {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: 'tnum' on, 'cv02', 'cv03', 'cv04', 'cv11';
+    }
+
+    /* Subtle custom scrollbar with warm palette */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #faf8f5;
+      background: transparent;
     }
     ::-webkit-scrollbar-thumb {
       background: #e4ded7;
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #d3cac0;
+      background: #cbd5e1;
+    }
+
+    /* Text link underline offset */
+    a, button {
+      text-underline-offset: 3px;
     }
 
     /* Smooth card entry without perpetual motion */
@@ -272,14 +303,14 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span id="summaryDayTitleBadge" class="text-xs font-bold text-rose-600 uppercase tracking-wider">HARI 1</span>
+              <span id="summaryDayTitleBadge" class="text-xs font-bold text-rose-700 uppercase tracking-wider">HARI 1</span>
               <span class="text-stone-300">•</span>
-              <span class="text-xs font-medium text-stone-500">Timeline Terpadu 2 Kolom</span>
+              <span class="text-xs font-medium text-stone-600">Timeline Terpadu 2 Kolom</span>
             </div>
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-0.5">
-              <span id="summaryTimeSpan" class="text-base sm:text-lg font-bold text-stone-900">08:30 — 21:30</span>
+              <span id="summaryTimeSpan" class="text-base sm:text-lg font-bold text-stone-900 font-mono tracking-tight">08:30 — 21:30</span>
               <span class="text-stone-300 hidden sm:inline">•</span>
-              <span id="summaryProgressText" class="text-xs sm:text-sm font-semibold text-rose-600">
+              <span id="summaryProgressText" class="text-xs sm:text-sm font-semibold text-rose-700">
                 0 / 0 Selesai
               </span>
             </div>
@@ -287,23 +318,23 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5 self-start sm:self-center border-t sm:border-t-0 pt-3 sm:pt-0 border-stone-100 w-full sm:w-auto justify-between sm:justify-end">
-          <!-- Category mini pills with clean status dots (Antislop: no raw emojis) -->
+          <!-- Category mini pills with clean status dots (Craft Floor: High contrast tinted badges) -->
           <div class="flex items-center gap-1.5 text-xs font-semibold">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200/70" id="summaryHudaCount">
-              <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-950 border border-sky-200" id="summaryHudaCount">
+              <span class="w-2 h-2 rounded-full bg-sky-600 shrink-0"></span>
               <span>0 Huda</span>
             </span>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pink-50 text-pink-800 border border-pink-200/70" id="summaryKeniaCount">
-              <span class="w-2 h-2 rounded-full bg-pink-400 shrink-0"></span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pink-50 text-pink-950 border border-pink-200" id="summaryKeniaCount">
+              <span class="w-2 h-2 rounded-full bg-pink-500 shrink-0"></span>
               <span>0 Kenia</span>
             </span>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200/70" id="summaryBarengCount">
-              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-950 border border-rose-200" id="summaryBarengCount">
+              <span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
               <span>0 Bareng</span>
             </span>
           </div>
 
-          <button id="btnClearActiveDay" type="button" class="text-xs font-semibold text-stone-500 hover:text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition min-h-[34px] flex items-center gap-1 focus:outline-none">
+          <button id="btnClearActiveDay" type="button" class="text-xs font-semibold text-stone-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition min-h-[34px] flex items-center gap-1 active:scale-95 focus:outline-none">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
@@ -387,13 +418,13 @@
                   id="inputTimeStr" 
                   placeholder="Misal 08:20 atau 15:00 - 19:00" 
                   required
-                  class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-stone-900 placeholder:text-stone-400 focus:bg-white transition pr-10"
+                  class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-stone-900 placeholder:text-stone-500 focus:bg-white transition pr-10"
                 >
                 <button 
                   type="button" 
                   id="btnResetSmartTime" 
                   title="Kembalikan ke saran jam pintar berikutnya"
-                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-800 p-1.5 rounded-md text-xs transition"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-800 p-1.5 rounded-md text-xs transition"
                   aria-label="Reset jam ke saran"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -407,26 +438,26 @@
 
               <!-- Tombol Durasi Cepat (Quick Chips) -->
               <div class="mt-2.5 pt-2 border-t border-stone-100">
-                <div class="text-[11px] font-semibold text-stone-600 mb-1.5 flex items-center justify-between">
+                <div class="text-[11px] font-semibold text-stone-700 mb-1.5 flex items-center justify-between">
                   <span>Tombol Durasi Cepat (+Rentang):</span>
-                  <span class="text-[10px] text-stone-400 font-normal">Auto-format rentang</span>
+                  <span class="text-[10px] text-stone-500 font-medium">Auto-format rentang</span>
                 </div>
                 <div class="flex flex-wrap gap-1.5" id="quickDurationChips">
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="15">15m</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="30">30m</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="45">45m</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="60">1 Jam</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="90">1.5 Jam</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="120">2 Jam</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="180">3 Jam</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="240">4 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="15">15m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="30">30m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="45">45m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="60">1 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="90">1.5 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="120">2 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="180">3 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="240">4 Jam</button>
                 </div>
               </div>
             </div>
 
             <!-- 3. Nama Kegiatan -->
             <div>
-              <label for="inputTitle" class="block text-xs font-semibold text-stone-700 mb-1">
+              <label for="inputTitle" class="block text-xs font-semibold text-stone-800 mb-1">
                 Nama Kegiatan <span class="text-rose-500">*</span>
               </label>
               <input 
@@ -434,52 +465,60 @@
                 id="inputTitle" 
                 placeholder="Misal: Brunch & Ngopi, Nonton Bioskop, Cuci Mobil" 
                 required
-                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
+                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:bg-white transition"
               >
             </div>
 
             <!-- 4. Catatan atau Lokasi -->
             <div>
-              <label for="inputNote" class="block text-xs font-semibold text-stone-700 mb-1">
-                Catatan / Lokasi <span class="text-stone-400 font-normal">(Opsional)</span>
+              <label for="inputNote" class="block text-xs font-semibold text-stone-800 mb-1">
+                Catatan / Lokasi <span class="text-stone-500 font-normal">(Opsional)</span>
               </label>
               <input 
                 type="text" 
                 id="inputNote" 
                 placeholder="Contoh: Reservasi outdoor / Bawa jaket / Beli tiket" 
-                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
+                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:bg-white transition"
               >
             </div>
 
-            <!-- 5. Kategori Aktivitas Cepat -->
+            <!-- 5. Kategori Aktivitas Cepat (With Clean Semantic SVGs) -->
             <div>
-              <label class="block text-xs font-semibold text-stone-700 mb-1.5">
+              <label class="block text-xs font-semibold text-stone-800 mb-1.5">
                 Kategori Kegiatan
               </label>
               <div class="grid grid-cols-4 gap-1.5" id="categoryChips">
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[36px]" data-icon="🚗" data-cat="Jemput">
-                  <span>🚗</span> Jemput
+                <button type="button" class="category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[38px] active:scale-95" data-icon="🚗" data-cat="Jemput">
+                  <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 17a2 2 0 100-4 2 2 0 000 4zm8 0a2 2 0 100-4 2 2 0 000 4zM3 9l2-4h14l2 4M3 9v8h2m14 0h2V9M3 9h18"/></svg>
+                  <span>Jemput</span>
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🍽️" data-cat="Makan">
-                  <span>🍽️</span> Makan
+                <button type="button" class="category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 bg-stone-50 text-stone-700 hover:bg-rose-50 hover:text-rose-800 transition min-h-[38px] active:scale-95" data-icon="🍽️" data-cat="Makan">
+                  <svg class="w-3.5 h-3.5 text-stone-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v8a4 4 0 004 4v6m10-18v18m4-18v8a4 4 0 01-4 4"/></svg>
+                  <span>Makan</span>
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="☕" data-cat="Ngopi">
-                  <span>☕</span> Ngopi
+                <button type="button" class="category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 bg-stone-50 text-stone-700 hover:bg-rose-50 hover:text-rose-800 transition min-h-[38px] active:scale-95" data-icon="☕" data-cat="Ngopi">
+                  <svg class="w-3.5 h-3.5 text-stone-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+                  <span>Ngopi</span>
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🎬" data-cat="Nonton">
-                  <span>🎬</span> Nonton
+                <button type="button" class="category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 bg-stone-50 text-stone-700 hover:bg-rose-50 hover:text-rose-800 transition min-h-[38px] active:scale-95" data-icon="🎬" data-cat="Nonton">
+                  <svg class="w-3.5 h-3.5 text-stone-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+                  <span>Nonton</span>
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🚶" data-cat="Jalan">
-                  <span>🚶</span> Jalan
+                <button type="button" class="category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 bg-stone-50 text-stone-700 hover:bg-rose-50 hover:text-rose-800 transition min-h-[38px] active:scale-95" data-icon="🚶" data-cat="Jalan">
+                  <svg class="w-3.5 h-3.5 text-stone-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  <span>Jalan</span>
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🛍️" data-cat="Belanja">
-                  <span>🛍️</span> Belanja
+                <button type="button" class="category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 bg-stone-50 text-stone-700 hover:bg-rose-50 hover:text-rose-800 transition min-h-[38px] active:scale-95" data-icon="🛍️" data-cat="Belanja">
+                  <svg class="w-3.5 h-3.5 text-stone-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                  <span>Belanja</span>
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🌇" data-cat="Santai">
-                  <span>🌇</span> Santai
+                <button type="button" class="category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 bg-stone-50 text-stone-700 hover:bg-rose-50 hover:text-rose-800 transition min-h-[38px] active:scale-95" data-icon="🌇" data-cat="Santai">
+                  <svg class="w-3.5 h-3.5 text-stone-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                  <span>Santai</span>
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🏠" data-cat="Pulang">
-                  <span>🏠</span> Pulang
+                <button type="button" class="category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 bg-stone-50 text-stone-700 hover:bg-rose-50 hover:text-rose-800 transition min-h-[38px] active:scale-95" data-icon="🏠" data-cat="Pulang">
+                  <svg class="w-3.5 h-3.5 text-stone-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                  <span>Pulang</span>
                 </button>
               </div>
             </div>
@@ -514,12 +553,12 @@
               type="time" 
               id="startTimeInput" 
               value="10:00"
-              class="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-sm font-bold text-stone-800 focus:bg-white transition cursor-pointer"
+              class="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-sm font-bold text-stone-900 focus:bg-white transition cursor-pointer min-h-[38px]"
             >
             <div class="flex items-center gap-1">
-              <button type="button" class="preset-start-btn text-xs font-semibold px-2 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="08:30">08:30</button>
-              <button type="button" class="preset-start-btn text-xs font-semibold px-2 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="10:00">10:00</button>
-              <button type="button" class="preset-start-btn text-xs font-semibold px-2 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-time="13:00">13:00</button>
+              <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[38px] active:scale-95 font-mono" data-time="08:30">08:30</button>
+              <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[38px] active:scale-95 font-mono" data-time="10:00">10:00</button>
+              <button type="button" class="preset-start-btn text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[38px] active:scale-95 font-mono" data-time="13:00">13:00</button>
             </div>
           </div>
         </div>
@@ -639,12 +678,12 @@
               </svg>
               Pratinjau Teks WhatsApp (Siap Kirim)
             </span>
-            <div class="flex items-center gap-2">
-              <button id="btnQuickCopyActive" type="button" class="text-xs font-bold text-rose-700 hover:text-rose-800 px-2 py-1 rounded transition min-h-[32px]">
+            <div class="flex items-center gap-1.5">
+              <button id="btnQuickCopyActive" type="button" class="text-xs font-bold text-rose-700 hover:text-rose-800 hover:bg-rose-100/60 active:scale-95 px-2.5 py-1.5 rounded-lg transition min-h-[36px]">
                 Salin Hari Ini
               </button>
-              <span class="text-stone-300">|</span>
-              <button id="btnQuickCopyAll" type="button" class="text-xs font-bold text-rose-700 hover:text-rose-800 px-2 py-1 rounded transition min-h-[32px]">
+              <span class="text-stone-300 select-none">•</span>
+              <button id="btnQuickCopyAll" type="button" class="text-xs font-bold text-rose-700 hover:text-rose-800 hover:bg-rose-100/60 active:scale-95 px-2.5 py-1.5 rounded-lg transition min-h-[36px]">
                 Salin Semua Hari
               </button>
             </div>
@@ -706,39 +745,41 @@
             id="editTimeStr" 
             required
             placeholder="Misal 08:20 atau 15:00 - 19:00"
-            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-stone-900 focus:bg-white transition"
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-stone-900 placeholder:text-stone-500 focus:bg-white transition"
           >
           <div class="flex flex-wrap gap-1 mt-2" id="editQuickDurationChips">
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="15">15m</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="30">30m</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="45">45m</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="60">1 Jam</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="90">1.5 Jam</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="120">2 Jam</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition" data-mins="240">4 Jam</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="15">15m</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="30">30m</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="45">45m</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="60">1 Jam</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="90">1.5 Jam</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="120">2 Jam</button>
+            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="240">4 Jam</button>
           </div>
         </div>
 
         <div>
-          <label for="editInputTitle" class="block text-xs font-semibold text-stone-700 mb-1">
+          <label for="editInputTitle" class="block text-xs font-semibold text-stone-800 mb-1">
             Nama Kegiatan <span class="text-rose-500">*</span>
           </label>
           <input 
             type="text" 
             id="editInputTitle" 
             required
-            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white transition"
+            placeholder="Nama kegiatan"
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:bg-white transition"
           >
         </div>
 
         <div>
-          <label for="editInputNote" class="block text-xs font-semibold text-stone-700 mb-1">
-            Catatan / Lokasi (Opsional)
+          <label for="editInputNote" class="block text-xs font-semibold text-stone-800 mb-1">
+            Catatan / Lokasi <span class="text-stone-500 font-normal">(Opsional)</span>
           </label>
           <input 
             type="text" 
             id="editInputNote" 
-            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white transition"
+            placeholder="Catatan tambahan atau lokasi"
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:bg-white transition"
           >
         </div>
 
@@ -746,13 +787,13 @@
           <button 
             type="button" 
             id="btnCancelEdit" 
-            class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-100 transition min-h-[44px]"
+            class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-100 active:scale-95 transition min-h-[44px]"
           >
             Batal
           </button>
           <button 
             type="submit" 
-            class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm transition min-h-[44px]"
+            class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold shadow-sm transition min-h-[44px]"
           >
             Simpan Perubahan
           </button>
@@ -1306,13 +1347,13 @@
 
       // Update count indicators with solid pips (Antislop: clean visual language)
       const hudaBadge = document.getElementById('summaryHudaCount');
-      if (hudaBadge) hudaBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span><span>${hudaCount} Huda</span>`;
+      if (hudaBadge) hudaBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-sky-600 shrink-0"></span><span>${hudaCount} Huda</span>`;
       
       const keniaBadge = document.getElementById('summaryKeniaCount');
-      if (keniaBadge) keniaBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-pink-400 shrink-0"></span><span>${keniaCount} Kenia</span>`;
+      if (keniaBadge) keniaBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-pink-500 shrink-0"></span><span>${keniaCount} Kenia</span>`;
       
       const barengBadge = document.getElementById('summaryBarengCount');
-      if (barengBadge) barengBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span><span>${barengCount} Bareng</span>`;
+      if (barengBadge) barengBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span><span>${barengCount} Bareng</span>`;
 
       document.getElementById('summaryProgressText').textContent = `${doneCount} / ${items.length} Selesai`;
 
@@ -1348,42 +1389,46 @@
           let borderBgClasses = '';
           let badgeOwnerHtml = '';
           let timeBadgeClasses = '';
+          let timeIconClass = '';
 
           if (item.owner === 'huda') {
             colClasses = 'col-span-1 md:col-start-1 md:col-span-1';
             borderBgClasses = 'border-sky-200/90 bg-white hover:border-sky-400 hover:shadow-warm-md';
             badgeOwnerHtml = `
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-900 border border-sky-200">
-                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-950 border border-sky-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-sky-600"></span>
                 <span>Huda</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-sky-50 text-sky-800 border-sky-100 font-mono';
+            timeBadgeClasses = 'bg-sky-50 text-sky-950 border-sky-200 font-mono';
+            timeIconClass = 'text-sky-700';
           } else if (item.owner === 'kenia') {
             colClasses = 'col-span-1 md:col-start-2 md:col-span-1';
             borderBgClasses = 'border-pink-200/90 bg-white hover:border-pink-400 hover:shadow-warm-md';
             badgeOwnerHtml = `
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pink-100 text-pink-900 border border-pink-200">
-                <span class="w-1.5 h-1.5 rounded-full bg-pink-400"></span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pink-100 text-pink-950 border border-pink-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
                 <span>Kenia</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-pink-50 text-pink-800 border-pink-100 font-mono';
+            timeBadgeClasses = 'bg-pink-50 text-pink-950 border-pink-200 font-mono';
+            timeIconClass = 'text-pink-700';
           } else {
             colClasses = 'col-span-1 md:col-span-2';
-            borderBgClasses = 'border-rose-300 bg-gradient-to-r from-rose-50/70 via-white to-amber-50/40 hover:border-rose-400 hover:shadow-warm-md';
+            borderBgClasses = 'border-rose-200 bg-gradient-to-r from-rose-50/70 via-white to-amber-50/40 hover:border-rose-300 hover:shadow-warm-md';
             badgeOwnerHtml = `
               <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white shadow-sm shadow-rose-200">
                 <span class="w-1.5 h-1.5 rounded-full bg-rose-200"></span>
                 <span>Bareng (Merged)</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-rose-100/90 text-rose-900 border-rose-200 font-mono';
+            timeBadgeClasses = 'bg-rose-100/90 text-rose-950 border-rose-200 font-mono';
+            timeIconClass = 'text-rose-700';
           }
 
-          const doneOpacity = item.done ? 'opacity-65' : '';
-          const strikeTitle = item.done ? 'line-through text-stone-400 font-medium' : 'text-stone-900 font-bold';
-          const strikeNote = item.done ? 'line-through text-stone-400' : 'text-stone-600';
+          const doneOpacity = item.done ? 'opacity-70' : '';
+          const strikeTitle = item.done ? 'line-through text-stone-500 font-semibold' : 'text-stone-900 font-bold';
+          const strikeNote = item.done ? 'line-through text-stone-500' : 'text-stone-600';
 
           return `
             <div class="${colClasses} transition-all duration-200 animate-card" data-id="${item.id}">
@@ -1395,19 +1440,19 @@
                     <div class="flex flex-wrap items-center gap-1.5">
                       ${badgeOwnerHtml}
                       <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold border ${timeBadgeClasses}">
-                        <svg class="w-3.5 h-3.5 text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <svg class="w-3.5 h-3.5 ${timeIconClass} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>${escapeHtml(item.timeStr || '--:--')}</span>
                       </span>
                     </div>
 
-                    <!-- Right Card Actions: Done, Edit, Delete -->
+                    <!-- Right Card Actions: Done, Edit, Delete with Accessible Touch Targets -->
                     <div class="flex items-center gap-1">
                       <!-- Toggle Done Button with crisp SVG checkmark -->
                       <button 
                         type="button" 
-                        class="btn-toggle-done inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition ${item.done ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-stone-100 hover:bg-stone-200 text-stone-700'}"
+                        class="btn-toggle-done inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95 min-h-[36px] ${item.done ? 'bg-emerald-100 text-emerald-950 border border-emerald-300' : 'bg-stone-100 hover:bg-stone-200 text-stone-700'}"
                         data-id="${item.id}"
                         title="${item.done ? 'Tandai belum selesai' : 'Tandai selesai'}"
                       >
@@ -1424,10 +1469,10 @@
                       <!-- Edit Button -->
                       <button 
                         type="button" 
-                        class="btn-edit p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition min-w-[32px] min-h-[32px] flex items-center justify-center" 
+                        class="btn-edit p-2 text-stone-500 hover:text-stone-800 hover:bg-stone-100 active:scale-95 rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center focus:outline-none" 
                         data-id="${item.id}"
                         title="Ubah aktivitas"
-                        aria-label="Ubah ${item.title}"
+                        aria-label="Ubah ${escapeHtml(item.title)}"
                       >
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -1437,10 +1482,10 @@
                       <!-- Delete Button -->
                       <button 
                         type="button" 
-                        class="btn-delete p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition min-w-[32px] min-h-[32px] flex items-center justify-center" 
+                        class="btn-delete p-2 text-stone-500 hover:text-rose-600 hover:bg-rose-50 active:scale-95 rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center focus:outline-none" 
                         data-id="${item.id}"
                         title="Hapus aktivitas"
-                        aria-label="Hapus ${item.title}"
+                        aria-label="Hapus ${escapeHtml(item.title)}"
                       >
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1460,7 +1505,7 @@
                         ${item.note ? `
                           <div class="mt-1 flex items-start gap-1.5 text-xs ${strikeNote}">
                             <span class="text-rose-500 shrink-0 mt-0.5" aria-hidden="true">📍</span>
-                            <span class="break-words font-normal">${escapeHtml(item.note)}</span>
+                            <span class="break-words font-normal max-w-[65ch] leading-relaxed">${escapeHtml(item.note)}</span>
                           </div>
                         ` : ''}
                       </div>
@@ -1469,7 +1514,7 @@
                 </div>
 
                 <!-- Footer Time Stamp / Status -->
-                <div class="mt-3 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-medium">
+                <div class="mt-3 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500 font-medium">
                   <span>Urutan #${idx + 1}</span>
                   <span class="capitalize">${item.owner === 'bareng' ? 'Jadwal Bersama' : 'Jadwal ' + item.owner}</span>
                 </div>
@@ -1495,14 +1540,14 @@
         return `
           <button 
             type="button" 
-            class="day-tab-btn flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs transition border min-h-[38px] whitespace-nowrap ${activeClass}" 
+            class="day-tab-btn flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs transition border min-h-[38px] whitespace-nowrap active:scale-95 focus:outline-none ${activeClass}" 
             data-day-index="${idx}"
           >
             <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             <span>${escapeHtml(day.title || `Hari ${idx + 1}`)}</span>
-            <span class="text-[10px] opacity-75 font-normal">(${(day.activities || []).length})</span>
+            <span class="text-[10px] opacity-80 font-mono">(${(day.activities || []).length})</span>
           </button>
         `;
       }).join('');
@@ -2158,9 +2203,13 @@
       document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.category-btn').forEach(b => {
-            b.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]';
+            b.className = 'category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 bg-stone-50 text-stone-700 hover:bg-rose-50 hover:text-rose-800 transition min-h-[38px] active:scale-95';
+            const iconSvg = b.querySelector('svg');
+            if (iconSvg) iconSvg.className = 'w-3.5 h-3.5 text-stone-500 shrink-0';
           });
-          btn.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[36px]';
+          btn.className = 'category-btn flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[38px] active:scale-95';
+          const activeSvg = btn.querySelector('svg');
+          if (activeSvg) activeSvg.className = 'w-3.5 h-3.5 text-rose-600 shrink-0';
           selectedCategory = {
             icon: btn.dataset.icon,
             cat: btn.dataset.cat
