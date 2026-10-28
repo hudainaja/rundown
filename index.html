@@ -59,7 +59,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
-    /* Antislop principles: clean surfaces, no gratuitous glow, clear hierarchy */
+    /* Antislop principles: grounded surfaces, zero gratuitous glow/pulse, clear hierarchy */
     body {
       background-color: #faf8f5;
       color: #27272a;
@@ -88,11 +88,11 @@
       background: #d3cac0;
     }
 
-    /* Smooth card entry */
+    /* Smooth card entry without perpetual motion */
     @keyframes fadeInSlide {
       from {
         opacity: 0;
-        transform: translateY(6px);
+        transform: translateY(4px);
       }
       to {
         opacity: 1;
@@ -100,17 +100,17 @@
       }
     }
     .animate-card {
-      animation: fadeInSlide 0.2s ease-out forwards;
+      animation: fadeInSlide 0.18s ease-out forwards;
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans selection:bg-rose-100 selection:text-rose-900 text-stone-800">
 
-  <!-- Top App Navigation / Header -->
+  <!-- Top App Navigation / Header (Single glass surface cap) -->
   <header class="bg-white/95 backdrop-blur-md border-b border-warm-border sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       
-      <!-- Brand & Room Indicator -->
+      <!-- Brand & Room Status Indicator -->
       <div class="flex items-center gap-3 min-w-0">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-sm shadow-rose-200 shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -123,13 +123,13 @@
             <h1 class="text-sm sm:text-base font-bold tracking-tight text-stone-900 truncate">
               Date Planner
             </h1>
-            <!-- Connection Status Badge -->
+            <!-- Connection Status Badge (Antislop: Solid state indicator without endless pulse/glow) -->
             <span id="connBadge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-stone-600 border border-stone-200 shrink-0">
-              <span id="connDot" class="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
+              <span id="connDot" class="w-2 h-2 rounded-full bg-stone-400"></span>
               <span id="connText" class="truncate max-w-[120px] sm:max-w-xs">Menghubungkan...</span>
             </span>
           </div>
-          <p class="text-[11px] text-stone-500 hidden sm:block truncate">Single-Stream Dynamic 2-Column Grid (Huda • Kenia • Bareng)</p>
+          <p class="text-[11px] text-stone-500 hidden sm:block truncate">Timeline 2 Kolom Dinamis: Huda, Kenia & Bareng</p>
         </div>
       </div>
 
@@ -170,7 +170,7 @@
           class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 active:scale-95 rounded-xl transition min-h-[40px] focus:outline-none"
           title="Salin link room untuk ajak pacar merencanakan bareng secara real-time"
         >
-          <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
           <span class="hidden xs:inline">Bagi Link</span>
@@ -184,7 +184,7 @@
             class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 rounded-xl shadow-sm shadow-rose-200 transition min-h-[40px] focus:outline-none"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
             </svg>
             <span>Salin WA</span>
             <svg class="w-3 h-3 text-rose-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
@@ -196,7 +196,7 @@
           <div id="copyWaMenu" class="hidden absolute right-0 mt-2 w-56 bg-white border border-warm-border rounded-xl shadow-warm-lg py-1.5 z-50 animate-card">
             <button id="btnCopyActiveDay" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-stone-700 hover:bg-rose-50 hover:text-rose-700 transition flex items-center justify-between">
               <span>Salin Hari Aktif Saja</span>
-              <span id="copyActiveDayBadge" class="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded">Hari 1</span>
+              <span id="copyActiveDayBadge" class="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded font-mono">Hari 1</span>
             </button>
             <button id="btnCopyAllDays" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-stone-700 hover:bg-rose-50 hover:text-rose-700 transition flex items-center justify-between">
               <span>Salin Seluruh Hari</span>
@@ -210,7 +210,7 @@
           id="btnOpenSettings" 
           type="button" 
           class="p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl transition min-h-[40px] min-w-[40px] flex items-center justify-center focus:outline-none"
-          title="Pengaturan Database, Backup & Sesi Room"
+          title="Pengaturan Database & Sesi Room"
           aria-label="Pengaturan"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -238,7 +238,7 @@
           id="btnAddDay" 
           type="button" 
           class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 active:scale-95 rounded-xl transition min-h-[38px] whitespace-nowrap focus:outline-none"
-          title="Tambah hari kencan berikutnya (misal Hari 2)"
+          title="Tambah hari kencan berikutnya"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -274,7 +274,7 @@
             <div class="flex items-center gap-2">
               <span id="summaryDayTitleBadge" class="text-xs font-bold text-rose-600 uppercase tracking-wider">HARI 1</span>
               <span class="text-stone-300">•</span>
-              <span class="text-xs font-medium text-stone-500">Unified 2-Column Timeline</span>
+              <span class="text-xs font-medium text-stone-500">Timeline Terpadu 2 Kolom</span>
             </div>
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-0.5">
               <span id="summaryTimeSpan" class="text-base sm:text-lg font-bold text-stone-900">08:30 — 21:30</span>
@@ -287,11 +287,20 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5 self-start sm:self-center border-t sm:border-t-0 pt-3 sm:pt-0 border-stone-100 w-full sm:w-auto justify-between sm:justify-end">
-          <!-- Category mini pills -->
+          <!-- Category mini pills with clean status dots (Antislop: no raw emojis) -->
           <div class="flex items-center gap-1.5 text-xs font-semibold">
-            <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100" id="summaryHudaCount">🔵 0 Huda</span>
-            <span class="px-2 py-0.5 rounded-md bg-pink-50 text-pink-700 border border-pink-100" id="summaryKeniaCount">🌸 0 Kenia</span>
-            <span class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-100" id="summaryBarengCount">❤️ 0 Bareng</span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200/70" id="summaryHudaCount">
+              <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span>
+              <span>0 Huda</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pink-50 text-pink-800 border border-pink-200/70" id="summaryKeniaCount">
+              <span class="w-2 h-2 rounded-full bg-pink-400 shrink-0"></span>
+              <span>0 Kenia</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200/70" id="summaryBarengCount">
+              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+              <span>0 Bareng</span>
+            </span>
           </div>
 
           <button id="btnClearActiveDay" type="button" class="text-xs font-semibold text-stone-500 hover:text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition min-h-[34px] flex items-center gap-1 focus:outline-none">
@@ -304,10 +313,10 @@
       </div>
     </section>
 
-    <!-- Main Grid: 2 Columns on Desktop, 1 Column on Mobile -->
+    <!-- Main Grid: Form on Left, Timeline on Right -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
       
-      <!-- KOLOM KIRI: Sticky Control Panel & Smart Input Form (lg:col-span-4 / xl:col-span-4) -->
+      <!-- KOLOM KIRI: Sticky Control Panel & Smart Input Form (lg:col-span-4) -->
       <section aria-label="Panel Kontrol dan Input" class="lg:col-span-4 xl:col-span-4 space-y-6 lg:sticky lg:top-24">
         
         <!-- Box: Form Tambah Kegiatan -->
@@ -317,12 +326,12 @@
               <span class="w-2 h-2 rounded-full bg-rose-500"></span>
               Tambah Kegiatan (<span id="formDayBadge">Hari 1</span>)
             </h2>
-            <span class="text-[11px] text-stone-400">Smart Schedule</span>
+            <span class="text-[11px] text-stone-400 font-medium">Auto-Sort</span>
           </div>
 
           <form id="formAddActivity" class="space-y-4">
             
-            <!-- 1. Pilihan Toggle/Radio Tipe Kegiatan (Huda, Kenia, Bareng) -->
+            <!-- 1. Pilihan Toggle Tipe Kegiatan (Huda, Kenia, Bareng) without raw emojis -->
             <div>
               <label class="block text-xs font-bold text-stone-800 mb-1.5">
                 Pilih Jadwal Siapa? <span class="text-rose-500">*</span>
@@ -334,8 +343,8 @@
                   data-owner="huda"
                   class="owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-sky-400 bg-sky-100 text-sky-900 shadow-sm"
                 >
-                  <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
-                  <span>🔵 Huda</span>
+                  <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span>
+                  <span>Huda</span>
                 </button>
                 <button 
                   type="button" 
@@ -343,8 +352,8 @@
                   data-owner="kenia"
                   class="owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100"
                 >
-                  <span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span>
-                  <span>🌸 Kenia</span>
+                  <span class="w-2 h-2 rounded-full bg-pink-400 shrink-0"></span>
+                  <span>Kenia</span>
                 </button>
                 <button 
                   type="button" 
@@ -352,12 +361,12 @@
                   data-owner="bareng"
                   class="owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100"
                 >
-                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                  <span>❤️ Bareng</span>
+                  <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+                  <span>Bareng</span>
                 </button>
               </div>
-              <p id="ownerHintText" class="text-[11px] text-sky-700 mt-1 font-medium">
-                🔵 Jadwal Huda akan masuk di kolom kiri (col-span-1)
+              <p id="ownerHintText" class="text-[11px] text-sky-800 mt-1.5 font-medium">
+                Jadwal Huda akan masuk di kolom kiri (col-span-1)
               </p>
             </div>
 
@@ -367,7 +376,7 @@
                 <label for="inputTimeStr" class="block text-xs font-bold text-stone-800">
                   Waktu / Jam Kegiatan <span class="text-rose-500">*</span>
                 </label>
-                <span id="timeHintBadge" class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 text-stone-600 font-semibold">
+                <span id="timeHintBadge" class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 font-semibold font-mono">
                   Smart Default
                 </span>
               </div>
@@ -384,7 +393,8 @@
                   type="button" 
                   id="btnResetSmartTime" 
                   title="Kembalikan ke saran jam pintar berikutnya"
-                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-800 p-1 rounded-md text-xs transition"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-800 p-1.5 rounded-md text-xs transition"
+                  aria-label="Reset jam ke saran"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -392,24 +402,24 @@
                 </button>
               </div>
               <p class="text-[11px] text-stone-500 mt-1">
-                Bebas ketik jam tunggal (cth: <code class="font-mono text-stone-700 bg-stone-100 px-1 rounded">08:20</code>) atau rentang (<code class="font-mono text-stone-700 bg-stone-100 px-1 rounded">15:00 - 19:00</code>).
+                Bebas ketik jam tunggal (<code class="font-mono text-stone-700 bg-stone-100 px-1 rounded">08:20</code>) atau rentang (<code class="font-mono text-stone-700 bg-stone-100 px-1 rounded">15:00 - 19:00</code>).
               </p>
 
               <!-- Tombol Durasi Cepat (Quick Chips) -->
               <div class="mt-2.5 pt-2 border-t border-stone-100">
                 <div class="text-[11px] font-semibold text-stone-600 mb-1.5 flex items-center justify-between">
                   <span>Tombol Durasi Cepat (+Rentang):</span>
-                  <span class="text-[10px] text-stone-400 font-normal">Klik untuk auto-rentang</span>
+                  <span class="text-[10px] text-stone-400 font-normal">Auto-format rentang</span>
                 </div>
                 <div class="flex flex-wrap gap-1.5" id="quickDurationChips">
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="15">15m</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="30">30m</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="45">45m</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="60">1 Jam</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="90">1.5 Jam</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="120">2 Jam</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="180">3 Jam</button>
-                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[32px]" data-mins="240">4 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="15">15m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="30">30m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="45">45m</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="60">1 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="90">1.5 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="120">2 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="180">3 Jam</button>
+                  <button type="button" class="quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-700 transition min-h-[34px]" data-mins="240">4 Jam</button>
                 </div>
               </div>
             </div>
@@ -441,34 +451,34 @@
               >
             </div>
 
-            <!-- 5. Kategori / Ikon Aktivitas Cepat -->
+            <!-- 5. Kategori Aktivitas Cepat -->
             <div>
               <label class="block text-xs font-semibold text-stone-700 mb-1.5">
                 Kategori Kegiatan
               </label>
               <div class="grid grid-cols-4 gap-1.5" id="categoryChips">
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[34px]" data-icon="🚗" data-cat="Jemput">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[36px]" data-icon="🚗" data-cat="Jemput">
                   <span>🚗</span> Jemput
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🍽️" data-cat="Makan">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🍽️" data-cat="Makan">
                   <span>🍽️</span> Makan
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="☕" data-cat="Ngopi">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="☕" data-cat="Ngopi">
                   <span>☕</span> Ngopi
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🎬" data-cat="Nonton">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🎬" data-cat="Nonton">
                   <span>🎬</span> Nonton
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🚶" data-cat="Jalan">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🚶" data-cat="Jalan">
                   <span>🚶</span> Jalan
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🛍️" data-cat="Belanja">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🛍️" data-cat="Belanja">
                   <span>🛍️</span> Belanja
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🌇" data-cat="Santai">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🌇" data-cat="Santai">
                   <span>🌇</span> Santai
                 </button>
-                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]" data-icon="🏠" data-cat="Pulang">
+                <button type="button" class="category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]" data-icon="🏠" data-cat="Pulang">
                   <span>🏠</span> Pulang
                 </button>
               </div>
@@ -493,10 +503,10 @@
             <label for="startTimeInput" class="block text-xs font-bold text-stone-800">
               Patokan Jam Mulai (<span id="labelActiveDayName">Hari 1</span>)
             </label>
-            <span class="text-[10px] text-stone-400">Anchor Time</span>
+            <span class="text-[10px] text-stone-400 font-mono">Anchor</span>
           </div>
           <p class="text-xs text-stone-500 mb-2.5">
-            Digunakan sebagai jam default pembuka hari jika belum ada agenda.
+            Digunakan sebagai jam default awal jika belum ada kegiatan.
           </p>
 
           <div class="flex items-center gap-2">
@@ -515,18 +525,18 @@
         </div>
 
         <!-- Room Sync Info Card -->
-        <div class="bg-rose-50/60 border border-rose-100 rounded-2xl p-4 text-xs text-rose-900 flex items-start gap-2.5">
-          <svg class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <div class="bg-rose-50/60 border border-rose-100 rounded-2xl p-4 text-xs text-rose-950 flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <div class="leading-relaxed">
-            <span class="font-bold">Real-Time Sync Aktif:</span> Setiap kali kamu atau pacar menambah kegiatan, mencentang selesai, atau mengubah jam, kartu otomatis terurut dan ter-update di layar lawan bicara.
+            <span class="font-bold">Real-Time Sync:</span> Setiap perubahan kegiatan, pencentangan selesai, atau jam langsung tersinkronisasi instan ke layar lawan bicara.
           </div>
         </div>
 
       </section>
 
-      <!-- KOLOM KANAN: Single-Stream Dynamic 2-Column Grid Timeline (lg:col-span-8 / xl:col-span-8) -->
+      <!-- KOLOM KANAN: Single-Stream Dynamic 2-Column Grid Timeline (lg:col-span-8) -->
       <section aria-label="Timeline Rundown" class="lg:col-span-8 xl:col-span-8 space-y-4">
         
         <!-- Timeline Header Bar -->
@@ -534,7 +544,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h2 id="timelineActiveTitle" class="text-base sm:text-lg font-bold text-stone-900 tracking-tight">Timeline Rundown</h2>
-              <span id="timelineSyncIndicator" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
+              <span id="timelineSyncIndicator" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 Tersinkron
               </span>
@@ -558,11 +568,15 @@
               </button>
               <div id="timelineOptionsMenu" class="hidden absolute right-0 mt-2 w-56 bg-white border border-warm-border rounded-xl shadow-warm-lg py-1.5 z-30 animate-card">
                 <button id="btnMenuLoadSample" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-stone-700 hover:bg-rose-50 hover:text-rose-700 transition flex items-center gap-2">
-                  <span>💡</span>
+                  <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                  </svg>
                   <span>Muat Contoh Itinerary...</span>
                 </button>
                 <button id="btnMenuResetAll" type="button" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition flex items-center gap-2">
-                  <span>🗑️</span>
+                  <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
                   <span>Mulai dari Rencana Kosong...</span>
                 </button>
               </div>
@@ -570,21 +584,21 @@
           </div>
         </div>
 
-        <!-- Desktop Column Indicator / Legend -->
+        <!-- Desktop Column Indicator / Legend (Clean typography, no raw emojis) -->
         <div class="hidden md:grid md:grid-cols-2 gap-4">
-          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-sky-50/80 border border-sky-200 text-sky-900 text-xs font-bold shadow-sm">
+          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-sky-50/80 border border-sky-200 text-sky-950 text-xs font-bold shadow-sm">
             <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
-              <span>🔵 Kolom Kiri: Jadwal Huda</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shrink-0"></span>
+              <span>Kolom Kiri: Jadwal Huda</span>
             </div>
-            <span class="text-[10px] text-sky-700 bg-sky-100 px-2 py-0.5 rounded-md font-semibold">col-span-1</span>
+            <span class="text-[10px] text-sky-800 bg-sky-100/90 px-2 py-0.5 rounded-md font-mono">col-span-1</span>
           </div>
-          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-pink-50/80 border border-pink-200 text-pink-900 text-xs font-bold shadow-sm">
+          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-pink-50/80 border border-pink-200 text-pink-950 text-xs font-bold shadow-sm">
             <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span>
-              <span>🌸 Kolom Kanan: Jadwal Kenia</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-pink-400 shrink-0"></span>
+              <span>Kolom Kanan: Jadwal Kenia</span>
             </div>
-            <span class="text-[10px] text-pink-700 bg-pink-100 px-2 py-0.5 rounded-md font-semibold">col-span-1 col-start-2</span>
+            <span class="text-[10px] text-pink-800 bg-pink-100/90 px-2 py-0.5 rounded-md font-mono">col-span-1</span>
           </div>
         </div>
 
@@ -593,15 +607,15 @@
           <!-- Cards rendered dynamically via JS -->
         </div>
 
-        <!-- Empty State Container -->
+        <!-- Empty State Container (Clear explanation and next action) -->
         <div id="emptyState" class="hidden bg-white border border-dashed border-stone-300 rounded-2xl p-8 sm:p-12 text-center shadow-warm-sm">
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
           <h3 class="text-base font-bold text-stone-900 mb-1">Belum Ada Agenda di Hari Ini</h3>
-          <p class="text-xs text-stone-500 max-w-sm mx-auto mb-5 leading-relaxed">
+          <p class="text-xs text-stone-600 max-w-sm mx-auto mb-5 leading-relaxed">
             Pilih Huda, Kenia, atau Bareng di form sebelah kiri, lalu tentukan jam untuk menyusun alur kegiatan yang dinamis.
           </p>
           <button 
@@ -619,18 +633,18 @@
         <!-- WhatsApp Preview Card -->
         <div class="bg-stone-50 border border-stone-200 rounded-2xl p-4 sm:p-5">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+            <span class="text-xs font-bold text-stone-800 flex items-center gap-1.5">
               <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 2.029.814 3.096.815h.005c3.18 0 5.767-2.586 5.768-5.766 0-3.18-2.587-5.767-5.769-5.767zm7.64 5.765c0 4.218-3.435 7.653-7.64 7.653-1.348 0-2.61-.351-3.717-.965l-4.144 1.087 1.107-4.043c-.694-1.164-1.066-2.502-1.066-3.732 0-4.218 3.435-7.653 7.64-7.653 4.205 0 7.64 3.435 7.64 7.653z"/>
               </svg>
               Pratinjau Teks WhatsApp (Siap Kirim)
             </span>
             <div class="flex items-center gap-2">
-              <button id="btnQuickCopyActive" type="button" class="text-xs font-bold text-rose-600 hover:text-rose-700 px-2 py-1 rounded transition">
+              <button id="btnQuickCopyActive" type="button" class="text-xs font-bold text-rose-700 hover:text-rose-800 px-2 py-1 rounded transition min-h-[32px]">
                 Salin Hari Ini
               </button>
               <span class="text-stone-300">|</span>
-              <button id="btnQuickCopyAll" type="button" class="text-xs font-bold text-rose-600 hover:text-rose-700 px-2 py-1 rounded transition">
+              <button id="btnQuickCopyAll" type="button" class="text-xs font-bold text-rose-700 hover:text-rose-800 px-2 py-1 rounded transition min-h-[32px]">
                 Salin Semua Hari
               </button>
             </div>
@@ -651,7 +665,7 @@
     <div class="bg-white border border-warm-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-warm-lg animate-card">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-base font-bold text-stone-900">Ubah Aktivitas</h3>
-        <button id="btnCloseModal" type="button" class="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg transition min-h-[36px] min-w-[36px] flex items-center justify-center">
+        <button id="btnCloseModal" type="button" class="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg transition min-h-[36px] min-w-[36px] flex items-center justify-center" aria-label="Tutup Modal">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
@@ -661,20 +675,23 @@
       <form id="formEditActivity" class="space-y-4">
         <input type="hidden" id="editItemIndex">
         
-        <!-- Edit Owner Selection -->
+        <!-- Edit Owner Selection without raw emojis -->
         <div>
           <label class="block text-xs font-bold text-stone-800 mb-1.5">
             Tipe Jadwal
           </label>
           <div class="grid grid-cols-3 gap-1.5" id="editOwnerToggleGroup">
             <button type="button" id="btnEditOwnerHuda" data-owner="huda" class="edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600">
-              🔵 Huda
+              <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span>
+              <span>Huda</span>
             </button>
             <button type="button" id="btnEditOwnerKenia" data-owner="kenia" class="edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600">
-              🌸 Kenia
+              <span class="w-2 h-2 rounded-full bg-pink-400 shrink-0"></span>
+              <span>Kenia</span>
             </button>
             <button type="button" id="btnEditOwnerBareng" data-owner="bareng" class="edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600">
-              ❤️ Bareng
+              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+              <span>Bareng</span>
             </button>
           </div>
         </div>
@@ -750,14 +767,16 @@
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-sm">
-            🔗
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
           </div>
           <div>
             <h3 class="text-base font-bold text-stone-900">Kolaborasi Real-Time & Room</h3>
             <p class="text-xs text-stone-500">Kelola ID Room & koneksi database sinkronisasi</p>
           </div>
         </div>
-        <button id="btnCloseSettingsModal" type="button" class="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg transition min-h-[36px] min-w-[36px] flex items-center justify-center">
+        <button id="btnCloseSettingsModal" type="button" class="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg transition min-h-[36px] min-w-[36px] flex items-center justify-center" aria-label="Tutup Pengaturan">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
@@ -786,7 +805,7 @@
             </button>
           </div>
           <p class="text-[11px] text-stone-500 mt-1.5 leading-relaxed">
-            Kirimkan link browser dengan <code class="bg-white px-1 py-0.5 rounded text-rose-600 font-mono">?room=id-kamu</code> ke doi agar kalian bisa mengedit jadwal bersamaan.
+            Kirimkan link dengan parameter <code class="bg-white px-1 py-0.5 rounded text-rose-600 font-mono">?room=id-kamu</code> ke pacar agar jadwal tersinkronisasi otomatis.
           </p>
         </div>
 
@@ -796,7 +815,7 @@
             <label for="settingsDbUrl" class="text-xs font-bold text-stone-700">
               Firebase Realtime Database URL
             </label>
-            <span class="text-[10px] text-stone-400 font-medium">(Opsional / Custom)</span>
+            <span class="text-[10px] text-stone-400 font-medium">(Opsional)</span>
           </div>
           <input 
             type="text" 
@@ -805,7 +824,7 @@
             class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-xs font-mono text-stone-800"
           >
           <p class="text-[11px] text-stone-500 mt-1.5 leading-relaxed">
-            Aplikasi sudah dilengkapi cloud pubsub relay instan & local broadcast tab sync. Jika kamu punya proyek Firebase sendiri, masukkan URL Realtime Database di sini.
+            Aplikasi sudah dilengkapi cloud pubsub relay instan & local broadcast tab sync. Jika memiliki proyek Firebase Realtime Database sendiri, kamu bisa memasukkan URL di sini.
           </p>
         </div>
 
@@ -813,7 +832,7 @@
           <button 
             id="btnResetToLocal" 
             type="button" 
-            class="text-xs font-semibold text-stone-500 hover:text-rose-600 transition"
+            class="text-xs font-semibold text-stone-500 hover:text-rose-600 transition min-h-[36px]"
           >
             Bikin Room Baru
           </button>
@@ -831,14 +850,14 @@
 
   <!-- JavaScript Logic -->
   <script>
-    // Ponytail & Anti-slop Architecture: Clean state, native browser features, zero bloat
+    // Ponytail & Anti-slop Architecture: Clean state, native browser features, zero slop
     const STORAGE_KEY = 'date_itinerary_stream_grid_v4';
     const FIREBASE_DB_KEY = 'date_planner_custom_firebase_url';
     
     // Default Fallback Realtime DB endpoint
     const DEFAULT_RTDB_URL = "https://date-rundown-planner-default-rtdb.firebaseio.com";
 
-    // Default multi-day sample itinerary highlighting alternating Huda, Kenia & Bareng activities
+    // Default multi-day sample itinerary
     const DEFAULT_MULTI_DAY_DATA = {
       activeDayIndex: 0,
       days: [
@@ -934,7 +953,7 @@
               timeStr: '20:45 - 21:30',
               icon: '🏠',
               title: 'Antar Pulang dengan Selamat',
-              note: 'Kabari kalau sudah sampai rumah ya ❤️',
+              note: 'Kabari jika sudah sampai rumah',
               done: false
             }
           ]
@@ -1009,8 +1028,6 @@
     // ==========================================
     // Smart Time Parsing, Calculations & Sorting
     // ==========================================
-
-    // Extract start time in minutes (takes the first HH:MM encountered)
     function extractStartTimeMinutes(timeStr) {
       if (!timeStr) return 99999;
       const match = String(timeStr).match(/(\d{1,2})[:.](\d{2})/);
@@ -1022,7 +1039,6 @@
       return 99999;
     }
 
-    // Extract end time in minutes (takes second HH:MM if range, or first if single)
     function extractEndTimeMinutes(timeStr) {
       if (!timeStr) return 0;
       const matches = [...String(timeStr).matchAll(/(\d{1,2})[:.](\d{2})/g)];
@@ -1038,7 +1054,6 @@
       return 0;
     }
 
-    // Convert total minutes to "HH:MM"
     function minutesToTimeStr(totalMins) {
       const normalized = ((totalMins % 1440) + 1440) % 1440;
       const h = Math.floor(normalized / 60);
@@ -1046,20 +1061,16 @@
       return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
     }
 
-    // Auto-Sort activities chronologically by start time
     function sortActivities(activities) {
       return [...activities].sort((a, b) => {
         const tA = extractStartTimeMinutes(a.timeStr);
         const tB = extractStartTimeMinutes(b.timeStr);
         if (tA !== tB) return tA - tB;
-        // Tie-breaker: Huda left first, Kenia right second, Bareng center third
         const order = { huda: 1, kenia: 2, bareng: 3 };
         return (order[a.owner] || 2) - (order[b.owner] || 2);
       });
     }
 
-    // Smart Default Time Calculator:
-    // Finds the latest finished time from chosen category or overall
     function getSmartDefaultTime(owner, dayObj) {
       const activities = (dayObj && dayObj.activities) || [];
       if (activities.length === 0) {
@@ -1077,7 +1088,6 @@
         return dayObj?.startTime || '10:00';
       }
 
-      // Find max end time among relevant activities
       let maxEndMins = 0;
       relevantActs.forEach(act => {
         const end = extractEndTimeMinutes(act.timeStr);
@@ -1136,7 +1146,7 @@
       isIncomingSync = false;
 
       updateUndoRedoButtons();
-      showToast(`↩️ Dibatalkan: ${previous.label}`, 'info');
+      showToast(`Dibatalkan: ${previous.label}`, 'info');
     }
 
     function performRedo() {
@@ -1158,7 +1168,7 @@
       isIncomingSync = false;
 
       updateUndoRedoButtons();
-      showToast(`↪️ Dikembalikan: ${next.label}`, 'info');
+      showToast(`Dikembalikan: ${next.label}`, 'info');
     }
 
     function updateUndoRedoButtons() {
@@ -1210,7 +1220,6 @@
           }
         }
 
-        // Backward compatibility from v3
         const oldRaw = localStorage.getItem('date_itinerary_multiday_v3');
         if (oldRaw) {
           const parsed = JSON.parse(oldRaw);
@@ -1227,7 +1236,6 @@
         console.warn('Gagal membaca storage, menggunakan default', e);
       }
 
-      // Initial sample state
       appState = JSON.parse(JSON.stringify(DEFAULT_MULTI_DAY_DATA));
       saveState(false);
     }
@@ -1267,12 +1275,10 @@
     function renderApp() {
       const activeDay = getActiveDay();
       
-      // Auto-sort activities of active day
       activeDay.activities = sortActivities(activeDay.activities || []);
 
       renderDayTabs();
 
-      // Header Badges
       const dayTitle = activeDay.title || `Hari ${appState.activeDayIndex + 1}`;
       document.getElementById('summaryDayTitleBadge').textContent = dayTitle.toUpperCase();
       document.getElementById('labelActiveDayName').textContent = dayTitle;
@@ -1280,13 +1286,11 @@
       document.getElementById('timelineActiveTitle').textContent = `Timeline ${dayTitle}`;
       document.getElementById('copyActiveDayBadge').textContent = dayTitle;
 
-      // Start Time input for active day
       const startInput = document.getElementById('startTimeInput');
       if (startInput.value !== (activeDay.startTime || '08:30')) {
         startInput.value = activeDay.startTime || '08:30';
       }
 
-      // Compute summary metrics
       const items = activeDay.activities;
       let hudaCount = 0;
       let keniaCount = 0;
@@ -1300,9 +1304,16 @@
         if (it.done) doneCount++;
       });
 
-      document.getElementById('summaryHudaCount').textContent = `🔵 ${hudaCount} Huda`;
-      document.getElementById('summaryKeniaCount').textContent = `🌸 ${keniaCount} Kenia`;
-      document.getElementById('summaryBarengCount').textContent = `❤️ ${barengCount} Bareng`;
+      // Update count indicators with solid pips (Antislop: clean visual language)
+      const hudaBadge = document.getElementById('summaryHudaCount');
+      if (hudaBadge) hudaBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span><span>${hudaCount} Huda</span>`;
+      
+      const keniaBadge = document.getElementById('summaryKeniaCount');
+      if (keniaBadge) keniaBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-pink-400 shrink-0"></span><span>${keniaCount} Kenia</span>`;
+      
+      const barengBadge = document.getElementById('summaryBarengCount');
+      if (barengBadge) barengBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span><span>${barengCount} Bareng</span>`;
+
       document.getElementById('summaryProgressText').textContent = `${doneCount} / ${items.length} Selesai`;
 
       if (items.length > 0) {
@@ -1314,7 +1325,6 @@
         document.getElementById('summaryTimeSpan').textContent = 'Belum ada agenda';
       }
 
-      // Delete day button visibility
       const btnDeleteDay = document.getElementById('btnDeleteActiveDay');
       if (appState.days.length > 1) {
         btnDeleteDay.classList.remove('hidden');
@@ -1322,7 +1332,6 @@
         btnDeleteDay.classList.add('hidden');
       }
 
-      // Render Timeline Cards in 2-Column Grid
       const container = document.getElementById('timelineContainer');
       const emptyState = document.getElementById('emptyState');
 
@@ -1341,41 +1350,39 @@
           let timeBadgeClasses = '';
 
           if (item.owner === 'huda') {
-            // Kolom Kiri
             colClasses = 'col-span-1 md:col-start-1 md:col-span-1';
             borderBgClasses = 'border-sky-200/90 bg-white hover:border-sky-400 hover:shadow-warm-md';
             badgeOwnerHtml = `
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800 border border-sky-200">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-900 border border-sky-200">
                 <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-                <span>🔵 Huda</span>
+                <span>Huda</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-sky-50 text-sky-700 border-sky-100';
+            timeBadgeClasses = 'bg-sky-50 text-sky-800 border-sky-100 font-mono';
           } else if (item.owner === 'kenia') {
-            // Kolom Kanan
             colClasses = 'col-span-1 md:col-start-2 md:col-span-1';
             borderBgClasses = 'border-pink-200/90 bg-white hover:border-pink-400 hover:shadow-warm-md';
             badgeOwnerHtml = `
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pink-100 text-pink-800 border border-pink-200">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pink-100 text-pink-900 border border-pink-200">
                 <span class="w-1.5 h-1.5 rounded-full bg-pink-400"></span>
-                <span>🌸 Kenia</span>
+                <span>Kenia</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-pink-50 text-pink-700 border-pink-100';
+            timeBadgeClasses = 'bg-pink-50 text-pink-800 border-pink-100 font-mono';
           } else {
-            // Merged / Bareng: Melebar ke tengah (col-span-2)
             colClasses = 'col-span-1 md:col-span-2';
             borderBgClasses = 'border-rose-300 bg-gradient-to-r from-rose-50/70 via-white to-amber-50/40 hover:border-rose-400 hover:shadow-warm-md';
             badgeOwnerHtml = `
-              <span class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white shadow-sm shadow-rose-200">
-                <span>❤️ Bareng (Merged)</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white shadow-sm shadow-rose-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-200"></span>
+                <span>Bareng (Merged)</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-rose-100/80 text-rose-800 border-rose-200';
+            timeBadgeClasses = 'bg-rose-100/90 text-rose-900 border-rose-200 font-mono';
           }
 
           const doneOpacity = item.done ? 'opacity-65' : '';
-          const strikeTitle = item.done ? 'line-through text-stone-400' : 'text-stone-900';
+          const strikeTitle = item.done ? 'line-through text-stone-400 font-medium' : 'text-stone-900 font-bold';
           const strikeNote = item.done ? 'line-through text-stone-400' : 'text-stone-600';
 
           return `
@@ -1387,8 +1394,8 @@
                   <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-stone-100">
                     <div class="flex flex-wrap items-center gap-1.5">
                       ${badgeOwnerHtml}
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg font-bold text-xs border ${timeBadgeClasses}">
-                        <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold border ${timeBadgeClasses}">
+                        <svg class="w-3.5 h-3.5 text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>${escapeHtml(item.timeStr || '--:--')}</span>
@@ -1397,17 +1404,21 @@
 
                     <!-- Right Card Actions: Done, Edit, Delete -->
                     <div class="flex items-center gap-1">
-                      <!-- Toggle Done Button -->
+                      <!-- Toggle Done Button with crisp SVG checkmark -->
                       <button 
                         type="button" 
-                        class="btn-toggle-done inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition ${item.done ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-stone-100 hover:bg-stone-200 text-stone-600'}"
+                        class="btn-toggle-done inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition ${item.done ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-stone-100 hover:bg-stone-200 text-stone-700'}"
                         data-id="${item.id}"
                         title="${item.done ? 'Tandai belum selesai' : 'Tandai selesai'}"
                       >
-                        <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[10px] font-bold ${item.done ? 'bg-emerald-600 text-white' : 'border border-stone-400 bg-white'}">
-                          ${item.done ? '✓' : ''}
+                        <span class="w-4 h-4 rounded flex items-center justify-center ${item.done ? 'bg-emerald-600 text-white' : 'border border-stone-400 bg-white'}">
+                          ${item.done ? `
+                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                          ` : ''}
                         </span>
-                        <span class="text-[11px]">${item.done ? 'Selesai' : 'Done'}</span>
+                        <span class="text-[11px] font-medium">${item.done ? 'Selesai' : 'Done'}</span>
                       </button>
 
                       <!-- Edit Button -->
@@ -1443,13 +1454,13 @@
                     <div class="flex items-start gap-2.5">
                       <span class="text-xl shrink-0 mt-0.5 select-none" aria-hidden="true">${item.icon || '📌'}</span>
                       <div class="flex-1 min-w-0">
-                        <h4 class="text-sm sm:text-base font-bold break-words ${strikeTitle}">
+                        <h4 class="text-sm sm:text-base break-words leading-snug ${strikeTitle}">
                           ${escapeHtml(item.title)}
                         </h4>
                         ${item.note ? `
-                          <div class="mt-1 flex items-start gap-1.5 text-xs font-medium ${strikeNote}">
+                          <div class="mt-1 flex items-start gap-1.5 text-xs ${strikeNote}">
                             <span class="text-rose-500 shrink-0 mt-0.5" aria-hidden="true">📍</span>
-                            <span class="break-words">${escapeHtml(item.note)}</span>
+                            <span class="break-words font-normal">${escapeHtml(item.note)}</span>
                           </div>
                         ` : ''}
                       </div>
@@ -1458,9 +1469,9 @@
                 </div>
 
                 <!-- Footer Time Stamp / Status -->
-                <div class="mt-3 pt-2 border-t border-stone-100/80 flex items-center justify-between text-[11px] text-stone-400">
+                <div class="mt-3 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-medium">
                   <span>Urutan #${idx + 1}</span>
-                  <span class="capitalize">${item.owner === 'bareng' ? 'Bersama' : item.owner}</span>
+                  <span class="capitalize">${item.owner === 'bareng' ? 'Jadwal Bersama' : 'Jadwal ' + item.owner}</span>
                 </div>
 
               </div>
@@ -1469,11 +1480,10 @@
         }).join('');
       }
 
-      // Refresh WhatsApp Preview
       updateWhatsAppPreview();
     }
 
-    // Render Multi-Day Tabs
+    // Render Multi-Day Tabs with clean SVG icon (no emoji)
     function renderDayTabs() {
       const container = document.getElementById('dayTabsContainer');
       container.innerHTML = appState.days.map((day, idx) => {
@@ -1488,7 +1498,9 @@
             class="day-tab-btn flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs transition border min-h-[38px] whitespace-nowrap ${activeClass}" 
             data-day-index="${idx}"
           >
-            <span>📅</span>
+            <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
             <span>${escapeHtml(day.title || `Hari ${idx + 1}`)}</span>
             <span class="text-[10px] opacity-75 font-normal">(${(day.activities || []).length})</span>
           </button>
@@ -1510,14 +1522,14 @@
       } else {
         activities.forEach(item => {
           let ownerTag = '';
-          if (item.owner === 'huda') ownerTag = '🔵 [Huda]';
-          else if (item.owner === 'kenia') ownerTag = '🌸 [Kenia]';
-          else ownerTag = '❤️ [Bareng]';
+          if (item.owner === 'huda') ownerTag = '[Huda]';
+          else if (item.owner === 'kenia') ownerTag = '[Kenia]';
+          else ownerTag = '[Bareng]';
 
-          const doneMark = item.done ? '✅ ' : '⏳ ';
+          const doneMark = item.done ? '✓ ' : '';
           lines.push(`${doneMark}⏰ ${item.timeStr || '--:--'} | ${ownerTag} ${item.icon ? item.icon + ' ' : ''}${item.title}`);
           if (item.note && item.note.trim() !== '') {
-            lines.push(`   📍 Catatan: ${item.note.trim()}`);
+            lines.push(`   Catatan: ${item.note.trim()}`);
           }
           lines.push('');
         });
@@ -1528,7 +1540,7 @@
 
     function generateWhatsAppTextAllDays() {
       const parts = [
-        '✨ Our Date Itinerary ✨',
+        'Date Itinerary Rundown',
         ''
       ];
 
@@ -1537,7 +1549,7 @@
         parts.push('\n------------------------\n');
       });
 
-      parts.push('See you there! ❤️');
+      parts.push('Sampai jumpa! ❤️');
       return parts.join('\n');
     }
 
@@ -1564,7 +1576,7 @@
       }
     }
 
-    // Toast notification
+    // Toast notification (Clean, professional, without emoji spam)
     function showToast(message, type = 'info', withUndo = false) {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
@@ -1577,7 +1589,7 @@
       
       const undoBtnHtml = withUndo ? `
         <button type="button" class="btn-toast-undo ml-2 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold transition shadow-sm shrink-0">
-          Batalkan (Undo)
+          Batalkan
         </button>
       ` : '';
 
@@ -1631,10 +1643,10 @@
         const newUrl = new URL(window.location.href);
         newUrl.searchParams.set('room', room);
         window.history.replaceState({}, '', newUrl.toString());
-        console.log('✨ [Room] Dibuat Room ID baru otomatis:', room);
+        console.log('[Room] Inisialisasi room ID baru:', room);
       } else {
         room = room.trim().toLowerCase();
-        console.log('🔗 [Room] Menggunakan Room ID dari URL:', room);
+        console.log('[Room] Menggunakan room ID dari URL:', room);
       }
       return room;
     }
@@ -1643,22 +1655,22 @@
       const roomId = getOrInitRoomId();
       joinRoom(roomId);
 
-      // Local cross-tab broadcast channel
       try {
         localBroadcastChannel = new BroadcastChannel(`date_planner_room_${roomId}`);
         localBroadcastChannel.onmessage = (event) => {
           if (event.data && event.data.type === 'STATE_UPDATE') {
             if (event.data.roomId === currentRoomId && event.data.senderId !== myClientId) {
-              console.log('📥 [Local Tab Sync] Menerima data dari tab lain:', event.data.state);
+              console.log('[Local Tab Sync] Menerima data dari tab lain:', event.data.state);
               handleRemoteStateUpdate(event.data.state);
             }
           }
         };
       } catch (e) {
-        console.warn('BroadcastChannel not supported in this environment', e);
+        console.warn('BroadcastChannel tidak didukung di browser ini', e);
       }
     }
 
+    // Antislop: Solid state indicators without endless animation loops or raw emoji prefixes
     function updateConnBadge(status, text) {
       const badge = document.getElementById('connBadge');
       const dot = document.getElementById('connDot');
@@ -1666,17 +1678,17 @@
       if (!badge || !dot || !label) return;
 
       if (status === 'connected') {
-        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 cursor-pointer hover:bg-emerald-100 transition';
-        dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse';
-        label.textContent = text || `🟢 Terhubung: ${currentRoomId}`;
+        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0 cursor-pointer hover:bg-emerald-100 transition';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        label.textContent = text || `Terhubung: ${currentRoomId}`;
       } else if (status === 'connecting') {
-        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 shrink-0 cursor-pointer';
-        dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
-        label.textContent = text || `🟡 Menghubungkan...`;
+        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 shrink-0 cursor-pointer';
+        dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+        label.textContent = text || 'Menghubungkan...';
       } else {
-        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 shrink-0 cursor-pointer';
-        dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500';
-        label.textContent = text || `🔴 Terputus`;
+        badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200 shrink-0 cursor-pointer';
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        label.textContent = text || 'Terputus';
       }
     }
 
@@ -1696,7 +1708,7 @@
     function leaveRoom() {
       const newRoom = `date-kita-${Math.floor(1000 + Math.random() * 9000)}`;
       joinRoom(newRoom);
-      showToast(`Beralih ke room baru "${newRoom}".`, 'info');
+      showToast(`Beralih ke room "${newRoom}".`, 'info');
     }
 
     function connectRoomRelay(roomId) {
@@ -1705,8 +1717,8 @@
         activeWebSocket = null;
       }
 
-      updateConnBadge('connecting', `🟡 Menghubungkan ke ${roomId}...`);
-      console.log('🔄 [Realtime] Membuka koneksi cloud untuk room:', roomId);
+      updateConnBadge('connecting', `Menghubungkan ke ${roomId}...`);
+      console.log('[Realtime] Membuka koneksi relay room:', roomId);
 
       const wsUrl = `wss://ntfy.sh/rundown_room_${encodeURIComponent(roomId)}/ws`;
       
@@ -1715,8 +1727,8 @@
         activeWebSocket = ws;
 
         ws.onopen = () => {
-          updateConnBadge('connected', `🟢 Terhubung: ${roomId}`);
-          console.log(`🟢 [Realtime] Sukses terhubung ke room [${roomId}]! Siap sinkronisasi instan.`);
+          updateConnBadge('connected', `Terhubung: ${roomId}`);
+          console.log(`[Realtime] Sukses terhubung ke room [${roomId}]`);
           
           sendPayloadOverSocket({
             type: 'HELLO_HANDSHAKE',
@@ -1736,36 +1748,33 @@
               if (payload.roomId !== currentRoomId) return;
 
               if (payload.type === 'HELLO_HANDSHAKE') {
-                console.log('👋 [Realtime] Doi baru saja membuka link room! Mengirimkan data jadwal terkini...');
+                console.log('[Realtime] Rekan baru saja membuka room, menyiarkan data terkini...');
                 broadcastStateChange(true);
               } else if (payload.type === 'STATE_UPDATE' && payload.state) {
-                console.log('📥 [Realtime] Data baru diterima dari remote room:', roomId, payload.state);
+                console.log('[Realtime] Data diterima dari remote room:', roomId);
                 handleRemoteStateUpdate(payload.state);
               }
             }
-          } catch (err) {
-            // ping/keepalive
-          }
+          } catch (err) {}
         };
 
         ws.onclose = () => {
           if (currentRoomId === roomId) {
-            console.warn('⚠️ [Realtime] Koneksi terputus, mencoba menyambung kembali dalam 2 detik...');
-            updateConnBadge('disconnected', `🔴 Terputus / Reconnecting...`);
+            updateConnBadge('disconnected', 'Terputus / Mencoba kembali...');
             clearTimeout(reconnectTimeout);
             reconnectTimeout = setTimeout(() => {
               connectRoomRelay(roomId);
-            }, 2000);
+            }, 2500);
           }
         };
 
         ws.onerror = (err) => {
-          console.warn('⚠️ [Realtime] Notice koneksi WebSocket:', err);
+          console.warn('[Realtime] Notice WebSocket:', err);
         };
 
       } catch (err) {
-        console.error('❌ [Realtime] Gagal membuat koneksi WebSocket:', err);
-        updateConnBadge('disconnected', `🔴 Sync Gagal`);
+        console.error('[Realtime] Gagal membuat koneksi WebSocket:', err);
+        updateConnBadge('disconnected', 'Sync Gagal');
       }
 
       connectFirebase(roomId);
@@ -1782,9 +1791,9 @@
         body: jsonStr,
         headers: { 'Content-Type': 'text/plain' }
       }).then(() => {
-        console.log('📤 [Realtime] Data berhasil dikirim ke cloud room:', roomId);
+        console.log('[Realtime] Data berhasil dikirim ke room:', roomId);
       }).catch(err => {
-        console.warn('⚠️ [Realtime] Gagal broadcast via cloud relay:', err);
+        console.warn('[Realtime] Gagal broadcast via relay:', err);
       });
     }
 
@@ -1801,18 +1810,18 @@
         if (firebase.apps.length) {
           const db = firebase.database();
           rtdbRef = db.ref('rooms/' + roomId);
-          console.log(`🔥 [Firebase RTDB] Listener aktif di path: rooms/${roomId}`);
+          console.log(`[Firebase RTDB] Listener aktif di path: rooms/${roomId}`);
 
           rtdbRef.on('value', (snapshot) => {
             const val = snapshot.val();
             if (val && val.senderId && val.senderId !== myClientId && val.days) {
-              console.log(`📥 [Firebase RTDB] Data diterima dari rooms/${roomId}:`, val);
+              console.log(`[Firebase RTDB] Data diterima dari rooms/${roomId}`);
               handleRemoteStateUpdate(val);
             }
           });
         }
       } catch (err) {
-        console.warn('Firebase connection notice:', err);
+        console.warn('Firebase notice:', err);
       }
     }
 
@@ -1821,19 +1830,18 @@
       
       if (appState && appState.updatedAt && remoteState.updatedAt) {
         if (remoteState.updatedAt < appState.updatedAt) {
-          console.log('ℹ️ [Realtime] Mengabaikan update remote yang lebih lama dari data lokal');
+          console.log('[Realtime] Mengabaikan update remote yang lebih lama dari data lokal');
           return;
         }
       }
 
-      console.log('⚡ [Realtime] Mengaplikasikan data remote ke layar secara reaktif...');
       isIncomingSync = true;
       appState = remoteState;
       saveState(false);
       renderApp();
       isIncomingSync = false;
 
-      showToast('✨ Jadwal kencan baru saja diperbarui oleh doi!', 'info');
+      showToast('Jadwal kencan baru saja diperbarui oleh pasangan.', 'info');
     }
 
     function broadcastStateChange(immediate = false) {
@@ -1853,12 +1861,8 @@
           }
         };
 
-        console.log(`📤 [Realtime] Mengirimkan perubahan jadwal ke room [${currentRoomId}]...`);
-
-        // 1. Send via Cloud PubSub
         sendPayloadOverSocket(payload);
 
-        // 2. Send via Firebase Realtime Database
         if (rtdbRef) {
           try {
             rtdbRef.set({
@@ -1866,13 +1870,9 @@
               updatedAt: Date.now(),
               ...appState
             });
-            console.log(`🔥 [Firebase RTDB] Data di-set ke path: rooms/${currentRoomId}`);
-          } catch (e) {
-            console.warn('Firebase set error:', e);
-          }
+          } catch (e) {}
         }
 
-        // 3. Send via local BroadcastChannel
         if (localBroadcastChannel) {
           try {
             localBroadcastChannel.postMessage(payload);
@@ -1890,8 +1890,7 @@
     function shareRoomLink() {
       const roomId = currentRoomId || getOrInitRoomId();
       const shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomId)}`;
-      copyTextToClipboard(shareUrl, `Link room "${roomId}" disalin! Kirimkan ke pacar agar bisa merencanakan bareng.`);
-      console.log('📋 [Share] Link room disalin ke clipboard:', shareUrl);
+      copyTextToClipboard(shareUrl, `Link room "${roomId}" disalin ke clipboard.`);
     }
 
     // ==========================================
@@ -1907,12 +1906,12 @@
 
       if (btnHuda) {
         btnHuda.className = owner === 'huda'
-          ? 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-sky-400 bg-sky-100 text-sky-900 shadow-sm'
+          ? 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-sky-400 bg-sky-100 text-sky-950 shadow-sm'
           : 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100';
       }
       if (btnKenia) {
         btnKenia.className = owner === 'kenia'
-          ? 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-pink-400 bg-pink-100 text-pink-900 shadow-sm'
+          ? 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-pink-400 bg-pink-100 text-pink-950 shadow-sm'
           : 'owner-toggle-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold border transition min-h-[42px] border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100';
       }
       if (btnBareng) {
@@ -1923,18 +1922,17 @@
 
       if (hintText) {
         if (owner === 'huda') {
-          hintText.textContent = '🔵 Jadwal Huda akan masuk di kolom kiri (col-span-1)';
-          hintText.className = 'text-[11px] text-sky-700 mt-1 font-medium';
+          hintText.textContent = 'Jadwal Huda akan masuk di kolom kiri (col-span-1)';
+          hintText.className = 'text-[11px] text-sky-800 mt-1.5 font-medium';
         } else if (owner === 'kenia') {
-          hintText.textContent = '🌸 Jadwal Kenia akan masuk di kolom kanan (col-span-1 col-start-2)';
-          hintText.className = 'text-[11px] text-pink-700 mt-1 font-medium';
+          hintText.textContent = 'Jadwal Kenia akan masuk di kolom kanan (col-span-1 col-start-2)';
+          hintText.className = 'text-[11px] text-pink-800 mt-1.5 font-medium';
         } else {
-          hintText.textContent = '❤️ Jadwal Bareng otomatis melebar di tengah (col-span-2)';
-          hintText.className = 'text-[11px] text-rose-700 mt-1 font-medium';
+          hintText.textContent = 'Jadwal Bareng otomatis melebar di tengah (col-span-2)';
+          hintText.className = 'text-[11px] text-rose-800 mt-1.5 font-medium';
         }
       }
 
-      // Auto-Fill Jam Mulai (Smart Default)
       autoFillSmartTime(false);
     }
 
@@ -1946,12 +1944,12 @@
 
       if (btnHuda) {
         btnHuda.className = owner === 'huda'
-          ? 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-sky-400 bg-sky-100 text-sky-900 shadow-sm'
+          ? 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-sky-400 bg-sky-100 text-sky-950 shadow-sm'
           : 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600';
       }
       if (btnKenia) {
         btnKenia.className = owner === 'kenia'
-          ? 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-pink-400 bg-pink-100 text-pink-900 shadow-sm'
+          ? 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-pink-400 bg-pink-100 text-pink-950 shadow-sm'
           : 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600';
       }
       if (btnBareng) {
@@ -1977,8 +1975,6 @@
       if (badge) badge.textContent = `Saran: ${smart}`;
     }
 
-    // Quick Duration Chip Click Handler:
-    // If input has "15:00" and user clicks [4 Jam], formats to "15:00 - 19:00"
     function applyDurationChip(mins, isEditModal = false) {
       const inputEl = isEditModal 
         ? document.getElementById('editTimeStr') 
@@ -2003,20 +1999,19 @@
       inputEl.value = `${startStr} - ${endStr}`;
       inputEl.focus();
 
-      // Highlight active chip
       const selector = isEditModal ? '.edit-quick-chip' : '.quick-chip';
       document.querySelectorAll(selector).forEach(chip => {
         const chipMins = parseInt(chip.dataset.mins, 10);
         if (chipMins === mins) {
           chip.className = `${selector.replace('.', '')} text-xs font-bold px-2.5 py-1 rounded-lg border border-rose-400 bg-rose-100 text-rose-800 transition shadow-sm`;
         } else {
-          chip.className = `${selector.replace('.', '')} text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition`;
+          chip.className = `${selector.replace('.', '')} text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition`;
         }
       });
     }
 
     function initEvents() {
-      // 0. Undo and Redo Button Events & Keyboard Shortcuts
+      // 0. Undo and Redo Button Events & Shortcuts
       const btnUndo = document.getElementById('btnUndo');
       const btnRedo = document.getElementById('btnRedo');
       if (btnUndo) btnUndo.addEventListener('click', performUndo);
@@ -2048,7 +2043,7 @@
       // 2. Reset Smart Time Button
       document.getElementById('btnResetSmartTime')?.addEventListener('click', () => {
         autoFillSmartTime(true);
-        showToast('Waktu diset ulang ke saran jadwal berikutnya.', 'info');
+        showToast('Waktu diset ke saran jam berikutnya.', 'info');
       });
 
       // 3. Quick Duration Chips Delegation
@@ -2121,7 +2116,7 @@
         saveState();
         renderApp();
         autoFillSmartTime(true);
-        showToast(`Hari ${newDayNumber} berhasil ditambahkan!`, 'success');
+        showToast(`Hari ${newDayNumber} berhasil ditambahkan.`, 'success');
       });
 
       // 7. Delete Active Day
@@ -2132,7 +2127,7 @@
         }
 
         const activeDay = getActiveDay();
-        if (confirm(`Yakin ingin menghapus ${activeDay.title}? Seluruh kegiatan di hari ini akan dihapus.`)) {
+        if (confirm(`Hapus ${activeDay.title}? Seluruh kegiatan di hari ini akan dihapus.`)) {
           recordHistory(`Hapus ${activeDay.title}`);
           appState.days.splice(appState.activeDayIndex, 1);
           if (appState.activeDayIndex >= appState.days.length) {
@@ -2149,7 +2144,7 @@
         const activeDay = getActiveDay();
         if (!activeDay.activities || activeDay.activities.length === 0) return;
 
-        if (confirm(`Hapus seluruh agenda di ${activeDay.title}? (Bisa dibatalkan dengan Undo)`)) {
+        if (confirm(`Bersihkan semua agenda di ${activeDay.title}?`)) {
           recordHistory(`Bersihkan ${activeDay.title}`);
           activeDay.activities = [];
           saveState();
@@ -2163,9 +2158,9 @@
       document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.category-btn').forEach(b => {
-            b.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[34px]';
+            b.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-stone-200 bg-stone-50 text-stone-600 hover:bg-rose-50 transition min-h-[36px]';
           });
-          btn.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[34px]';
+          btn.className = 'category-btn flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border border-rose-300 bg-rose-50 text-rose-800 transition min-h-[36px]';
           selectedCategory = {
             icon: btn.dataset.icon,
             cat: btn.dataset.cat
@@ -2210,11 +2205,10 @@
         noteInput.value = '';
         titleInput.focus();
 
-        // Calculate next smart default time
         autoFillSmartTime(true);
 
-        const ownerLabel = selectedOwner === 'huda' ? '🔵 Jadwal Huda' : (selectedOwner === 'kenia' ? '🌸 Jadwal Kenia' : '❤️ Jadwal Bareng');
-        showToast(`"${title}" ditambahkan ke ${ownerLabel}!`, 'success', true);
+        const ownerLabel = selectedOwner === 'huda' ? 'Jadwal Huda' : (selectedOwner === 'kenia' ? 'Jadwal Kenia' : 'Jadwal Bareng');
+        showToast(`"${title}" ditambahkan ke ${ownerLabel}.`, 'success', true);
       });
 
       // 11. Timeline Delegated Actions: Done Toggle, Edit, Delete
@@ -2233,7 +2227,7 @@
             recordHistory(`Tandai ${act.done ? 'Selesai' : 'Belum Selesai'}: ${act.title}`);
             saveState();
             renderApp();
-            showToast(act.done ? `✅ "${act.title}" selesai!` : `"${act.title}" ditandai belum selesai`, 'info');
+            showToast(act.done ? `"${act.title}" selesai.` : `"${act.title}" ditandai belum selesai.`, 'info');
           }
         } else if (btnEdit) {
           const actId = btnEdit.dataset.id;
@@ -2299,14 +2293,14 @@
         saveState();
         renderApp();
         closeEditModal();
-        showToast('Perubahan kegiatan berhasil disimpan!', 'success', true);
+        showToast('Perubahan kegiatan berhasil disimpan.', 'success', true);
       });
 
       // 13. Sample Loaders & Reset
       const handleLoadSample = (force = false) => {
         const hasExisting = appState.days.some(d => d.activities && d.activities.length > 0);
         if (hasExisting && !force) {
-          if (!confirm('Perhatian: Memuat contoh akan menggantikan rencana kamu saat ini.\n\nTenang, data lama tetap bisa dikembalikan kapan saja dengan tombol Undo (Ctrl+Z).\n\nLanjutkan muat contoh?')) {
+          if (!confirm('Memuat contoh akan menggantikan rencana saat ini. Lanjutkan?')) {
             return;
           }
         }
@@ -2315,11 +2309,11 @@
         saveState();
         renderApp();
         autoFillSmartTime(true);
-        showToast('Contoh itinerary kencan berhasil dimuat!', 'success', true);
+        showToast('Contoh itinerary berhasil dimuat.', 'success', true);
       };
 
       const handleResetAll = () => {
-        if (!confirm('Kosongkan semua rencana untuk mulai dari awal?\n\n(Tindakan ini tetap bisa dibatalkan dengan tombol Undo / Ctrl+Z)')) {
+        if (!confirm('Kosongkan semua rencana untuk mulai dari awal?')) {
           return;
         }
         recordHistory('Mulai Rencana Kosong');
@@ -2387,23 +2381,23 @@
       document.getElementById('btnCopyActiveDay')?.addEventListener('click', () => {
         const activeDay = getActiveDay();
         const text = generateWhatsAppTextForDay(activeDay, appState.activeDayIndex + 1);
-        copyTextToClipboard(text, `Format WhatsApp untuk ${activeDay.title} berhasil disalin!`);
+        copyTextToClipboard(text, `Format WhatsApp ${activeDay.title} disalin ke clipboard.`);
       });
 
       document.getElementById('btnCopyAllDays')?.addEventListener('click', () => {
         const text = generateWhatsAppTextAllDays();
-        copyTextToClipboard(text, 'Rangkuman SELURUH HARI berhasil disalin ke WhatsApp!');
+        copyTextToClipboard(text, 'Rangkuman seluruh hari disalin ke WhatsApp.');
       });
 
       document.getElementById('btnQuickCopyActive')?.addEventListener('click', () => {
         const activeDay = getActiveDay();
         const text = generateWhatsAppTextForDay(activeDay, appState.activeDayIndex + 1);
-        copyTextToClipboard(text, `Format WhatsApp untuk ${activeDay.title} berhasil disalin!`);
+        copyTextToClipboard(text, `Format WhatsApp ${activeDay.title} disalin ke clipboard.`);
       });
 
       document.getElementById('btnQuickCopyAll')?.addEventListener('click', () => {
         const text = generateWhatsAppTextAllDays();
-        copyTextToClipboard(text, 'Rangkuman SELURUH HARI berhasil disalin ke WhatsApp!');
+        copyTextToClipboard(text, 'Rangkuman seluruh hari disalin ke WhatsApp.');
       });
 
       // 15. Share Room Button
@@ -2450,7 +2444,7 @@
         }
 
         settingsModal.classList.add('hidden');
-        showToast('Pengaturan database & room berhasil disimpan!', 'success');
+        showToast('Pengaturan database & room berhasil disimpan.', 'success');
       });
 
       // Close modals on Escape key
