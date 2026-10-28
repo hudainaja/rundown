@@ -341,39 +341,61 @@
               >
             </div>
 
-            <!-- Durasi (Menit) + Preset Chips -->
+            <!-- Durasi Kegiatan (Jam & Menit) + Preset Chips -->
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="inputDuration" class="text-xs font-semibold text-stone-700">
-                  Durasi Kegiatan (Menit) <span class="text-rose-500">*</span>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-semibold text-stone-700">
+                  Durasi Kegiatan <span class="text-rose-500">*</span>
                 </label>
-                <span id="durationPreviewText" class="text-xs font-medium text-rose-600">45 menit</span>
+                <span id="durationPreviewText" class="text-xs font-bold text-rose-600">45 menit</span>
               </div>
               
-              <div class="relative mb-2.5">
-                <input 
-                  type="number" 
-                  id="inputDuration" 
-                  min="5" 
-                  max="1440" 
-                  step="5" 
-                  value="45"
-                  required
-                  class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition"
-                >
-                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-stone-400 pointer-events-none">
-                  menit
-                </span>
+              <div class="grid grid-cols-2 gap-2 mb-2.5">
+                <!-- Input Jam -->
+                <div class="relative">
+                  <input 
+                    type="number" 
+                    id="inputDurationHours" 
+                    min="0" 
+                    max="24" 
+                    step="1" 
+                    value="0"
+                    placeholder="0"
+                    class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition pr-12"
+                  >
+                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 pointer-events-none">
+                    Jam
+                  </span>
+                </div>
+
+                <!-- Input Menit -->
+                <div class="relative">
+                  <input 
+                    type="number" 
+                    id="inputDurationMinutes" 
+                    min="0" 
+                    max="59" 
+                    step="5" 
+                    value="45"
+                    placeholder="0"
+                    class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition pr-14"
+                  >
+                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 pointer-events-none">
+                    Menit
+                  </span>
+                </div>
               </div>
 
-              <!-- Preset Duration Chips -->
+              <!-- Preset Duration Chips (Menit & Jam) -->
               <div class="flex flex-wrap gap-1.5" id="durationChipsContainer">
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="15">15m</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="30">30m</button>
-                <button type="button" class="duration-chip active-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 transition min-h-[36px]" data-mins="45">45m</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="60">60m</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="90">90m</button>
-                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-mins="120">120m</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="0" data-mins="15">15m</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="0" data-mins="30">30m</button>
+                <button type="button" class="duration-chip active-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 transition min-h-[36px]" data-hours="0" data-mins="45">45m</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="1" data-mins="0">1 Jam</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="1" data-mins="30">1.5 Jam</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="2" data-mins="0">2 Jam</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="2" data-mins="30">2.5 Jam</button>
+                <button type="button" class="duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]" data-hours="3" data-mins="0">3 Jam</button>
               </div>
             </div>
 
@@ -567,18 +589,42 @@
         </div>
 
         <div>
-          <label for="editInputDuration" class="block text-xs font-semibold text-stone-700 mb-1">
-            Durasi (Menit) <span class="text-rose-500">*</span>
-          </label>
-          <input 
-            type="number" 
-            id="editInputDuration" 
-            min="5" 
-            max="1440" 
-            step="5"
-            required
-            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition"
-          >
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-stone-700">
+              Durasi Kegiatan <span class="text-rose-500">*</span>
+            </label>
+            <span id="editDurationPreviewText" class="text-xs font-bold text-rose-600">30 menit</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="relative">
+              <input 
+                type="number" 
+                id="editDurationHours" 
+                min="0" 
+                max="24" 
+                step="1" 
+                value="0"
+                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition pr-12"
+              >
+              <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 pointer-events-none">
+                Jam
+              </span>
+            </div>
+            <div class="relative">
+              <input 
+                type="number" 
+                id="editDurationMinutes" 
+                min="0" 
+                max="59" 
+                step="5" 
+                value="30"
+                class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-900 focus:bg-white transition pr-14"
+              >
+              <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 pointer-events-none">
+                Menit
+              </span>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -837,6 +883,15 @@
       return `${m} Menit`;
     }
 
+    // Helper: format duration badge for timeline card (e.g. 1 Jam 30m, 2 Jam, 45m)
+    function formatDurationBadge(mins) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      if (h > 0 && m > 0) return `${h} Jam ${m}m`;
+      if (h > 0) return `${h} Jam`;
+      return `${m}m`;
+    }
+
     // Load State from LocalStorage with Backward Compatibility
     function loadState() {
       try {
@@ -1025,7 +1080,7 @@
                         ${item.isNextDay ? '<span class="text-[10px] bg-rose-200/60 px-1.5 rounded text-rose-800">+1 hari</span>' : ''}
                       </span>
                       <span class="text-xs font-semibold px-2 py-0.5 rounded-lg bg-stone-100 text-stone-600">
-                        ${item.duration} menit
+                        ${formatDurationBadge(item.duration)}
                       </span>
                     </div>
 
@@ -1488,11 +1543,12 @@
       formAdd.addEventListener('submit', (e) => {
         e.preventDefault();
         const titleInput = document.getElementById('inputTitle');
-        const durationInput = document.getElementById('inputDuration');
         const noteInput = document.getElementById('inputNote');
 
         const title = titleInput.value.trim();
-        const duration = parseInt(durationInput.value, 10) || 45;
+        const h = parseInt(document.getElementById('inputDurationHours').value, 10) || 0;
+        const m = parseInt(document.getElementById('inputDurationMinutes').value, 10) || 0;
+        const duration = Math.max(5, (h * 60) + m);
         const note = noteInput.value.trim();
 
         if (!title) return;
@@ -1519,19 +1575,33 @@
         showToast(`"${title}" berhasil ditambahkan ke ${activeDay.title}!`, 'success');
       });
 
-      // Duration Input & Chip Presets
-      const inputDuration = document.getElementById('inputDuration');
+      // Duration Input (Hours & Minutes) & Chip Presets
+      const inputDurationHours = document.getElementById('inputDurationHours');
+      const inputDurationMinutes = document.getElementById('inputDurationMinutes');
       const durationPreviewText = document.getElementById('durationPreviewText');
       
-      inputDuration.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value, 10) || 0;
-        durationPreviewText.textContent = `${val} menit`;
-        updateActiveChip(val);
-      });
+      function updateAddDurationPreview() {
+        const h = parseInt(inputDurationHours.value, 10) || 0;
+        const m = parseInt(inputDurationMinutes.value, 10) || 0;
+        const total = (h * 60) + m;
+        if (h > 0 && m > 0) {
+          durationPreviewText.textContent = `${h} Jam ${m} Menit (${total}m)`;
+        } else if (h > 0) {
+          durationPreviewText.textContent = `${h} Jam (${total}m)`;
+        } else {
+          durationPreviewText.textContent = `${m} menit`;
+        }
+        updateActiveChip(h, m);
+      }
 
-      function updateActiveChip(mins) {
+      inputDurationHours.addEventListener('input', updateAddDurationPreview);
+      inputDurationMinutes.addEventListener('input', updateAddDurationPreview);
+
+      function updateActiveChip(h, m) {
         document.querySelectorAll('.duration-chip').forEach(chip => {
-          if (parseInt(chip.dataset.mins, 10) === mins) {
+          const chipH = parseInt(chip.dataset.hours, 10) || 0;
+          const chipM = parseInt(chip.dataset.mins, 10) || 0;
+          if (chipH === h && chipM === m) {
             chip.className = 'duration-chip active-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 transition min-h-[36px]';
           } else {
             chip.className = 'duration-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 transition min-h-[36px]';
@@ -1541,10 +1611,11 @@
 
       document.querySelectorAll('.duration-chip').forEach(chip => {
         chip.addEventListener('click', () => {
-          const mins = parseInt(chip.dataset.mins, 10);
-          inputDuration.value = mins;
-          durationPreviewText.textContent = `${mins} menit`;
-          updateActiveChip(mins);
+          const h = parseInt(chip.dataset.hours, 10) || 0;
+          const m = parseInt(chip.dataset.mins, 10) || 0;
+          inputDurationHours.value = h;
+          inputDurationMinutes.value = m;
+          updateAddDurationPreview();
         });
       });
 
@@ -1665,12 +1736,36 @@
 
         document.getElementById('editItemIndex').value = index;
         document.getElementById('editInputTitle').value = item.title;
-        document.getElementById('editInputDuration').value = item.duration;
+
+        const totalMins = item.duration || 30;
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        document.getElementById('editDurationHours').value = h;
+        document.getElementById('editDurationMinutes').value = m;
+        updateEditDurationPreview();
+
         document.getElementById('editInputNote').value = item.note || '';
 
         editModal.classList.remove('hidden');
         document.getElementById('editInputTitle').focus();
       }
+
+      function updateEditDurationPreview() {
+        const h = parseInt(document.getElementById('editDurationHours').value, 10) || 0;
+        const m = parseInt(document.getElementById('editDurationMinutes').value, 10) || 0;
+        const total = (h * 60) + m;
+        const preview = document.getElementById('editDurationPreviewText');
+        if (h > 0 && m > 0) {
+          preview.textContent = `${h} Jam ${m} Menit (${total}m)`;
+        } else if (h > 0) {
+          preview.textContent = `${h} Jam (${total}m)`;
+        } else {
+          preview.textContent = `${m} menit`;
+        }
+      }
+
+      document.getElementById('editDurationHours').addEventListener('input', updateEditDurationPreview);
+      document.getElementById('editDurationMinutes').addEventListener('input', updateEditDurationPreview);
 
       function closeEditModal() {
         editModal.classList.add('hidden');
@@ -1685,8 +1780,12 @@
         const activeDay = getActiveDay();
         if (isNaN(index) || !activeDay.activities[index]) return;
 
+        const h = parseInt(document.getElementById('editDurationHours').value, 10) || 0;
+        const m = parseInt(document.getElementById('editDurationMinutes').value, 10) || 0;
+        const total = Math.max(5, (h * 60) + m);
+
         activeDay.activities[index].title = document.getElementById('editInputTitle').value.trim();
-        activeDay.activities[index].duration = parseInt(document.getElementById('editInputDuration').value, 10) || 30;
+        activeDay.activities[index].duration = total;
         activeDay.activities[index].note = document.getElementById('editInputNote').value.trim();
 
         saveState();
