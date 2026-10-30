@@ -133,6 +133,32 @@
     .animate-card {
       animation: fadeInSlide 0.18s ease-out forwards;
     }
+
+    /* Google Calendar-Style Time-Grid Day View */
+    .time-grid-scroll-area {
+      scrollbar-gutter: stable;
+    }
+    .time-grid-scroll-area::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .time-grid-scroll-area::-webkit-scrollbar-track {
+      background: #faf8f5;
+    }
+    .time-grid-scroll-area::-webkit-scrollbar-thumb {
+      background: #d6cfc7;
+      border-radius: 9999px;
+    }
+    .time-grid-scroll-area::-webkit-scrollbar-thumb:hover {
+      background: #b8afa4;
+    }
+
+    .time-grid-card {
+      transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+    .time-grid-card:hover {
+      z-index: 30 !important;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans selection:bg-rose-100 selection:text-rose-900 text-stone-800">
@@ -397,7 +423,7 @@
                 </button>
               </div>
               <p id="ownerHintText" class="text-[11px] text-sky-800 mt-1.5 font-medium">
-                Jadwal Huda akan masuk di kolom kiri (col-span-1)
+                Jadwal Huda akan masuk di Jalur 1 (Kolom Kiri)
               </p>
             </div>
 
@@ -579,7 +605,7 @@
       <section aria-label="Timeline Rundown" class="lg:col-span-8 xl:col-span-8 space-y-4">
         
         <!-- Timeline Header Bar -->
-        <div class="bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm flex items-center justify-between gap-3">
+        <div class="bg-white border border-warm-border rounded-2xl p-4 sm:p-5 shadow-warm-sm flex flex-wrap items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
               <h2 id="timelineActiveTitle" class="text-base sm:text-lg font-bold text-stone-900 tracking-tight">Timeline Rundown</h2>
@@ -588,10 +614,30 @@
                 Tersinkron
               </span>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Auto-sort berdasarkan jam mulai • Huda (kiri), Kenia (kanan), Bareng (melebar di tengah)</p>
+            <p class="text-xs text-stone-500 mt-0.5">Time-Grid Calendar • Huda (Jalur 1), Kenia (Jalur 2), Bareng (Menembus Kedua Jalur)</p>
           </div>
 
           <div class="flex items-center gap-2">
+            <!-- Scale Selector: 60px vs 80px per hour -->
+            <div class="flex items-center p-0.5 rounded-xl bg-stone-100 border border-stone-200 text-xs font-semibold" title="Atur rasio tinggi waktu per jam">
+              <button 
+                id="btnScale60" 
+                type="button" 
+                class="px-2.5 py-1 rounded-lg text-xs font-bold transition min-h-[34px] text-stone-900 bg-white shadow-xs"
+                title="Skala 60px/jam (1 menit = 1px)"
+              >
+                60px/j
+              </button>
+              <button 
+                id="btnScale80" 
+                type="button" 
+                class="px-2.5 py-1 rounded-lg text-xs font-bold transition min-h-[34px] text-stone-600 hover:text-stone-900"
+                title="Skala 80px/jam (1 menit = 1.33px)"
+              >
+                80px/j
+              </button>
+            </div>
+
             <!-- Dropdown Menu Opsi Jadwal -->
             <div class="relative">
               <button 
@@ -623,27 +669,9 @@
           </div>
         </div>
 
-        <!-- Desktop Column Indicator / Legend (Clean typography, no raw emojis) -->
-        <div class="hidden md:grid md:grid-cols-2 gap-4">
-          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-sky-50/80 border border-sky-200 text-sky-950 text-xs font-bold shadow-sm">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shrink-0"></span>
-              <span>Kolom Kiri: Jadwal Huda</span>
-            </div>
-            <span class="text-[10px] text-sky-800 bg-sky-100/90 px-2 py-0.5 rounded-md font-mono">col-span-1</span>
-          </div>
-          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-pink-50/80 border border-pink-200 text-pink-950 text-xs font-bold shadow-sm">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-pink-400 shrink-0"></span>
-              <span>Kolom Kanan: Jadwal Kenia</span>
-            </div>
-            <span class="text-[10px] text-pink-800 bg-pink-100/90 px-2 py-0.5 rounded-md font-mono">col-span-1</span>
-          </div>
-        </div>
-
-        <!-- Unified 2-Column Grid Container -->
-        <div id="timelineContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-          <!-- Cards rendered dynamically via JS -->
+        <!-- Time-Grid Calendar Container (Dynamic Google Calendar Day-View Layout) -->
+        <div id="timelineContainer" class="w-full">
+          <!-- Cards and grid lines rendered dynamically via JS -->
         </div>
 
         <!-- Empty State Container (Clear explanation and next action) -->
@@ -1054,6 +1082,10 @@
     let selectedOwner = 'huda'; // 'huda' | 'kenia' | 'bareng'
     let editSelectedOwner = 'huda';
 
+    // Time-Grid Calendar Ratio Scale: 60px/jam (1 menit = 1px) or 80px/jam (1 menit = 1.33px)
+    let gridHourHeight = parseInt(localStorage.getItem('date_planner_grid_scale') || '60', 10);
+    if (gridHourHeight !== 60 && gridHourHeight !== 80) gridHourHeight = 60;
+
     let selectedCategory = {
       icon: '🚗',
       cat: 'Jemput'
@@ -1090,9 +1122,253 @@
       } else if (matches.length === 1) {
         const h = parseInt(matches[0][1], 10);
         const m = parseInt(matches[0][2], 10);
-        return (h * 60) + m;
+        return (h * 60) + m + 30; // Titik waktu tunggal (default durasi 30 menit)
       }
       return 0;
+    }
+
+    function getActivityTimeRange(timeStr) {
+      if (!timeStr) {
+        return { startMinutes: 9 * 60, endMinutes: 9.5 * 60, durationMinutes: 30, isSinglePoint: true };
+      }
+      const matches = [...String(timeStr).matchAll(/(\d{1,2})[:.](\d{2})/g)];
+      if (matches.length >= 2) {
+        const startH = parseInt(matches[0][1], 10);
+        const startM = parseInt(matches[0][2], 10);
+        let endH = parseInt(matches[1][1], 10);
+        let endM = parseInt(matches[1][2], 10);
+        const start = (startH * 60) + startM;
+        let end = (endH * 60) + endM;
+        if (end < start) {
+          end += 1440; // Melewati tengah malam
+        }
+        const duration = Math.max(15, end - start);
+        return {
+          startMinutes: start,
+          endMinutes: end,
+          durationMinutes: duration,
+          isSinglePoint: false
+        };
+      } else if (matches.length === 1) {
+        const startH = parseInt(matches[0][1], 10);
+        const startM = parseInt(matches[0][2], 10);
+        const start = (startH * 60) + startM;
+        const defaultDuration = 30; // Titik waktu tunggal misal jam tiba 13:53 (default 30 menit)
+        return {
+          startMinutes: start,
+          endMinutes: start + defaultDuration,
+          durationMinutes: defaultDuration,
+          isSinglePoint: true
+        };
+      }
+      return { startMinutes: 9 * 60, endMinutes: 9.5 * 60, durationMinutes: 30, isSinglePoint: true };
+    }
+
+    function getGridHourRange(activities) {
+      let minHour = 6;  // Standar mulai pukul 06:00
+      let maxHour = 24; // Standar selesai pukul 24:00 (tengah malam)
+
+      (activities || []).forEach(act => {
+        const range = getActivityTimeRange(act.timeStr);
+        const startH = Math.floor(range.startMinutes / 60);
+        const endH = Math.ceil(range.endMinutes / 60);
+        if (startH < minHour) minHour = Math.max(0, startH - 1);
+        if (endH > maxHour) maxHour = Math.min(28, endH + 1);
+      });
+
+      return {
+        startHour: minHour,
+        endHour: maxHour,
+        totalHours: maxHour - minHour
+      };
+    }
+
+    function computeCardPositions(activities, gridStartHour, pixelsPerMinute) {
+      const gridStartMinutes = gridStartHour * 60;
+      const positions = new Map();
+
+      const hudaActs = [];
+      const keniaActs = [];
+      const barengActs = [];
+
+      activities.forEach(act => {
+        const timeInfo = getActivityTimeRange(act.timeStr);
+        const top = Math.max(0, (timeInfo.startMinutes - gridStartMinutes) * pixelsPerMinute);
+        const height = Math.max(34, timeInfo.durationMinutes * pixelsPerMinute);
+
+        const data = {
+          act,
+          timeInfo,
+          top,
+          height,
+          start: timeInfo.startMinutes,
+          end: timeInfo.endMinutes
+        };
+
+        if (act.owner === 'huda') {
+          hudaActs.push(data);
+        } else if (act.owner === 'kenia') {
+          keniaActs.push(data);
+        } else {
+          barengActs.push(data);
+        }
+      });
+
+      function layoutLane(laneActs, laneLeftPct, laneWidthPct) {
+        if (laneActs.length === 0) return;
+
+        laneActs.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+
+        const clusters = [];
+        let currentCluster = [];
+        let clusterEnd = -1;
+
+        laneActs.forEach(item => {
+          if (currentCluster.length === 0) {
+            currentCluster.push(item);
+            clusterEnd = item.end;
+          } else if (item.start < clusterEnd) {
+            currentCluster.push(item);
+            clusterEnd = Math.max(clusterEnd, item.end);
+          } else {
+            clusters.push(currentCluster);
+            currentCluster = [item];
+            clusterEnd = item.end;
+          }
+        });
+        if (currentCluster.length > 0) {
+          clusters.push(currentCluster);
+        }
+
+        clusters.forEach(cluster => {
+          const columns = [];
+          cluster.forEach(item => {
+            let placed = false;
+            for (let c = 0; c < columns.length; c++) {
+              if (columns[c] <= item.start) {
+                columns[c] = item.end;
+                item.col = c;
+                placed = true;
+                break;
+              }
+            }
+            if (!placed) {
+              item.col = columns.length;
+              columns.push(item.end);
+            }
+          });
+
+          const totalCols = columns.length;
+          cluster.forEach(item => {
+            const subWidthPct = laneWidthPct / totalCols;
+            const subLeftPct = laneLeftPct + (item.col * subWidthPct);
+
+            positions.set(item.act.id, {
+              top: Math.round(item.top),
+              height: Math.round(item.height),
+              left: `calc(${subLeftPct}% + 4px)`,
+              width: `calc(${subWidthPct}% - 8px)`,
+              zIndex: 4 + item.col,
+              timeInfo: item.timeInfo
+            });
+          });
+        });
+      }
+
+      // Kolom Huda: 0% sampai 50%
+      layoutLane(hudaActs, 0, 50);
+
+      // Kolom Kenia: 50% sampai 100%
+      layoutLane(keniaActs, 50, 50);
+
+      // Bareng: Melebar menembus kedua kolom (0% sampai 100%) tepat pada posisi jam tersebut
+      barengActs.forEach(item => {
+        positions.set(item.act.id, {
+          top: Math.round(item.top),
+          height: Math.round(item.height),
+          left: '4px',
+          width: 'calc(100% - 8px)',
+          zIndex: 12,
+          timeInfo: item.timeInfo
+        });
+      });
+
+      return positions;
+    }
+
+    function formatDuration(minutes) {
+      if (minutes < 60) return `${minutes}m`;
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      return m > 0 ? `${h}j ${m}m` : `${h} Jam`;
+    }
+
+    function renderHourGridLines(startHour, endHour, hourHeight) {
+      const lines = [];
+      const totalHours = endHour - startHour;
+
+      for (let i = 0; i <= totalHours; i++) {
+        const hour = startHour + i;
+        const hourStr = `${String(hour % 24).padStart(2, '0')}:00`;
+        const y = i * hourHeight;
+
+        // Label Jam di sumbu kiri (Time Labels)
+        lines.push(`
+          <div 
+            class="absolute left-0 w-[52px] sm:w-[64px] pr-2 text-right font-mono text-[11px] font-semibold text-stone-500 select-none pointer-events-none" 
+            style="top: ${y}px; transform: translateY(-50%);"
+          >
+            ${hourStr}
+          </div>
+        `);
+
+        // Garis batas horizontal per jam (Grid line)
+        lines.push(`
+          <div 
+            class="absolute left-[52px] sm:left-[64px] right-0 border-t border-stone-200/80 pointer-events-none" 
+            style="top: ${y}px;"
+          ></div>
+        `);
+
+        // Garis tipis putus-putus di tiap setengah jam (30 menit)
+        if (i < totalHours) {
+          const halfY = y + Math.round(hourHeight / 2);
+          lines.push(`
+            <div 
+              class="absolute left-[52px] sm:left-[64px] right-0 border-t border-dashed border-stone-100/90 pointer-events-none" 
+              style="top: ${halfY}px;"
+            ></div>
+          `);
+        }
+      }
+
+      return lines.join('');
+    }
+
+    function renderCurrentTimeIndicator(startHour, endHour, hourHeight) {
+      const now = new Date();
+      const currentMinutes = (now.getHours() * 60) + now.getMinutes();
+      const startMinutes = startHour * 60;
+      const endMinutes = endHour * 60;
+
+      if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+        const pixelsPerMinute = hourHeight / 60;
+        const y = Math.round((currentMinutes - startMinutes) * pixelsPerMinute);
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+        return `
+          <div class="absolute left-0 right-0 pointer-events-none z-20 flex items-center" style="top: ${y}px; transform: translateY(-50%);">
+            <div class="w-[52px] sm:w-[64px] pr-1.5 flex items-center justify-end">
+              <span class="inline-flex items-center px-1 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-600 text-white shadow-xs">
+                ${timeStr}
+              </span>
+            </div>
+            <div class="w-2.5 h-2.5 rounded-full bg-rose-600 -ml-1.5 shrink-0 shadow-xs ring-2 ring-white"></div>
+            <div class="flex-1 h-0.5 bg-rose-500/90 shadow-xs"></div>
+          </div>
+        `;
+      }
+      return '';
     }
 
     function minutesToTimeStr(totalMins) {
@@ -1373,6 +1649,19 @@
         btnDeleteDay.classList.add('hidden');
       }
 
+      // Update Scale button styles (60px vs 80px)
+      const btn60 = document.getElementById('btnScale60');
+      const btn80 = document.getElementById('btnScale80');
+      if (btn60 && btn80) {
+        if (gridHourHeight === 60) {
+          btn60.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition min-h-[34px] text-stone-900 bg-white shadow-xs';
+          btn80.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition min-h-[34px] text-stone-600 hover:text-stone-900';
+        } else {
+          btn80.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition min-h-[34px] text-stone-900 bg-white shadow-xs';
+          btn60.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition min-h-[34px] text-stone-600 hover:text-stone-900';
+        }
+      }
+
       const container = document.getElementById('timelineContainer');
       const emptyState = document.getElementById('emptyState');
 
@@ -1384,128 +1673,184 @@
         emptyState.classList.add('hidden');
         container.classList.remove('hidden');
 
-        container.innerHTML = items.map((item, idx) => {
-          let colClasses = '';
+        const { startHour, endHour, totalHours } = getGridHourRange(items);
+        const pixelsPerMinute = gridHourHeight / 60;
+        const totalCanvasHeight = totalHours * gridHourHeight;
+        const positions = computeCardPositions(items, startHour, pixelsPerMinute);
+        const gridLinesHtml = renderHourGridLines(startHour, endHour, gridHourHeight);
+        const nowLineHtml = renderCurrentTimeIndicator(startHour, endHour, gridHourHeight);
+
+        const cardsHtml = items.map((item, idx) => {
+          const pos = positions.get(item.id);
+          if (!pos) return '';
+
           let borderBgClasses = '';
           let badgeOwnerHtml = '';
           let timeBadgeClasses = '';
           let timeIconClass = '';
 
           if (item.owner === 'huda') {
-            colClasses = 'col-span-1 md:col-start-1 md:col-span-1';
-            borderBgClasses = 'border-sky-200/90 bg-white hover:border-sky-400 hover:shadow-warm-md';
+            borderBgClasses = 'border-sky-300/80 bg-sky-50/90 hover:bg-sky-50 text-sky-950 hover:border-sky-400 hover:shadow-warm-sm';
             badgeOwnerHtml = `
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-950 border border-sky-200">
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-950 border border-sky-200 shrink-0">
                 <span class="w-1.5 h-1.5 rounded-full bg-sky-600"></span>
                 <span>Huda</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-sky-50 text-sky-950 border-sky-200 font-mono';
+            timeBadgeClasses = 'bg-sky-100/90 text-sky-950 border-sky-200';
             timeIconClass = 'text-sky-700';
           } else if (item.owner === 'kenia') {
-            colClasses = 'col-span-1 md:col-start-2 md:col-span-1';
-            borderBgClasses = 'border-pink-200/90 bg-white hover:border-pink-400 hover:shadow-warm-md';
+            borderBgClasses = 'border-pink-300/80 bg-pink-50/90 hover:bg-pink-50 text-pink-950 hover:border-pink-400 hover:shadow-warm-md';
             badgeOwnerHtml = `
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pink-100 text-pink-950 border border-pink-200">
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-pink-100 text-pink-950 border border-pink-200 shrink-0">
                 <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
                 <span>Kenia</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-pink-50 text-pink-950 border-pink-200 font-mono';
+            timeBadgeClasses = 'bg-pink-100/90 text-pink-950 border-pink-200';
             timeIconClass = 'text-pink-700';
           } else {
-            colClasses = 'col-span-1 md:col-span-2';
-            borderBgClasses = 'border-rose-200 bg-gradient-to-r from-rose-50/70 via-white to-amber-50/40 hover:border-rose-300 hover:shadow-warm-md';
+            borderBgClasses = 'border-rose-300/90 bg-gradient-to-r from-rose-50/95 via-pink-50/90 to-amber-50/90 hover:from-rose-50 hover:to-amber-50 text-stone-900 shadow-sm hover:border-rose-400 hover:shadow-warm-md';
             badgeOwnerHtml = `
-              <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white shadow-sm shadow-rose-200">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-600 text-white shadow-xs shrink-0">
                 <span class="w-1.5 h-1.5 rounded-full bg-rose-200"></span>
-                <span>Bareng (Merged)</span>
+                <span>Bareng</span>
               </span>
             `;
-            timeBadgeClasses = 'bg-rose-100/90 text-rose-950 border-rose-200 font-mono';
+            timeBadgeClasses = 'bg-rose-100/90 text-rose-950 border-rose-200';
             timeIconClass = 'text-rose-700';
           }
 
-          const doneOpacity = item.done ? 'opacity-70' : '';
+          const doneClasses = item.done ? 'opacity-65 saturate-75' : '';
           const strikeTitle = item.done ? 'line-through text-stone-500 font-semibold' : 'text-stone-900 font-bold';
-          const strikeNote = item.done ? 'line-through text-stone-500' : 'text-stone-600';
+          const strikeNote = item.done ? 'line-through text-stone-400' : 'text-stone-600';
 
-          return `
-            <div class="${colClasses} transition-all duration-200 animate-card" data-id="${item.id}">
-              <div class="h-full border rounded-2xl p-4 sm:p-5 shadow-warm-sm flex flex-col justify-between ${borderBgClasses} ${doneOpacity}">
-                
+          const checkboxHtml = `
+            <button 
+              type="button" 
+              class="btn-toggle-done w-4 h-4 rounded shrink-0 flex items-center justify-center transition active:scale-95 ${item.done ? 'bg-emerald-600 text-white shadow-xs' : 'border border-stone-400 bg-white hover:border-emerald-500'}"
+              data-id="${item.id}"
+              title="${item.done ? 'Tandai belum selesai' : 'Tandai selesai'}"
+              aria-label="Tandai selesai"
+            >
+              ${item.done ? `
+                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+              ` : ''}
+            </button>
+          `;
+
+          const editBtnHtml = `
+            <button 
+              type="button" 
+              class="btn-edit p-1 text-stone-400 hover:text-stone-800 hover:bg-stone-200/50 rounded transition" 
+              data-id="${item.id}"
+              title="Ubah aktivitas"
+              aria-label="Ubah ${escapeHtml(item.title)}"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          `;
+
+          const deleteBtnHtml = `
+            <button 
+              type="button" 
+              class="btn-delete p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-100/50 rounded transition" 
+              data-id="${item.id}"
+              title="Hapus aktivitas"
+              aria-label="Hapus ${escapeHtml(item.title)}"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          `;
+
+          let bodyContent = '';
+
+          if (pos.height < 52) {
+            bodyContent = `
+              <div class="h-full w-full px-2 py-1 flex items-center justify-between gap-1.5 overflow-hidden">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  ${checkboxHtml}
+                  <span class="text-xs shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
+                  <span class="text-xs truncate ${strikeTitle}">${escapeHtml(item.title)}</span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border font-mono ${timeBadgeClasses}">
+                    ${escapeHtml(item.timeStr || '--:--')}
+                  </span>
+                  ${editBtnHtml}
+                  ${deleteBtnHtml}
+                </div>
+              </div>
+            `;
+          } else if (pos.height < 86) {
+            bodyContent = `
+              <div class="h-full w-full p-2 sm:p-2.5 flex flex-col justify-between overflow-hidden">
+                <div class="flex items-center justify-between gap-1 pb-1">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    ${checkboxHtml}
+                    ${badgeOwnerHtml}
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border font-mono ${timeBadgeClasses}">
+                      ${escapeHtml(item.timeStr || '--:--')}
+                    </span>
+                    ${editBtnHtml}
+                    ${deleteBtnHtml}
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-start gap-1">
+                    <span class="text-xs shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
+                    <h4 class="text-xs font-bold leading-tight truncate ${strikeTitle}">
+                      ${escapeHtml(item.title)}
+                    </h4>
+                  </div>
+                  ${item.note ? `
+                    <p class="text-[10px] text-stone-500 truncate mt-0.5 ${strikeNote}">
+                      ${escapeHtml(item.note)}
+                    </p>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          } else {
+            bodyContent = `
+              <div class="h-full w-full p-2.5 sm:p-3 flex flex-col justify-between overflow-hidden">
                 <div>
-                  <!-- Card Header: Badges & Actions -->
-                  <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-stone-100">
-                    <div class="flex flex-wrap items-center gap-1.5">
+                  <div class="flex items-center justify-between gap-1.5 pb-2 border-b border-stone-200/50">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      ${checkboxHtml}
                       ${badgeOwnerHtml}
-                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold border ${timeBadgeClasses}">
-                        <svg class="w-3.5 h-3.5 ${timeIconClass} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border font-mono ${timeBadgeClasses}">
+                        <svg class="w-3 h-3 ${timeIconClass} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>${escapeHtml(item.timeStr || '--:--')}</span>
                       </span>
-                    </div>
-
-                    <!-- Right Card Actions: Done, Edit, Delete with Accessible Touch Targets -->
-                    <div class="flex items-center gap-1">
-                      <!-- Toggle Done Button with crisp SVG checkmark -->
-                      <button 
-                        type="button" 
-                        class="btn-toggle-done inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95 min-h-[36px] ${item.done ? 'bg-emerald-100 text-emerald-950 border border-emerald-300' : 'bg-stone-100 hover:bg-stone-200 text-stone-700'}"
-                        data-id="${item.id}"
-                        title="${item.done ? 'Tandai belum selesai' : 'Tandai selesai'}"
-                      >
-                        <span class="w-4 h-4 rounded flex items-center justify-center ${item.done ? 'bg-emerald-600 text-white' : 'border border-stone-400 bg-white'}">
-                          ${item.done ? `
-                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                          ` : ''}
-                        </span>
-                        <span class="text-[11px] font-medium">${item.done ? 'Selesai' : 'Done'}</span>
-                      </button>
-
-                      <!-- Edit Button -->
-                      <button 
-                        type="button" 
-                        class="btn-edit p-2 text-stone-500 hover:text-stone-800 hover:bg-stone-100 active:scale-95 rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center focus:outline-none" 
-                        data-id="${item.id}"
-                        title="Ubah aktivitas"
-                        aria-label="Ubah ${escapeHtml(item.title)}"
-                      >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-
-                      <!-- Delete Button -->
-                      <button 
-                        type="button" 
-                        class="btn-delete p-2 text-stone-500 hover:text-rose-600 hover:bg-rose-50 active:scale-95 rounded-lg transition min-w-[36px] min-h-[36px] flex items-center justify-center focus:outline-none" 
-                        data-id="${item.id}"
-                        title="Hapus aktivitas"
-                        aria-label="Hapus ${escapeHtml(item.title)}"
-                      >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+                      ${editBtnHtml}
+                      ${deleteBtnHtml}
                     </div>
                   </div>
 
-                  <!-- Activity Title & Description -->
-                  <div class="mt-3">
-                    <div class="flex items-start gap-2.5">
-                      <span class="text-xl shrink-0 mt-0.5 select-none" aria-hidden="true">${item.icon || '📌'}</span>
-                      <div class="flex-1 min-w-0">
-                        <h4 class="text-sm sm:text-base break-words leading-snug ${strikeTitle}">
+                  <div class="mt-2 min-w-0">
+                    <div class="flex items-start gap-1.5">
+                      <span class="text-sm shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
+                      <div class="min-w-0 flex-1">
+                        <h4 class="text-xs sm:text-sm leading-snug break-words ${strikeTitle}">
                           ${escapeHtml(item.title)}
                         </h4>
                         ${item.note ? `
-                          <div class="mt-1 flex items-start gap-1.5 text-xs ${strikeNote}">
+                          <div class="mt-1 flex items-start gap-1 text-[11px] ${strikeNote}">
                             <span class="text-rose-500 shrink-0 mt-0.5" aria-hidden="true">📍</span>
-                            <span class="break-words font-normal max-w-[65ch] leading-relaxed">${escapeHtml(item.note)}</span>
+                            <span class="break-words line-clamp-2">${escapeHtml(item.note)}</span>
                           </div>
                         ` : ''}
                       </div>
@@ -1513,16 +1858,87 @@
                   </div>
                 </div>
 
-                <!-- Footer Time Stamp / Status -->
-                <div class="mt-3 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500 font-medium">
+                <div class="pt-1.5 border-t border-stone-200/40 flex items-center justify-between text-[10px] text-stone-500 font-medium">
                   <span>Urutan #${idx + 1}</span>
-                  <span class="capitalize">${item.owner === 'bareng' ? 'Jadwal Bersama' : 'Jadwal ' + item.owner}</span>
+                  <span class="font-mono">${formatDuration(pos.timeInfo.durationMinutes)}</span>
                 </div>
-
               </div>
+            `;
+          }
+
+          return `
+            <div 
+              class="time-grid-card group absolute rounded-2xl transition-all duration-150 animate-card pointer-events-auto border ${borderBgClasses} ${doneClasses}" 
+              style="top: ${pos.top}px; height: ${pos.height}px; left: ${pos.left}; width: ${pos.width}; z-index: ${pos.zIndex};"
+              data-id="${item.id}"
+            >
+              ${bodyContent}
             </div>
           `;
         }).join('');
+
+        container.innerHTML = `
+          <div class="bg-white border border-warm-border rounded-2xl shadow-warm-sm overflow-hidden flex flex-col">
+            <!-- Header Kolom Time-Grid (Google Calendar Day-View style) -->
+            <div class="grid grid-cols-[52px_1fr_1fr] sm:grid-cols-[64px_1fr_1fr] border-b border-stone-200 bg-stone-50/90 sticky top-0 z-20 backdrop-blur-xs select-none">
+              <div class="py-2.5 px-2 flex items-center justify-center border-r border-stone-200 text-stone-400" title="Waktu">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="py-2.5 px-3 flex items-center justify-center gap-1.5 sm:gap-2 border-r border-stone-200 bg-sky-50/70">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shrink-0"></span>
+                <span class="text-xs font-bold text-sky-950">Kolom Huda</span>
+                <span class="text-[10px] font-mono font-semibold text-sky-800 bg-sky-100/80 px-1.5 py-0.5 rounded hidden sm:inline">Jalur 1</span>
+              </div>
+              <div class="py-2.5 px-3 flex items-center justify-center gap-1.5 sm:gap-2 bg-pink-50/70">
+                <span class="w-2.5 h-2.5 rounded-full bg-pink-500 shrink-0"></span>
+                <span class="text-xs font-bold text-pink-950">Kolom Kenia</span>
+                <span class="text-[10px] font-mono font-semibold text-pink-800 bg-pink-100/80 px-1.5 py-0.5 rounded hidden sm:inline">Jalur 2</span>
+              </div>
+            </div>
+
+            <!-- Canvas Time-Grid dengan Sumbu Waktu Vertikal -->
+            <div id="timeGridScrollArea" class="time-grid-scroll-area relative overflow-y-auto max-h-[720px] sm:max-h-[780px] overflow-x-auto">
+              <div class="min-w-[440px] sm:min-w-0 relative" style="height: ${totalCanvasHeight}px;">
+                <!-- Sumbu Kiri (Time Labels) dan Garis Batas Horizontal Grid -->
+                ${gridLinesHtml}
+
+                <!-- Garis Vertikal Pemisah Antara Kolom Huda dan Kenia -->
+                <div class="absolute top-0 bottom-0 left-[calc(52px+((100%-52px)/2))] sm:left-[calc(64px+((100%-64px)/2))] w-px bg-stone-200/90 pointer-events-none z-0"></div>
+
+                <!-- Garis Merah Waktu Terkini (Live Red Now Line) -->
+                ${nowLineHtml}
+
+                <!-- Container Kartu Aktivitas Berdasarkan Waktu -->
+                <div class="absolute inset-y-0 right-0 left-[52px] sm:left-[64px] pointer-events-none z-10">
+                  ${cardsHtml}
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Legenda Kencan -->
+            <div class="px-4 py-2.5 border-t border-stone-100 bg-stone-50/60 flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-500 select-none">
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
+                  <span class="font-semibold text-stone-700">Aktivitas Bareng</span>
+                  <span class="text-stone-400 text-[10px] sm:text-[11px]">(Menembus kedua kolom & menyatukan jalur)</span>
+                </span>
+              </div>
+              <span class="text-stone-400 font-mono text-[10px] hidden sm:inline">Rasio: 1 Jam = ${gridHourHeight}px (${(gridHourHeight / 60).toFixed(2)}px/menit)</span>
+            </div>
+          </div>
+        `;
+
+        const scrollArea = document.getElementById('timeGridScrollArea');
+        if (scrollArea && !scrollArea.dataset.scrolled) {
+          const earliestTop = Math.min(...Array.from(positions.values()).map(p => p.top));
+          if (isFinite(earliestTop)) {
+            scrollArea.scrollTop = Math.max(0, earliestTop - 30);
+            scrollArea.dataset.scrolled = 'true';
+          }
+        }
       }
 
       updateWhatsAppPreview();
@@ -1967,13 +2383,13 @@
 
       if (hintText) {
         if (owner === 'huda') {
-          hintText.textContent = 'Jadwal Huda akan masuk di kolom kiri (col-span-1)';
+          hintText.textContent = 'Jadwal Huda akan masuk di Jalur 1 (Kolom Kiri)';
           hintText.className = 'text-[11px] text-sky-800 mt-1.5 font-medium';
         } else if (owner === 'kenia') {
-          hintText.textContent = 'Jadwal Kenia akan masuk di kolom kanan (col-span-1 col-start-2)';
+          hintText.textContent = 'Jadwal Kenia akan masuk di Jalur 2 (Kolom Kanan)';
           hintText.className = 'text-[11px] text-pink-800 mt-1.5 font-medium';
         } else {
-          hintText.textContent = 'Jadwal Bareng otomatis melebar di tengah (col-span-2)';
+          hintText.textContent = 'Jadwal Bareng otomatis melebar menembus kedua kolom';
           hintText.className = 'text-[11px] text-rose-800 mt-1.5 font-medium';
         }
       }
@@ -2140,10 +2556,27 @@
           if (!isNaN(dayIndex) && appState.days[dayIndex]) {
             appState.activeDayIndex = dayIndex;
             saveState(false);
+            const scrollArea = document.getElementById('timeGridScrollArea');
+            if (scrollArea) scrollArea.dataset.scrolled = '';
             renderApp();
             autoFillSmartTime(false);
           }
         }
+      });
+
+      // Scale Switcher: 60px vs 80px per hour
+      document.getElementById('btnScale60')?.addEventListener('click', () => {
+        gridHourHeight = 60;
+        try { localStorage.setItem('date_planner_grid_scale', '60'); } catch (e) {}
+        renderApp();
+        showToast('Skala diatur ke 60px per jam (1 menit = 1px).', 'info');
+      });
+
+      document.getElementById('btnScale80')?.addEventListener('click', () => {
+        gridHourHeight = 80;
+        try { localStorage.setItem('date_planner_grid_scale', '80'); } catch (e) {}
+        renderApp();
+        showToast('Skala diatur ke 80px per jam (1 menit = 1.33px).', 'info');
       });
 
       // 6. Add New Day

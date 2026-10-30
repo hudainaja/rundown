@@ -16,7 +16,7 @@ Couples planning dates, weekend itineraries, and multi-day travels together in r
 
 ## Product Purpose
 
-A dynamic 2-column date planner that visualizes parallel routines (Huda in Column 1, Kenia in Column 2) converging into shared activities (Bareng spanning both columns), offering automatic start-time sorting, smart duration presets, multi-day support, and cross-device synchronization.
+A dynamic Time-Grid date planner (Google Calendar Day-View style) that visualizes parallel routines (Huda in Column 1, Kenia in Column 2) converging into shared activities (Bareng spanning both columns), featuring proportional hourly heights, automatic vertical positioning, smart duration presets, multi-day support, and cross-device synchronization.
 
 ## Positioning
 
@@ -30,7 +30,8 @@ Unlike rigid calendar apps or disjointed notes, it models dating reality: couple
 
 ## Capabilities and Constraints
 
-- **Single-Stream Dynamic 2-Column Grid**: Column 1 for Huda (`col-span-1 md:col-start-1`), Column 2 for Kenia (`col-span-1 md:col-start-2`), Merged for Bareng (`col-span-2`).
+- **Time-Grid Calendar 2-Column Canvas**: Vertical time axis (06:00 to 24:00) with thin hourly grid lines. Column 1 for Huda (`left: 0; width: 50%`), Column 2 for Kenia (`left: 50%; width: 50%`), and Merged for Bareng (`left: 0; width: 100%`) spanning across both lanes.
+- **Proportional Card Height & Positioning**: Top offset strictly proportional to start time minutes (`top: (startMinutes - 360) * scale`); card height strictly proportional to duration (`height = durationMinutes * scale`, with default 30-min pin height for single timepoints). Toggleable scale presets (`60px/jam` and `80px/jam`).
 - **Auto-Sort Timeline Flow**: Activities are automatically ordered chronologically based on parsed start times.
 - **Smart Time Auto-Fill & Quick Chips**: Automatically suggests the next chronological slot and formats time ranges (`15:00 - 19:00`) with quick duration chips (`15m` through `4 Jam`).
 - **Multi-Day Tabs**: Independent schedules, anchor times, and metrics per day.

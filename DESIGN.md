@@ -80,12 +80,13 @@ A grounded, warm, intimate interface designed for couples to plan shared itinera
 ## Layout
 
 - **Split Desktop Structure**: Sticky input control panel (4 columns / 33%) on the left, wide timeline stream (8 columns / 67%) on the right.
-- **Single-Stream Dynamic Grid**:
-  - Container: `grid grid-cols-1 md:grid-cols-2 gap-4 items-start`.
-  - Huda Card: `col-span-1 md:col-start-1 md:col-span-1`.
-  - Kenia Card: `col-span-1 md:col-start-2 md:col-span-1`.
-  - Bareng Card: `col-span-1 md:col-span-2` spanning both columns.
-- **Mobile Reflow**: Seamless single-column stacked layout with prominent visual identity badges.
+- **Time-Grid Calendar Canvas (Google Calendar Day-View)**:
+  - Vertical Time Axis: Sumbu kiri dengan label jam (06:00 sampai 24:00) dan garis horizontal tipis per jam + garis putus-putus per 30 menit.
+  - Huda Lane: Jalur kiri (`left: 4px; width: calc(50% - 8px)`).
+  - Kenia Lane: Jalur kanan (`left: calc(50% + 4px); width: calc(50% - 8px)`).
+  - Bareng Card: Melebar menembus kedua kolom (`left: 4px; width: calc(100% - 8px); z-index: 12`).
+  - Proportional Height & Top: Dihitung otomatis per rasio jam (60px atau 80px per jam, 1 menit = 1px atau 1.33px).
+- **Mobile Reflow**: Scroll horizontal lembut (`overflow-x-auto`) menjaga keterbacaan kolom dan proporsi jam pada layar ponsel.
 
 ## Elevation & Depth
 
