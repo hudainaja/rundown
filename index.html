@@ -153,9 +153,40 @@
       background: #b8afa4;
     }
 
+    /* CSS Line Clamping Utilities with Ellipsis */
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .line-clamp-4 {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .time-grid-card {
       transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
       cursor: pointer;
+      overflow: hidden;
     }
     .time-grid-card:hover {
       z-index: 30 !important;
@@ -1793,7 +1824,7 @@
 
           const doneClasses = item.done ? 'opacity-65 saturate-75' : '';
           const strikeTitle = item.done ? 'line-through text-stone-500 font-semibold' : 'text-stone-900 font-bold';
-          const strikeNote = item.done ? 'line-through text-stone-400' : 'text-stone-600';
+          const strikeNote = item.done ? 'line-through text-stone-400' : 'text-zinc-600';
 
           const checkboxHtml = `
             <button 
@@ -1812,8 +1843,9 @@
           `;
 
           const hasNote = Boolean(item.note && item.note.trim() !== '');
+          const noteText = hasNote ? item.note.trim() : '';
           const noteIndicatorHtml = hasNote ? `
-            <span class="inline-flex items-center text-xs shrink-0 select-none" title="Memiliki catatan detail (Klik kartu untuk melihat)" aria-label="Ada catatan">
+            <span class="inline-flex items-center text-xs shrink-0 select-none text-rose-500" title="Memiliki catatan" aria-label="Ada catatan">
               📝
             </span>
           ` : '';
@@ -1839,7 +1871,7 @@
           } else if (pos.height < 86) {
             bodyContent = `
               <div class="h-full w-full p-2 sm:p-2.5 flex flex-col justify-between overflow-hidden">
-                <div class="flex items-center justify-between gap-1 pb-1">
+                <div class="flex items-center justify-between gap-1 pb-1 shrink-0">
                   <div class="flex items-center gap-1.5 min-w-0">
                     ${checkboxHtml}
                     ${badgeOwnerHtml}
@@ -1850,20 +1882,72 @@
                     </span>
                   </div>
                 </div>
-                <div class="min-w-0 flex items-center gap-1.5">
-                  <span class="text-xs shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
-                  <h4 class="text-xs font-bold leading-tight truncate ${strikeTitle}">
-                    ${escapeHtml(item.title)}
-                  </h4>
-                  ${noteIndicatorHtml}
+                <div class="min-w-0 overflow-hidden">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
+                    <h4 class="text-xs font-bold leading-tight truncate ${strikeTitle}">
+                      ${escapeHtml(item.title)}
+                    </h4>
+                    ${noteIndicatorHtml}
+                  </div>
+                  ${hasNote ? `
+                    <p class="text-[11px] text-zinc-600 line-clamp-1 break-words overflow-hidden mt-0.5 ${strikeNote}" title="${escapeHtml(noteText)}">
+                      ${escapeHtml(noteText)}
+                    </p>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          } else if (pos.height < 140) {
+            bodyContent = `
+              <div class="h-full w-full p-2.5 sm:p-3 flex flex-col justify-between overflow-hidden">
+                <div class="overflow-hidden">
+                  <div class="flex items-center justify-between gap-1.5 pb-1.5 border-b border-stone-200/50 shrink-0">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      ${checkboxHtml}
+                      ${badgeOwnerHtml}
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border font-mono ${timeBadgeClasses}">
+                        <svg class="w-3 h-3 ${timeIconClass} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>${escapeHtml(item.timeStr || '--:--')}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="mt-1.5 min-w-0">
+                    <div class="flex items-start gap-1.5">
+                      <span class="text-sm shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
+                      <div class="min-w-0 flex-1 overflow-hidden">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                          <h4 class="text-xs sm:text-sm font-bold leading-snug break-words line-clamp-1 ${strikeTitle}">
+                            ${escapeHtml(item.title)}
+                          </h4>
+                          ${noteIndicatorHtml}
+                        </div>
+                        ${hasNote ? `
+                          <p class="text-xs text-zinc-600 line-clamp-2 break-words overflow-hidden mt-1 leading-relaxed ${strikeNote}" title="${escapeHtml(noteText)}">
+                            ${escapeHtml(noteText)}
+                          </p>
+                        ` : ''}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pt-1.5 border-t border-stone-200/40 flex items-center justify-between text-[10px] text-stone-500 font-medium shrink-0">
+                  <span>Urutan #${idx + 1}</span>
+                  <span class="font-mono">${formatDuration(pos.timeInfo.durationMinutes)}</span>
                 </div>
               </div>
             `;
           } else {
             bodyContent = `
               <div class="h-full w-full p-2.5 sm:p-3 flex flex-col justify-between overflow-hidden">
-                <div>
-                  <div class="flex items-center justify-between gap-1.5 pb-2 border-b border-stone-200/50">
+                <div class="overflow-hidden">
+                  <div class="flex items-center justify-between gap-1.5 pb-2 border-b border-stone-200/50 shrink-0">
                     <div class="flex items-center gap-1.5 min-w-0">
                       ${checkboxHtml}
                       ${badgeOwnerHtml}
@@ -1881,7 +1965,7 @@
                   <div class="mt-2 min-w-0">
                     <div class="flex items-start gap-1.5">
                       <span class="text-sm shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
-                      <div class="min-w-0 flex-1">
+                      <div class="min-w-0 flex-1 overflow-hidden">
                         <div class="flex items-center gap-1.5 flex-wrap">
                           <h4 class="text-xs sm:text-sm font-bold leading-snug break-words ${strikeTitle}">
                             ${escapeHtml(item.title)}
@@ -1889,9 +1973,12 @@
                           ${noteIndicatorHtml}
                         </div>
                         ${hasNote ? `
-                          <div class="mt-1 flex items-center gap-1 text-[11px] text-stone-500 font-medium ${strikeNote}">
-                            <span class="text-rose-500 text-[10px]" aria-hidden="true">📝</span>
-                            <span class="truncate">Klik kartu untuk detail & catatan lengkap</span>
+                          <p class="text-xs text-zinc-600 line-clamp-3 sm:line-clamp-4 break-words overflow-hidden mt-1.5 leading-relaxed ${strikeNote}" title="${escapeHtml(noteText)}">
+                            ${escapeHtml(noteText)}
+                          </p>
+                          <div class="mt-1 flex items-center gap-1 text-[10px] text-stone-400 group-hover:text-stone-600 font-medium select-none transition">
+                            <span class="text-rose-500 text-[10px]">📝</span>
+                            <span>Klik kartu untuk baca selengkapnya</span>
                           </div>
                         ` : ''}
                       </div>
@@ -1899,7 +1986,7 @@
                   </div>
                 </div>
 
-                <div class="pt-1.5 border-t border-stone-200/40 flex items-center justify-between text-[10px] text-stone-500 font-medium">
+                <div class="pt-1.5 border-t border-stone-200/40 flex items-center justify-between text-[10px] text-stone-500 font-medium shrink-0">
                   <span>Urutan #${idx + 1}</span>
                   <span class="font-mono">${formatDuration(pos.timeInfo.durationMinutes)}</span>
                 </div>
@@ -1909,13 +1996,13 @@
 
           return `
             <div 
-              class="time-grid-card group absolute rounded-2xl transition-all duration-150 animate-card pointer-events-auto border ${borderBgClasses} ${doneClasses} cursor-pointer" 
+              class="time-grid-card group absolute rounded-2xl transition-all duration-150 animate-card pointer-events-auto border ${borderBgClasses} ${doneClasses} cursor-pointer overflow-hidden" 
               style="top: ${pos.top}px; height: ${pos.height}px; left: ${pos.left}; width: ${pos.width}; z-index: ${pos.zIndex};"
               data-id="${item.id}"
               role="button"
               tabindex="0"
-              title="Klik untuk melihat atau mengedit catatan detail"
-              aria-label="${escapeHtml(item.title)}, jam ${escapeHtml(item.timeStr || '')}"
+              title="${hasNote ? escapeHtml(`${item.title}\nCatatan: ${noteText}\n(Klik kartu untuk melihat detail lengkap)`) : escapeHtml(`${item.title} (Klik kartu untuk melihat detail)`)}"
+              aria-label="${escapeHtml(item.title)}, jam ${escapeHtml(item.timeStr || '')}${hasNote ? ', memiliki catatan' : ''}"
             >
               ${bodyContent}
             </div>

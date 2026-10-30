@@ -37,7 +37,7 @@ Unlike rigid calendar apps or disjointed notes, it models dating reality: couple
 - **Multi-Day Tabs**: Independent schedules, anchor times, and metrics per day.
 - **Cross-Device Cloud Sync**: Dual-channel synchronization (cloud WebSocket relay and Firebase Realtime Database) with clear connection state badges.
 - **Interactive Detail Pop-up Modal**: Clicking any activity card opens an interactive centered modal with a dimmed backdrop (`backdrop-blur-sm bg-black/40`), category/lane badge, time range, full editable title, spacious multiline notes textarea (with natural newlines and live auto-grow), interactive clickable pills for detected URLs (Google Maps, booking URLs), activity deletion with confirmation, and instant real-time synchronization.
-- **Streamlined Grid Cards**: Cards on the calendar grid remain concise, displaying only time badge, title, completion checkbox (`btn-toggle-done`), and a `📝` indicator if notes exist. Subtle hover elevation (`cursor: pointer`, soft scale/shadow) indicates interactivity without visual clutter.
+- **Streamlined Grid Cards**: Cards on the calendar grid remain concise, displaying only time badge, title, completion checkbox (`btn-toggle-done`), and a `📝` indicator if notes exist. Notes are cleanly clamped (`line-clamp-1` to `line-clamp-3`) with automatic ellipsis (`...`) and `overflow-hidden` container protection, preventing layout breakages on the time grid. Subtle hover elevation (`cursor: pointer`, soft scale/shadow) indicates interactivity without visual clutter, with full tooltip previews and one-click expand to the detail modal.
 - **Zero Build Dependency**: Runs in any modern browser without build pipelines, deployable to static hosting like Vercel or GitHub Pages.
 
 ## Brand Commitments

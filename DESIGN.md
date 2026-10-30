@@ -108,7 +108,7 @@ A grounded, warm, intimate interface designed for couples to plan shared itinera
 - **Done Toggle**: Inline checklist button with green state transition and strike-through title.
 - **Connection Badge**: Solid semantic state indicator (Green = Connected, Amber = Connecting, Red = Disconnected).
 - **Interactive Detail Modal**: Centered pop-up dialog with `backdrop-blur-sm bg-black/40` overlay. Features dynamic owner/lane badge, time range indicator, title editor, spacious notes `<textarea>` with live URL detection pills (Google Maps location link & external websites), delete action with confirmation prompt, keyboard escape/backdrop close, and auto-sync to real-time database.
-- **Streamlined Grid Cards**: Concise card surface with checkbox, title, duration/time badge, and small `📝` note badge for activities with notes. Hover elevates with `cursor: pointer` and `transform: translateY(-1px) scale(1.008)`.
+- **Streamlined Grid Cards**: Concise card surface with checkbox, title, duration/time badge, small `📝` note badge, and dynamic text clamping (`line-clamp-1` to `line-clamp-3`) with ellipsis (`...`) and `overflow-hidden` container protection. Hover elevates with `cursor: pointer` and reveals full note via native tooltip, while clicking opens the Interactive Detail Modal.
 
 ## Do's and Don'ts
 
