@@ -155,9 +155,11 @@
 
     .time-grid-card {
       transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      cursor: pointer;
     }
     .time-grid-card:hover {
       z-index: 30 !important;
+      transform: translateY(-1px) scale(1.008);
     }
   </style>
 </head>
@@ -730,25 +732,45 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- Edit Activity Modal -->
-  <div id="editModal" class="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white border border-warm-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-warm-lg animate-card">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold text-stone-900">Ubah Aktivitas</h3>
-        <button id="btnCloseModal" type="button" class="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg transition min-h-[36px] min-w-[36px] flex items-center justify-center" aria-label="Tutup Modal">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+  <!-- Detail Pop-up (Interactive Modal) -->
+  <div id="editModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white border border-warm-border rounded-2xl w-full max-w-lg shadow-warm-lg animate-card overflow-hidden flex flex-col max-h-[92vh]">
+      
+      <!-- Pop-up Header: Badge Pelaku, Jam Kegiatan, dan Tombol Close ✕ -->
+      <div class="px-5 py-4 border-b border-stone-200/80 bg-stone-50/80 flex items-center justify-between gap-3 shrink-0">
+        <div class="flex flex-wrap items-center gap-2 min-w-0">
+          <div id="detailOwnerBadgeContainer" class="shrink-0">
+            <!-- Dynamic owner badge -->
+          </div>
+          <span id="detailTimeBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold font-mono bg-white border border-stone-200 text-stone-800 shadow-2xs">
+            <svg class="w-3.5 h-3.5 text-stone-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span id="detailTimeBadgeText">--:--</span>
+          </span>
+        </div>
+
+        <button 
+          id="btnCloseModal" 
+          type="button" 
+          class="text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 p-1.5 rounded-xl transition min-h-[36px] min-w-[36px] flex items-center justify-center shrink-0" 
+          aria-label="Tutup Detail"
+          title="Tutup (Esc)"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
 
-      <form id="formEditActivity" class="space-y-4">
+      <!-- Pop-up Body (Scrollable Form & Notes) -->
+      <form id="formEditActivity" class="flex-1 overflow-y-auto p-5 space-y-4">
         <input type="hidden" id="editItemIndex">
-        
-        <!-- Edit Owner Selection without raw emojis -->
+
+        <!-- Ubah Pelaku / Jalur Kegiatan -->
         <div>
-          <label class="block text-xs font-bold text-stone-800 mb-1.5">
-            Tipe Jadwal
+          <label class="block text-xs font-bold text-stone-700 mb-1.5">
+            Pelaku / Jalur Kegiatan
           </label>
           <div class="grid grid-cols-3 gap-1.5" id="editOwnerToggleGroup">
             <button type="button" id="btnEditOwnerHuda" data-owner="huda" class="edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600">
@@ -766,73 +788,115 @@
           </div>
         </div>
 
-        <!-- Edit Time & Quick Chips -->
+        <!-- Judul Kegiatan (Bisa langsung diedit) -->
         <div>
-          <label for="editTimeStr" class="block text-xs font-bold text-stone-800 mb-1">
-            Waktu / Jam Kegiatan <span class="text-rose-500">*</span>
+          <label for="editInputTitle" class="block text-xs font-bold text-stone-700 mb-1">
+            Judul Kegiatan <span class="text-rose-500">*</span>
           </label>
+          <div class="flex items-center gap-2">
+            <span id="detailIconBadge" class="text-2xl select-none shrink-0" aria-hidden="true">📌</span>
+            <input 
+              type="text" 
+              id="editInputTitle" 
+              required
+              placeholder="Nama kegiatan"
+              class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
+            >
+          </div>
+        </div>
+
+        <!-- Rentang Jam & Tombol Durasi Cepat -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="editTimeStr" class="block text-xs font-bold text-stone-700">
+              Rentang Waktu Kegiatan <span class="text-rose-500">*</span>
+            </label>
+            <span class="text-[10px] text-stone-400 font-mono">Format: 15:00 - 19:00</span>
+          </div>
           <input 
             type="text" 
             id="editTimeStr" 
             required
             placeholder="Misal 08:20 atau 15:00 - 19:00"
-            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-stone-900 placeholder:text-stone-500 focus:bg-white transition"
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-sm font-bold font-mono text-stone-900 placeholder:text-stone-400 focus:bg-white transition"
           >
-          <div class="flex flex-wrap gap-1 mt-2" id="editQuickDurationChips">
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="15">15m</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="30">30m</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="45">45m</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="60">1 Jam</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="90">1.5 Jam</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="120">2 Jam</button>
-            <button type="button" class="edit-quick-chip text-xs font-semibold px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition min-h-[36px] active:scale-95" data-mins="240">4 Jam</button>
+          <div class="flex flex-wrap gap-1 mt-1.5" id="editQuickDurationChips">
+            <button type="button" class="edit-quick-chip text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition active:scale-95" data-mins="15">15m</button>
+            <button type="button" class="edit-quick-chip text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition active:scale-95" data-mins="30">30m</button>
+            <button type="button" class="edit-quick-chip text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition active:scale-95" data-mins="45">45m</button>
+            <button type="button" class="edit-quick-chip text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition active:scale-95" data-mins="60">1 Jam</button>
+            <button type="button" class="edit-quick-chip text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition active:scale-95" data-mins="90">1.5 Jam</button>
+            <button type="button" class="edit-quick-chip text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition active:scale-95" data-mins="120">2 Jam</button>
+            <button type="button" class="edit-quick-chip text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-stone-200 bg-stone-50 hover:bg-rose-50 hover:text-rose-700 text-stone-700 transition active:scale-95" data-mins="240">4 Jam</button>
           </div>
         </div>
 
-        <div>
-          <label for="editInputTitle" class="block text-xs font-semibold text-stone-800 mb-1">
-            Nama Kegiatan <span class="text-rose-500">*</span>
-          </label>
-          <input 
-            type="text" 
-            id="editInputTitle" 
-            required
-            placeholder="Nama kegiatan"
-            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:bg-white transition"
-          >
-        </div>
-
+        <!-- Area Catatan Luas (Textarea Nyaman) -->
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label for="editInputNote" class="block text-xs font-semibold text-stone-800">
-              Catatan / Lokasi <span class="text-stone-500 font-normal">(Opsional)</span>
+            <label for="editInputNote" class="block text-xs font-bold text-stone-700">
+              Catatan & Detail Rencana <span class="text-stone-400 font-normal">(Alamat, checklist, link lokasi)</span>
             </label>
-            <span class="text-[10px] text-stone-400 font-medium">Shift+Enter: Baris Baru</span>
+            <span class="text-[10px] text-stone-400 font-medium">Enter: Baris Baru • Ctrl+Enter: Simpan</span>
           </div>
           <textarea 
             id="editInputNote" 
-            rows="2"
-            placeholder="Catatan tambahan atau lokasi (Shift+Enter untuk baris baru)" 
-            class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:bg-white transition resize-none leading-relaxed"
+            rows="5"
+            placeholder="Tuliskan catatan lengkap di sini... Misal link Google Maps lokasi, nomor reservasi, atau perlengkapan." 
+            class="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white transition resize-y min-h-[110px] leading-relaxed"
           ></textarea>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-2">
+        <!-- Tautan Aktif Terdeteksi (Google Maps, Website Hotel, dsb) -->
+        <div id="detailDetectedLinksContainer" class="hidden bg-stone-50/80 border border-stone-200 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-stone-600 mb-2 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+            <span>Tautan Terdeteksi (Klik untuk Buka Langsung):</span>
+          </div>
+          <div id="detailDetectedLinksList" class="flex flex-wrap gap-2">
+            <!-- Dynamic interactive link pills -->
+          </div>
+        </div>
+      </form>
+
+      <!-- Pop-up Footer: Hapus Kegiatan, Tutup, dan Simpan Perubahan -->
+      <div class="px-5 py-3.5 border-t border-stone-200/80 bg-stone-50/80 flex items-center justify-between gap-2 shrink-0">
+        <!-- Tombol Hapus Kegiatan dengan Konfirmasi -->
+        <button 
+          type="button" 
+          id="btnDeleteDetailActivity" 
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 active:scale-95 border border-rose-200 transition min-h-[40px]"
+          title="Hapus kegiatan ini"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <span>Hapus</span>
+        </button>
+
+        <div class="flex items-center gap-2">
+          <!-- Tombol Tutup -->
           <button 
             type="button" 
             id="btnCancelEdit" 
-            class="px-4 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-100 active:scale-95 transition min-h-[44px]"
+            class="px-4 py-2 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-100 active:scale-95 transition min-h-[40px]"
           >
-            Batal
+            Tutup
           </button>
+          <!-- Tombol Simpan Perubahan -->
           <button 
             type="submit" 
-            class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold shadow-sm transition min-h-[44px]"
+            form="formEditActivity"
+            id="btnSaveDetailModal" 
+            class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold shadow-sm transition min-h-[40px]"
           >
             Simpan Perubahan
           </button>
         </div>
-      </form>
+      </div>
+
     </div>
   </div>
 
@@ -1747,33 +1811,12 @@
             </button>
           `;
 
-          const editBtnHtml = `
-            <button 
-              type="button" 
-              class="btn-edit p-1 text-stone-400 hover:text-stone-800 hover:bg-stone-200/50 rounded transition" 
-              data-id="${item.id}"
-              title="Ubah aktivitas"
-              aria-label="Ubah ${escapeHtml(item.title)}"
-            >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-          `;
-
-          const deleteBtnHtml = `
-            <button 
-              type="button" 
-              class="btn-delete p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-100/50 rounded transition" 
-              data-id="${item.id}"
-              title="Hapus aktivitas"
-              aria-label="Hapus ${escapeHtml(item.title)}"
-            >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-          `;
+          const hasNote = Boolean(item.note && item.note.trim() !== '');
+          const noteIndicatorHtml = hasNote ? `
+            <span class="inline-flex items-center text-xs shrink-0 select-none" title="Memiliki catatan detail (Klik kartu untuk melihat)" aria-label="Ada catatan">
+              📝
+            </span>
+          ` : '';
 
           let bodyContent = '';
 
@@ -1784,13 +1827,12 @@
                   ${checkboxHtml}
                   <span class="text-xs shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
                   <span class="text-xs truncate ${strikeTitle}">${escapeHtml(item.title)}</span>
+                  ${noteIndicatorHtml}
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
                   <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border font-mono ${timeBadgeClasses}">
                     ${escapeHtml(item.timeStr || '--:--')}
                   </span>
-                  ${editBtnHtml}
-                  ${deleteBtnHtml}
                 </div>
               </div>
             `;
@@ -1806,22 +1848,14 @@
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border font-mono ${timeBadgeClasses}">
                       ${escapeHtml(item.timeStr || '--:--')}
                     </span>
-                    ${editBtnHtml}
-                    ${deleteBtnHtml}
                   </div>
                 </div>
-                <div class="min-w-0">
-                  <div class="flex items-start gap-1">
-                    <span class="text-xs shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
-                    <h4 class="text-xs font-bold leading-tight truncate ${strikeTitle}">
-                      ${escapeHtml(item.title)}
-                    </h4>
-                  </div>
-                  ${item.note ? `
-                    <p class="text-[10px] text-stone-500 truncate mt-0.5 whitespace-pre-line ${strikeNote}">
-                      ${escapeHtml(item.note)}
-                    </p>
-                  ` : ''}
+                <div class="min-w-0 flex items-center gap-1.5">
+                  <span class="text-xs shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
+                  <h4 class="text-xs font-bold leading-tight truncate ${strikeTitle}">
+                    ${escapeHtml(item.title)}
+                  </h4>
+                  ${noteIndicatorHtml}
                 </div>
               </div>
             `;
@@ -1841,8 +1875,6 @@
                         </svg>
                         <span>${escapeHtml(item.timeStr || '--:--')}</span>
                       </span>
-                      ${editBtnHtml}
-                      ${deleteBtnHtml}
                     </div>
                   </div>
 
@@ -1850,13 +1882,16 @@
                     <div class="flex items-start gap-1.5">
                       <span class="text-sm shrink-0 select-none" aria-hidden="true">${item.icon || '📌'}</span>
                       <div class="min-w-0 flex-1">
-                        <h4 class="text-xs sm:text-sm leading-snug break-words ${strikeTitle}">
-                          ${escapeHtml(item.title)}
-                        </h4>
-                        ${item.note ? `
-                          <div class="mt-1 flex items-start gap-1 text-[11px] ${strikeNote}">
-                            <span class="text-rose-500 shrink-0 mt-0.5" aria-hidden="true">📍</span>
-                            <div class="break-words line-clamp-3 whitespace-pre-line leading-relaxed">${escapeHtml(item.note)}</div>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                          <h4 class="text-xs sm:text-sm font-bold leading-snug break-words ${strikeTitle}">
+                            ${escapeHtml(item.title)}
+                          </h4>
+                          ${noteIndicatorHtml}
+                        </div>
+                        ${hasNote ? `
+                          <div class="mt-1 flex items-center gap-1 text-[11px] text-stone-500 font-medium ${strikeNote}">
+                            <span class="text-rose-500 text-[10px]" aria-hidden="true">📝</span>
+                            <span class="truncate">Klik kartu untuk detail & catatan lengkap</span>
                           </div>
                         ` : ''}
                       </div>
@@ -1874,9 +1909,13 @@
 
           return `
             <div 
-              class="time-grid-card group absolute rounded-2xl transition-all duration-150 animate-card pointer-events-auto border ${borderBgClasses} ${doneClasses}" 
+              class="time-grid-card group absolute rounded-2xl transition-all duration-150 animate-card pointer-events-auto border ${borderBgClasses} ${doneClasses} cursor-pointer" 
               style="top: ${pos.top}px; height: ${pos.height}px; left: ${pos.left}; width: ${pos.width}; z-index: ${pos.zIndex};"
               data-id="${item.id}"
+              role="button"
+              tabindex="0"
+              title="Klik untuk melihat atau mengedit catatan detail"
+              aria-label="${escapeHtml(item.title)}, jam ${escapeHtml(item.timeStr || '')}"
             >
               ${bodyContent}
             </div>
@@ -2430,6 +2469,111 @@
           ? 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-rose-500 bg-rose-500 text-white shadow-sm'
           : 'edit-owner-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-xs font-bold border transition min-h-[38px] border-stone-200 bg-stone-50 text-stone-600';
       }
+
+      updateModalHeaderOwnerBadge(owner);
+    }
+
+    function updateModalHeaderOwnerBadge(owner) {
+      const container = document.getElementById('detailOwnerBadgeContainer');
+      if (!container) return;
+      if (owner === 'huda') {
+        container.innerHTML = `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-100 text-sky-800 border border-sky-300">
+            <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span>
+            <span>Jalur Huda</span>
+          </span>
+        `;
+      } else if (owner === 'kenia') {
+        container.innerHTML = `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-pink-100 text-pink-800 border border-pink-300">
+            <span class="w-2 h-2 rounded-full bg-pink-500 shrink-0"></span>
+            <span>Jalur Kenia</span>
+          </span>
+        `;
+      } else {
+        container.innerHTML = `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
+            <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+            <span>Agenda Bareng</span>
+          </span>
+        `;
+      }
+    }
+
+    function extractUrls(text) {
+      if (!text) return [];
+      const urlRegex = /(?:https?:\/\/|www\.)[^\s<>"'{}|\\^`\[\]]+/gi;
+      const matches = text.match(urlRegex) || [];
+      const unique = [];
+      matches.forEach(raw => {
+        let clean = raw.replace(/[.,;:!?)]+$/, '');
+        if (clean && !unique.includes(clean)) {
+          unique.push(clean);
+        }
+      });
+      return unique;
+    }
+
+    function updateDetectedLinks(text) {
+      const container = document.getElementById('detailDetectedLinksContainer');
+      const list = document.getElementById('detailDetectedLinksList');
+      if (!container || !list) return;
+
+      const urls = extractUrls(text);
+      if (urls.length === 0) {
+        container.classList.add('hidden');
+        list.innerHTML = '';
+        return;
+      }
+
+      container.classList.remove('hidden');
+      list.innerHTML = urls.map(url => {
+        const href = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+        const isMaps = /maps\.google|goo\.gl\/maps|maps\.app\.goo\.gl/i.test(url);
+        let label = url.replace(/^https?:\/\/(www\.)?/, '');
+        if (label.length > 32) {
+          label = label.slice(0, 30) + '...';
+        }
+
+        if (isMaps) {
+          return `
+            <a 
+              href="${escapeHtml(href)}" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition active:scale-95 shadow-2xs"
+              title="Buka lokasi di Google Maps"
+            >
+              <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>Google Maps (${escapeHtml(label)})</span>
+              <svg class="w-3 h-3 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </a>
+          `;
+        }
+
+        return `
+          <a 
+            href="${escapeHtml(href)}" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 transition active:scale-95 shadow-2xs"
+            title="Buka tautan web"
+          >
+            <svg class="w-3.5 h-3.5 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+            <span>${escapeHtml(label)}</span>
+            <svg class="w-3 h-3 text-sky-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+        `;
+      }).join('');
     }
 
     function autoFillSmartTime(force = true) {
@@ -2471,6 +2615,11 @@
 
       inputEl.value = `${startStr} - ${endStr}`;
       inputEl.focus();
+
+      if (isEditModal) {
+        const badgeTime = document.getElementById('detailTimeBadgeText');
+        if (badgeTime) badgeTime.textContent = inputEl.value;
+      }
 
       const selector = isEditModal ? '.edit-quick-chip' : '.quick-chip';
       document.querySelectorAll(selector).forEach(chip => {
@@ -2706,16 +2855,14 @@
         showToast(`"${title}" ditambahkan ke ${ownerLabel}.`, 'success', true);
       });
 
-      // 11. Timeline Delegated Actions: Done Toggle, Edit, Delete
+      // 11. Timeline Delegated Actions: Done Toggle and Card Click for Detail Modal
       const timelineContainer = document.getElementById('timelineContainer');
       timelineContainer.addEventListener('click', (e) => {
         const btnDone = e.target.closest('.btn-toggle-done');
-        const btnEdit = e.target.closest('.btn-edit');
-        const btnDelete = e.target.closest('.btn-delete');
-        const activeDay = getActiveDay();
-
         if (btnDone) {
+          e.stopPropagation();
           const actId = btnDone.dataset.id;
+          const activeDay = getActiveDay();
           const act = activeDay.activities.find(a => a.id === actId);
           if (act) {
             act.done = !act.done;
@@ -2724,25 +2871,37 @@
             renderApp();
             showToast(act.done ? `"${act.title}" selesai.` : `"${act.title}" ditandai belum selesai.`, 'info');
           }
-        } else if (btnEdit) {
-          const actId = btnEdit.dataset.id;
-          openEditModal(actId);
-        } else if (btnDelete) {
-          const actId = btnDelete.dataset.id;
-          const act = activeDay.activities.find(a => a.id === actId);
-          if (act && confirm(`Hapus kegiatan "${act.title}"?`)) {
-            recordHistory(`Hapus: ${act.title}`);
-            activeDay.activities = activeDay.activities.filter(a => a.id !== actId);
-            saveState();
-            renderApp();
-            showToast(`"${act.title}" dihapus.`, 'info', true);
+          return;
+        }
+
+        const card = e.target.closest('.time-grid-card');
+        if (card) {
+          const actId = card.dataset.id;
+          if (actId) {
+            openEditModal(actId);
           }
         }
       });
 
-      // 12. Edit Activity Modal
+      // Keyboard accessible card opening (Enter / Space)
+      timelineContainer.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const card = e.target.closest('.time-grid-card');
+          if (card && card === e.target) {
+            e.preventDefault();
+            const actId = card.dataset.id;
+            if (actId) openEditModal(actId);
+          }
+        }
+      });
+
+      // 12. Detail Pop-up (Interactive Modal)
       const editModal = document.getElementById('editModal');
       const formEdit = document.getElementById('formEditActivity');
+      const editInputTitle = document.getElementById('editInputTitle');
+      const editTimeStrInput = document.getElementById('editTimeStr');
+      const editNoteTextarea = document.getElementById('editInputNote');
+      const btnDeleteDetail = document.getElementById('btnDeleteDetailActivity');
 
       document.getElementById('btnEditOwnerHuda')?.addEventListener('click', () => setEditOwner('huda'));
       document.getElementById('btnEditOwnerKenia')?.addEventListener('click', () => setEditOwner('kenia'));
@@ -2754,74 +2913,165 @@
         if (!item) return;
 
         document.getElementById('editItemIndex').value = actId;
-        document.getElementById('editInputTitle').value = item.title;
-        document.getElementById('editTimeStr').value = item.timeStr;
+        if (editInputTitle) editInputTitle.value = item.title;
+        if (editTimeStrInput) editTimeStrInput.value = item.timeStr;
         
-        const editNote = document.getElementById('editInputNote');
-        editNote.value = item.note || '';
-        autoGrowTextarea(editNote);
+        const badgeTime = document.getElementById('detailTimeBadgeText');
+        if (badgeTime) badgeTime.textContent = item.timeStr || '--:--';
+
+        const detailIconBadge = document.getElementById('detailIconBadge');
+        if (detailIconBadge) detailIconBadge.textContent = item.icon || '📌';
+
+        if (editNoteTextarea) {
+          editNoteTextarea.value = item.note || '';
+          autoGrowTextarea(editNoteTextarea, 260);
+        }
         
         setEditOwner(item.owner || 'bareng');
+        updateDetectedLinks(item.note || '');
 
         editModal.classList.remove('hidden');
-        document.getElementById('editInputTitle').focus();
+        document.body.classList.add('overflow-hidden');
+
+        setTimeout(() => {
+          editInputTitle?.focus();
+        }, 50);
       }
 
       function closeEditModal() {
         editModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
       }
 
-      document.getElementById('btnCloseModal')?.addEventListener('click', closeEditModal);
-      document.getElementById('btnCancelEdit')?.addEventListener('click', closeEditModal);
+      function saveModalChanges(isAuto = false) {
+        const actId = document.getElementById('editItemIndex').value;
+        const activeDay = getActiveDay();
+        const item = activeDay.activities.find(a => a.id === actId);
+        if (!item) return false;
 
-      formEdit.addEventListener('submit', (e) => {
-        e.preventDefault();
+        const newTitle = editInputTitle ? editInputTitle.value.trim() : '';
+        const newTime = editTimeStrInput ? editTimeStrInput.value.trim() : '';
+        const newNote = editNoteTextarea ? editNoteTextarea.value.trim() : '';
+
+        if (!newTitle) {
+          if (!isAuto) showToast('Judul kegiatan tidak boleh kosong.', 'warning');
+          return false;
+        }
+
+        const isChanged = item.title !== newTitle || 
+                          item.timeStr !== newTime || 
+                          (item.note || '') !== newNote || 
+                          item.owner !== editSelectedOwner;
+
+        if (!isChanged) return true;
+
+        recordHistory(`Ubah: ${newTitle}`);
+
+        item.owner = editSelectedOwner;
+        item.title = newTitle;
+        item.timeStr = newTime;
+        item.note = newNote;
+
+        saveState();
+        renderApp();
+        return true;
+      }
+
+      document.getElementById('btnCloseModal')?.addEventListener('click', () => {
+        saveModalChanges(true);
+        closeEditModal();
+      });
+
+      document.getElementById('btnCancelEdit')?.addEventListener('click', () => {
+        saveModalChanges(true);
+        closeEditModal();
+      });
+
+      // Close when clicking outside (backdrop)
+      editModal?.addEventListener('click', (e) => {
+        if (e.target === editModal) {
+          saveModalChanges(true);
+          closeEditModal();
+        }
+      });
+
+      // Close when pressing Escape
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && editModal && !editModal.classList.contains('hidden')) {
+          saveModalChanges(true);
+          closeEditModal();
+        }
+      });
+
+      // Delete Activity from Modal with Confirmation
+      btnDeleteDetail?.addEventListener('click', () => {
         const actId = document.getElementById('editItemIndex').value;
         const activeDay = getActiveDay();
         const item = activeDay.activities.find(a => a.id === actId);
         if (!item) return;
 
-        recordHistory(`Ubah: ${item.title}`);
-
-        item.owner = editSelectedOwner;
-        item.title = document.getElementById('editInputTitle').value.trim();
-        item.timeStr = document.getElementById('editTimeStr').value.trim();
-        item.note = document.getElementById('editInputNote').value.trim();
-
-        saveState();
-        renderApp();
-        closeEditModal();
-        showToast('Perubahan kegiatan berhasil disimpan.', 'success', true);
+        if (confirm(`Hapus kegiatan "${item.title}"?`)) {
+          recordHistory(`Hapus: ${item.title}`);
+          activeDay.activities = activeDay.activities.filter(a => a.id !== actId);
+          saveState();
+          renderApp();
+          closeEditModal();
+          showToast(`"${item.title}" berhasil dihapus.`, 'info', true);
+        }
       });
 
-      // Shift+Enter & Enter Handlers for Multiline Notes/Comments
-      function autoGrowTextarea(el) {
+      // Submit Form (Save Changes)
+      formEdit.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const saved = saveModalChanges(false);
+        if (saved) {
+          closeEditModal();
+          showToast('Perubahan kegiatan berhasil disimpan.', 'success', true);
+        }
+      });
+
+      // Live link preview & header updates on input
+      editNoteTextarea?.addEventListener('input', () => {
+        autoGrowTextarea(editNoteTextarea, 260);
+        updateDetectedLinks(editNoteTextarea.value);
+      });
+
+      editTimeStrInput?.addEventListener('input', () => {
+        const badgeTime = document.getElementById('detailTimeBadgeText');
+        if (badgeTime) {
+          badgeTime.textContent = editTimeStrInput.value.trim() || '--:--';
+        }
+      });
+
+      // Multiline Notes Handlers
+      function autoGrowTextarea(el, maxHeight = 260) {
         if (!el) return;
         el.style.height = 'auto';
-        el.style.height = Math.min(140, Math.max(52, el.scrollHeight)) + 'px';
-      }
-
-      function handleNoteKeydown(e, form) {
-        if (e.key === 'Enter') {
-          if (e.shiftKey) {
-            // Shift + Enter membuat baris baru (new line)
-            return;
-          } else {
-            // Enter tanpa Shift langsung submit form
-            e.preventDefault();
-            form.requestSubmit();
-          }
-        }
+        el.style.height = Math.min(maxHeight, Math.max(el.scrollHeight, 52)) + 'px';
       }
 
       const noteTextarea = document.getElementById('inputNote');
-      const editNoteTextarea = document.getElementById('editInputNote');
 
-      noteTextarea?.addEventListener('keydown', (e) => handleNoteKeydown(e, formAdd));
-      noteTextarea?.addEventListener('input', () => autoGrowTextarea(noteTextarea));
+      // Add form: Shift+Enter creates new line, Enter submits
+      noteTextarea?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          if (e.shiftKey) {
+            return;
+          } else {
+            e.preventDefault();
+            formAdd.requestSubmit();
+          }
+        }
+      });
+      noteTextarea?.addEventListener('input', () => autoGrowTextarea(noteTextarea, 140));
 
-      editNoteTextarea?.addEventListener('keydown', (e) => handleNoteKeydown(e, formEdit));
-      editNoteTextarea?.addEventListener('input', () => autoGrowTextarea(editNoteTextarea));
+      // Detail Modal: Enter and Shift+Enter create new line, Ctrl+Enter / Cmd+Enter submits
+      editNoteTextarea?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          formEdit.requestSubmit();
+        }
+      });
 
       // 13. Sample Loaders & Reset
       const handleLoadSample = (force = false) => {

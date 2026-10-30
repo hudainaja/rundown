@@ -107,6 +107,8 @@ A grounded, warm, intimate interface designed for couples to plan shared itinera
 - **Quick Duration Chips**: Instant time-math chips (`15m`, `30m`, `45m`, `1 Jam`, `1.5 Jam`, `2 Jam`, `3 Jam`, `4 Jam`) that automatically format start-end ranges.
 - **Done Toggle**: Inline checklist button with green state transition and strike-through title.
 - **Connection Badge**: Solid semantic state indicator (Green = Connected, Amber = Connecting, Red = Disconnected).
+- **Interactive Detail Modal**: Centered pop-up dialog with `backdrop-blur-sm bg-black/40` overlay. Features dynamic owner/lane badge, time range indicator, title editor, spacious notes `<textarea>` with live URL detection pills (Google Maps location link & external websites), delete action with confirmation prompt, keyboard escape/backdrop close, and auto-sync to real-time database.
+- **Streamlined Grid Cards**: Concise card surface with checkbox, title, duration/time badge, and small `📝` note badge for activities with notes. Hover elevates with `cursor: pointer` and `transform: translateY(-1px) scale(1.008)`.
 
 ## Do's and Don'ts
 

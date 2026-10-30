@@ -36,6 +36,8 @@ Unlike rigid calendar apps or disjointed notes, it models dating reality: couple
 - **Smart Time Auto-Fill & Quick Chips**: Automatically suggests the next chronological slot and formats time ranges (`15:00 - 19:00`) with quick duration chips (`15m` through `4 Jam`).
 - **Multi-Day Tabs**: Independent schedules, anchor times, and metrics per day.
 - **Cross-Device Cloud Sync**: Dual-channel synchronization (cloud WebSocket relay and Firebase Realtime Database) with clear connection state badges.
+- **Interactive Detail Pop-up Modal**: Clicking any activity card opens an interactive centered modal with a dimmed backdrop (`backdrop-blur-sm bg-black/40`), category/lane badge, time range, full editable title, spacious multiline notes textarea (with natural newlines and live auto-grow), interactive clickable pills for detected URLs (Google Maps, booking URLs), activity deletion with confirmation, and instant real-time synchronization.
+- **Streamlined Grid Cards**: Cards on the calendar grid remain concise, displaying only time badge, title, completion checkbox (`btn-toggle-done`), and a `📝` indicator if notes exist. Subtle hover elevation (`cursor: pointer`, soft scale/shadow) indicates interactivity without visual clutter.
 - **Zero Build Dependency**: Runs in any modern browser without build pipelines, deployable to static hosting like Vercel or GitHub Pages.
 
 ## Brand Commitments
